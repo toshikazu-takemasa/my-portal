@@ -39,12 +39,6 @@ function saveRepoConfig() {
   localStorage.setItem(REPO_KEY, repo);
   localStorage.setItem(BRANCH_KEY, branch);
 
-  // Issues の動的リンクを更新
-  const newBtn  = document.getElementById('issues-new-btn');
-  const viewBtn = document.getElementById('issues-view-btn');
-  if (newBtn)  newBtn.href  = `https://github.com/${repo}/issues/new`;
-  if (viewBtn) viewBtn.href = `https://github.com/${repo}/issues?q=is%3Aopen`;
-
   const st = document.getElementById('repo-status');
   st.style.color = '#1a7f37';
   st.textContent = '✅ 保存しました';
@@ -52,7 +46,6 @@ function saveRepoConfig() {
 
   // データを再取得
   if (getToken()) {
-    fetchIssues();
     fetchDailyReport();
     fetchTaskWidget();
     loadPortalConfig().then(() => renderAllLinks());
@@ -106,7 +99,6 @@ function saveToken() {
   const statusEl = document.getElementById('modal-status');
   statusEl.style.color = '#1a7f37';
   statusEl.textContent = '✅ 保存しました。データを取得中…';
-  fetchIssues();
   fetchDailyReport();
   fetchTaskWidget();
   setTimeout(() => { statusEl.textContent = ''; }, 3000);
@@ -115,8 +107,6 @@ function saveToken() {
 function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
   showModalTokenUI();
-  document.getElementById('issues-list').innerHTML = '';
-  document.getElementById('issues-status').textContent = '';
   document.getElementById('report-preview').innerHTML = '<p class="md-empty">⚙️ 設定から PAT を設定すると日報を表示します</p>';
   const statusEl = document.getElementById('modal-status');
   statusEl.style.color = '#cf222e';

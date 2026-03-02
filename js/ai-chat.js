@@ -402,7 +402,6 @@ document.getElementById('chat-input').addEventListener('keydown', e => {
 });
 
 if (getToken() && getRepo()) {
-  fetchIssues();
   fetchDailyReport();
   fetchTaskWidget();
   loadPortalConfig().then(() => {
