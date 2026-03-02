@@ -1,7 +1,7 @@
 // =====================
 // Service Worker - Private Portal
 // =====================
-const CACHE_NAME = 'private-portal-v1';
+const CACHE_NAME = 'private-portal-v2';
 
 const STATIC_ASSETS = [
   './',
@@ -48,13 +48,12 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // 外部 API はキャッシュしない（ネットワークのみ）
+  // 外部 API はキャッシュしない（ブラウザのデフォルト動作に任せる）
   if (
     url.hostname === 'api.github.com' ||
     url.hostname === 'api.anthropic.com' ||
     url.hostname === 'www.google.com'
   ) {
-    event.respondWith(fetch(event.request));
     return;
   }
 
