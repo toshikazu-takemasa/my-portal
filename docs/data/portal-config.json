@@ -1,0 +1,47 @@
+{
+  "links": [
+    {
+      "id": "b1",
+      "emoji": "📅",
+      "name": "Google Calendar",
+      "url": "https://calendar.google.com",
+      "category": "今日の予定"
+    },
+    {
+      "id": "b2",
+      "emoji": "📧",
+      "name": "Gmail",
+      "url": "https://mail.google.com",
+      "category": "今日の予定"
+    },
+    {
+      "id": "b3",
+      "emoji": "⚡",
+      "name": "GitHub Issues",
+      "url": "https://github.com",
+      "category": "今日の予定"
+    },
+    {
+      "id": "b4",
+      "emoji": "🤖",
+      "name": "Claude",
+      "url": "https://claude.ai",
+      "category": "AI"
+    },
+    {
+      "id": "b5",
+      "emoji": "💎",
+      "name": "Gemini",
+      "url": "https://gemini.google.com",
+      "category": "AI"
+    },
+    {
+      "id": "b6",
+      "emoji": "🐙",
+      "name": "GitHub",
+      "url": "https://github.com",
+      "category": "開発"
+    }
+  ],
+  "kintaiUrl": ""
+}
