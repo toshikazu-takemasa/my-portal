@@ -480,7 +480,7 @@ if (gcalUrl) {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
-      .catch(err => console.warn('SW registration failed:', err));
+      .catch(err => console.warn('Service Worker の登録に失敗しました:', err));
   });
 }
 </script>
