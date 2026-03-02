@@ -38,9 +38,8 @@ async function createQuickMemo() {
       statusEl.style.color = '#1a7f37';
       statusEl.textContent = `✅ Issue #${issue.number} を作成しました`;
       document.getElementById('quick-memo-title').value = '';
-      // タスクウィジェットと Issues リストを再取得
+      // タスクウィジェットを再取得
       fetchTaskWidget();
-      fetchIssues();
     } else {
       const err = await res.json().catch(() => ({}));
       statusEl.style.color = '#cf222e';

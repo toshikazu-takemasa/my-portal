@@ -332,23 +332,6 @@
       </div>
     </div>
 
-    <!-- GitHub Issues（サブタスク） -->
-    <div class="card">
-      <h2>📌 サブタスク</h2>
-      <div>
-        <a class="issues-btn btn-new" id="issues-new-btn"
-           href="https://github.com"
-           target="_blank">＋ 作成</a>
-        <a class="issues-btn btn-view" id="issues-view-btn"
-           href="https://github.com"
-           target="_blank">一覧</a>
-        <button class="issues-btn btn-view" onclick="fetchIssues()" style="border:none;cursor:pointer;">↻</button>
-      </div>
-
-      <div id="issues-list" class="issues-list"></div>
-      <div id="issues-status" class="issues-status"></div>
-    </div>
-
     <!-- 振り返り -->
     <div class="card">
       <h2 style="margin-bottom:10px;">📔 振り返り</h2>
@@ -455,11 +438,7 @@ function switchBottomNav(section) {
 function updateIssueBtns() {
   const repo = getRepo();
   if (!repo) return;
-  const newBtn  = document.getElementById('issues-new-btn');
-  const viewBtn = document.getElementById('issues-view-btn');
   const morning = document.getElementById('issues-morning-link');
-  if (newBtn)  newBtn.href  = `https://github.com/${repo}/issues/new`;
-  if (viewBtn) viewBtn.href = `https://github.com/${repo}/issues?q=is%3Aopen`;
   if (morning) morning.href = `https://github.com/${repo}/issues`;
 }
 

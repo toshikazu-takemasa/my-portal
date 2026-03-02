@@ -1,48 +1,4 @@
 // =====================
-// GitHub Issues
-// =====================
-async function fetchIssues() {
-  const token = getToken();
-  if (!token || !getRepo()) return;
-
-  const statusEl = document.getElementById('issues-status');
-  const listEl   = document.getElementById('issues-list');
-  statusEl.textContent = '取得中…';
-  listEl.innerHTML = '';
-
-  try {
-    const res = await fetch(
-      `https://api.github.com/repos/${getRepo()}/issues?state=open&per_page=20`,
-      { headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' } }
-    );
-
-    if (res.status === 401) { statusEl.textContent = '認証エラー'; return; }
-    if (!res.ok) { statusEl.textContent = `エラー: ${res.status}`; return; }
-
-    const issues   = await res.json();
-    const filtered = issues.filter(i => !i.pull_request);
-
-    if (filtered.length === 0) {
-      listEl.innerHTML = '<p style="font-size:0.78rem;color:#aaa;padding:4px 0;">オープンな Issue はありません</p>';
-    } else {
-      filtered.forEach(issue => {
-        const a = document.createElement('a');
-        a.className = 'issue-item';
-        a.href = issue.html_url;
-        a.target = '_blank';
-        a.innerHTML = `<span class="issue-num">#${issue.number}</span><span class="issue-title">${escapeHtml(issue.title)}</span>`;
-        listEl.appendChild(a);
-      });
-    }
-
-    const now = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-    statusEl.textContent = `${filtered.length}件 · 更新 ${now}`;
-  } catch (e) {
-    statusEl.textContent = 'ネットワークエラー';
-  }
-}
-
-// =====================
 // 日報再生成
 // =====================
 async function regenReport() {
