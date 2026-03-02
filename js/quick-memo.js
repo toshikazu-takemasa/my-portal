@@ -44,7 +44,13 @@ async function createQuickMemo() {
     } else {
       const err = await res.json().catch(() => ({}));
       statusEl.style.color = '#cf222e';
-      statusEl.textContent = `作成失敗: ${err.message || res.status}`;
+      if (res.status === 404) {
+        statusEl.textContent = '作成失敗: リポジトリが見つかりません。リポジトリ名（owner/repo）とトークンの Issues 書き込み権限を確認してください。';
+      } else if (res.status === 403) {
+        statusEl.textContent = '作成失敗: 権限エラー。トークンに Issues の書き込み権限が必要です。';
+      } else {
+        statusEl.textContent = `作成失敗: ${err.message || res.status}`;
+      }
     }
   } catch (e) {
     statusEl.style.color = '#cf222e';

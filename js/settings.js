@@ -36,6 +36,15 @@ function saveRepoConfig() {
   const repo   = document.getElementById('repo-input').value.trim();
   const branch = document.getElementById('branch-input').value.trim() || 'main';
   if (!repo) return;
+
+  // owner/repo 形式チェック
+  if (!repo.includes('/') || repo.startsWith('/') || repo.endsWith('/')) {
+    const st = document.getElementById('repo-status');
+    st.style.color = '#cf222e';
+    st.textContent = '⚠️ 「ユーザー名/リポジトリ名」の形式で入力してください（例: username/my-repo）';
+    return;
+  }
+
   localStorage.setItem(REPO_KEY, repo);
   localStorage.setItem(BRANCH_KEY, branch);
 
