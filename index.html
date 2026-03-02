@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Private Portal</title>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#e69a73">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Portal">
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/ai-chat.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+<!-- ========== Settings Modal ========== -->
+<div class="modal-overlay" id="settings-modal" onclick="closeSettingsOnOverlay(event)">
+  <div class="modal">
+    <h3>⚙️ 設定</h3>
+
+    <!-- GitHub リポジトリ -->
+    <div class="modal-section">
+      <div class="modal-label">🐙 GitHub リポジトリ</div>
+      <div class="token-row">
+        <input id="repo-input" class="token-input" type="text" placeholder="username/your-repo">
+        <button class="btn-token" onclick="saveRepoConfig()">保存</button>
+      </div>
+      <p class="modal-note">例: username/private-workspace</p>
+      <div class="token-row" style="margin-top:6px;">
+        <input id="branch-input" class="token-input" type="text" placeholder="main（デフォルトブランチ）">
+      </div>
+      <div id="repo-status" class="modal-status"></div>
+    </div>
+
+    <!-- GitHub PAT -->
+    <div class="modal-section">
+      <div class="modal-label">GitHub Personal Access Token</div>
+      <div id="modal-pat-set" style="display:none;">
+        <div style="font-size:0.82rem;color:#7a9e6e;margin-bottom:8px;">✅ PAT が設定済みです</div>
+        <button class="btn-token danger" onclick="clearToken()">トークンを削除</button>
+      </div>
+      <div id="modal-pat-unset">
+        <div class="token-row">
+          <input id="token-input" class="token-input" type="password" placeholder="ghp_xxxxxxxxxxxx">
+          <button class="btn-token" onclick="saveToken()">保存</button>
+        </div>
+        <p class="modal-note">repo スコープ + Actions write が必要です</p>
+      </div>
+      <div id="modal-status" class="modal-status"></div>
+    </div>
+
+    <!-- Anthropic API Key -->
+    <div class="modal-section">
+      <div class="modal-label">🤖 Anthropic API キー（AI機能）</div>
+      <div id="modal-claude-set" style="display:none;">
+        <div style="font-size:0.82rem;color:#7a9e6e;margin-bottom:8px;">✅ APIキーが設定済みです</div>
+        <button class="btn-token danger" onclick="clearClaudeKey()">削除</button>
+      </div>
+      <div id="modal-claude-unset">
+        <div class="token-row">
+          <input id="claude-key-input" class="token-input" type="password" placeholder="sk-ant-api03-…">
+          <button class="btn-token" onclick="saveClaudeKey()">保存</button>
+        </div>
+        <p class="modal-note">console.anthropic.com で発行できます</p>
+      </div>
+    </div>
+
+    <!-- 勤怠シート URL -->
+    <div class="modal-section">
+      <div class="modal-label">📊 勤怠シート URL（任意）</div>
+      <div class="token-row">
+        <input id="kintai-url-input" class="token-input" type="url" placeholder="https://docs.google.com/spreadsheets/...">
+        <button class="btn-token" onclick="saveKintaiUrl()">保存</button>
+      </div>
+      <p class="modal-note">月ごとにシートが変わる場合はここを更新してください</p>
+      <div id="kintai-url-status" class="modal-status"></div>
+    </div>
+
+    <div class="modal-close-row">
+      <button class="btn-modal-close" onclick="closeSettings()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <h1>My Portal</h1>
+  <span id="today"></span>
+  <button class="settings-btn" onclick="openSettings()" title="設定">⚙️</button>
+</header>
+
+<div class="layout">
+
+  <!-- ===== Col 1: Google Calendar ===== -->
+  <div class="card" id="col-calendar">
+    <h2>📅 Google Calendar</h2>
+    <div id="gcal-placeholder" class="gcal-placeholder" style="display:none;">
+      <p style="font-size:0.82rem;color:#8e8e8e;text-align:center;">Google Calendar を表示するには<br>設定でカレンダー埋め込み URL を入力してください</p>
+      <button onclick="openSettings()" style="margin-top:8px;padding:6px 14px;border:1px solid #e0dcd0;border-radius:7px;background:#f7f4ee;color:#8e8e8e;font-size:0.76rem;cursor:pointer;">⚙️ 設定を開く</button>
+    </div>
+    <iframe class="gcal-iframe" id="gcal-iframe" src="" frameborder="0" scrolling="no" style="display:none;"></iframe>
+
+    <!-- タスクウィジェット（スマホ: col1 に表示） -->
+    <div class="card" id="task-widget-card" style="margin-top:16px;padding:0;border:none;box-shadow:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <h2 style="margin-bottom:0;">📌 タスク</h2>
+        <div class="task-filter-tabs">
+          <button class="task-filter-tab" data-filter="today" onclick="switchTaskFilter('today')">P1</button>
+          <button class="task-filter-tab" data-filter="week" onclick="switchTaskFilter('week')">P1/P2</button>
+          <button class="task-filter-tab active" data-filter="all" onclick="switchTaskFilter('all')">すべて</button>
+        </div>
+      </div>
+      <div class="task-widget-list" id="task-widget-list"></div>
+      <div id="task-widget-status" class="issues-status"></div>
+    </div>
+
+    <!-- クイックメモ -->
+    <div class="card" id="quick-memo-card" style="margin-top:16px;padding:0;border:none;box-shadow:none;">
+      <h2 style="margin-bottom:10px;">⚡ クイックメモ</h2>
+      <div class="quick-memo-form">
+        <input type="text" id="quick-memo-title" class="quick-memo-input" placeholder="タイトルを入力して Issue を即作成…">
+        <div class="quick-memo-actions">
+          <select id="quick-memo-label" class="quick-memo-select">
+            <option value="type: idea">💡 アイデア</option>
+            <option value="type: task">📋 タスク</option>
+            <option value="type: learning">📚 学習</option>
+          </select>
+          <button class="quick-memo-btn" onclick="createQuickMemo()">Issue 作成</button>
+        </div>
+      </div>
+      <div id="quick-memo-status" class="quick-memo-status"></div>
+    </div>
+  </div>
+
+  <!-- ===== Col 2: Tabs (日報 / クイックリンク / AI) ===== -->
+  <div class="card" id="col-main">
+    <!-- メインタブ -->
+    <div class="main-tabs">
+      <button class="main-tab active" id="mtab-report" onclick="switchMainTab('report')">📄 日報</button>
+      <button class="main-tab" id="mtab-links" onclick="switchMainTab('links')">🔗 クイックリンク</button>
+      <button class="main-tab" id="mtab-ai" onclick="switchMainTab('ai')">
+        <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" style="width:14px;height:14px;vertical-align:-2px;border-radius:3px;margin-right:3px;" onerror="this.style.display='none'"> AI
+      </button>
+    </div>
+
+    <!-- 日報パネル -->
+    <div id="main-panel-report">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="report-tabs">
+          <button class="report-tab active" id="tab-preview" onclick="switchTab('preview')">プレビュー</button>
+          <button class="report-tab" id="tab-edit" onclick="switchTab('edit')">編集</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button class="regen-btn" id="regen-btn" onclick="regenReport()">↻ 日報を再生成</button>
+          <button onclick="fetchDailyReport()" style="padding:4px 9px;border:1px solid #e0dcd0;border-radius:7px;background:#f7f4ee;color:#8e8e8e;font-size:0.76rem;font-weight:600;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#fdf0e8';this.style.color='#e69a73';this.style.borderColor='#e69a73'" onmouseout="this.style.background='#f7f4ee';this.style.color='#8e8e8e';this.style.borderColor='#e0dcd0'">↻ 更新</button>
+        </div>
+      </div>
+      <div id="regen-status" style="font-size:0.75rem;color:#8e8e8e;margin-bottom:8px;display:none;"></div>
+
+      <div id="report-preview" class="report-preview">
+        <p class="md-empty">⚙️ 設定から PAT とリポジトリを設定すると日報を表示します</p>
+      </div>
+
+      <div id="report-edit" style="display:none;">
+        <textarea id="report-textarea" class="report-editor" placeholder="日報を読み込んでください"></textarea>
+        <div class="report-save-bar">
+          <button onclick="saveDailyReport()" style="padding:6px 14px;border:none;border-radius:7px;background:#e69a73;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;">保存</button>
+          <span id="save-status" style="font-size:0.78rem;color:#8e8e8e;"></span>
+        </div>
+      </div>
+
+      <div id="report-meta" class="issues-status"></div>
+    </div>
+
+    <!-- クイックリンクパネル -->
+    <div id="main-panel-links" style="display:none;">
+      <div class="links-grid" id="links-body">
+        <!-- JS: renderAllLinks() で描画 -->
+      </div>
+
+      <div class="add-form" id="add-link-form" style="display:none;margin-top:10px;">
+        <div class="form-emoji-row">
+          <input id="fl-emoji" type="text" placeholder="🔗" maxlength="2">
+          <input id="fl-name" type="text" placeholder="サービス名">
+        </div>
+        <input id="fl-url" type="url" placeholder="https://...">
+        <input id="fl-cat" type="text" placeholder="カテゴリ（例: 開発）" list="cat-list">
+        <datalist id="cat-list"></datalist>
+        <div class="form-actions">
+          <button class="btn-form-save" onclick="addCustomLink()">追加</button>
+          <button class="btn-form-cancel" onclick="toggleAddForm()">キャンセル</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI チャットパネル -->
+    <div id="main-panel-ai" style="display:none;">
+      <div class="chat-session-bar">
+        <div style="position:relative;flex:1;min-width:0;">
+          <button class="session-select-btn" onclick="toggleSessionDropdown()">
+            <span id="session-title-display">新しい会話</span> ▾
+          </button>
+          <div class="session-dropdown" id="session-dropdown" style="display:none;"></div>
+        </div>
+        <button class="btn-new-session" onclick="newChatSession()">＋ New</button>
+      </div>
+
+      <div class="chat-wrap">
+        <div class="chat-history" id="chat-history"></div>
+        <div class="file-chips" id="file-chips" style="display:none;"></div>
+        <div class="chat-input-row">
+          <textarea class="chat-textarea" id="chat-input" rows="2" placeholder="質問を入力… (Enter で送信 / Shift+Enter で改行)"></textarea>
+          <button class="chat-send-btn" id="chat-send-btn" onclick="sendChat()">送信</button>
+        </div>
+        <div class="chat-options">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+            <input type="checkbox" id="include-report" style="accent-color:#e69a73;">
+            日報をコンテキストに含める
+          </label>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button class="chat-clear-btn" title="ファイルを添付" onclick="promptFileAttach()">📎</button>
+            <button class="chat-clear-btn" title="この会話をクリア" onclick="clearChat()">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Col 3: Right Column ===== -->
+  <div class="right-col" id="col-right">
+
+    <!-- 本日のタスク -->
+    <div class="card">
+      <h2 style="margin-bottom:14px;">📋 本日のタスク <span id="reset-badge" style="font-size:0.72rem;color:#7a9e6e;font-weight:400;margin-left:6px;"></span></h2>
+
+      <label class="check-item">
+        <input type="checkbox" class="task-check" data-id="w1">
+        <span class="check-label">朝のタスクチェック</span>
+        <span class="check-links">
+          <a class="check-link" id="issues-morning-link" href="https://github.com" target="_blank" title="GitHub Issues" onclick="event.stopPropagation()">
+            <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" alt="GitHub">
+          </a>
+        </span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" class="task-check" data-id="w2">
+        <span class="check-label">メール・メッセージ確認</span>
+        <span class="check-links">
+          <a class="check-link" href="https://mail.google.com" target="_blank" title="Gmail" onclick="event.stopPropagation()">
+            <img src="https://www.google.com/s2/favicons?domain=mail.google.com&sz=32" alt="Gmail">
+          </a>
+        </span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" class="task-check" data-id="w3">
+        <span class="check-label">集中タイム（作業）</span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" class="task-check" data-id="w4">
+        <span class="check-label">振り返り・日報記入</span>
+        <span class="check-links">
+          <a class="check-link" id="kintai-sheet-link" href="#" target="_blank" title="勤怠・日報シート" onclick="event.stopPropagation()">
+            <img src="https://www.google.com/s2/favicons?domain=docs.google.com&sz=32" alt="勤怠シート">
+          </a>
+        </span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" class="task-check" data-id="w5">
+        <span class="check-label">明日のタスク整理</span>
+      </label>
+
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-text" id="progress-text">0 / 5</div>
+    </div>
+
+    <!-- 日の3つの柱（アコーディオン） -->
+    <div class="card">
+      <div class="accordion-header" id="pillars-header" onclick="togglePillars()">
+        <div class="acc-left">
+          <h2 style="margin-bottom:0;">🏛️ 日の3つの柱</h2>
+          <span class="acc-progress-chip" id="pillars-chip">0 / 7</span>
+        </div>
+        <span class="acc-chevron" id="pillars-chevron">▼</span>
+      </div>
+
+      <div class="accordion-body" id="pillars-body">
+        <div class="accordion-body-inner">
+          <div class="checklist-group">
+            <div class="group-label">① 前提のすり合わせ</div>
+            <label class="check-item">
+              <input type="checkbox" class="pillar-check" data-pid="p1">
+              <span class="check-label">「自分はこう理解していますが、合ってますか?」と確認したか</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" class="pillar-check" data-pid="p2">
+              <span class="check-label">他部署・他の視点から見て問題ないか確認したか</span>
+            </label>
+          </div>
+
+          <div class="checklist-group">
+            <div class="group-label">② 脳内シミュレーション</div>
+            <label class="check-item">
+              <input type="checkbox" class="pillar-check" data-pid="p3">
+              <span class="check-label">「相手はどう反応するか?」を考えたか</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" class="pillar-check" data-pid="p4">
+              <span class="check-label">「他の反応もあり得るか?」まで考えたか</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" class="pillar-check" data-pid="p5">
+              <span class="check-label">「こういう間違いが起きないか?」を先読みしたか</span>
+            </label>
+          </div>
+
+          <div class="checklist-group">
+            <div class="group-label">③ 自分らしい言葉選び</div>
+            <label class="check-item">
+              <input type="checkbox" class="pillar-check" data-pid="p6">
+              <span class="check-label">意味がズレそうな言葉に補足説明を加えたか</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" class="pillar-check" data-pid="p7">
+              <span class="check-label">自分が使いやすい言葉で伝えられたか</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GitHub Issues（サブタスク） -->
+    <div class="card">
+      <h2>📌 サブタスク</h2>
+      <div>
+        <a class="issues-btn btn-new" id="issues-new-btn"
+           href="https://github.com"
+           target="_blank">＋ 作成</a>
+        <a class="issues-btn btn-view" id="issues-view-btn"
+           href="https://github.com"
+           target="_blank">一覧</a>
+        <button class="issues-btn btn-view" onclick="fetchIssues()" style="border:none;cursor:pointer;">↻</button>
+      </div>
+
+      <div id="issues-list" class="issues-list"></div>
+      <div id="issues-status" class="issues-status"></div>
+    </div>
+
+    <!-- 振り返り -->
+    <div class="card">
+      <h2 style="margin-bottom:10px;">📔 振り返り</h2>
+      <p style="font-size:0.8rem;color:#8e8e8e;line-height:1.5;margin-bottom:12px;">今日の日報をもとにAIが振り返りを自動生成します。</p>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <button id="reflect-start-btn" onclick="startAutoReflect()" style="padding:6px 14px;border:none;border-radius:7px;background:#e69a73;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
+          <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" style="width:13px;height:13px;border-radius:3px;" onerror="this.style.display='none'"> 振り返りを生成
+        </button>
+        <span id="reflect-status" style="font-size:0.78rem;color:#8e8e8e;"></span>
+      </div>
+      <div id="reflect-output" style="display:none;">
+        <div class="reflect-result" id="reflect-ai-result"></div>
+        <div style="margin-top:10px;">
+          <label style="font-size:0.78rem;color:#8e8e8e;display:block;margin-bottom:4px;">💬 追加コメント（任意）</label>
+          <textarea id="reflect-comment" rows="3" placeholder="気づき・明日のメモ…" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid #e0dcd0;border-radius:7px;font-size:0.8rem;resize:vertical;background:#f7f4ee;font-family:inherit;outline:none;"></textarea>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:8px;">
+          <button id="reflect-append-btn" onclick="appendAutoReflection()" style="flex:1;padding:7px;border:none;border-radius:7px;background:#7a9e6e;color:#fff;font-size:0.78rem;font-weight:600;cursor:pointer;">📋 日報に追記して保存</button>
+          <button onclick="startAutoReflect()" style="padding:7px 11px;border:1px solid #e0dcd0;border-radius:7px;background:#f7f4ee;color:#8e8e8e;font-size:0.78rem;cursor:pointer;">↻</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /right-col -->
+
+</div><!-- /layout -->
+
+<!-- ========== ボトムナビゲーション（スマホ） ========== -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bottom-nav-item active" data-section="report" onclick="switchBottomNav('report')">
+    <span class="bottom-nav-icon">📄</span>
+    <span class="bottom-nav-label">日報</span>
+  </button>
+  <button class="bottom-nav-item" data-section="tasks" onclick="switchBottomNav('tasks')">
+    <span class="bottom-nav-icon">📌</span>
+    <span class="bottom-nav-label">タスク</span>
+  </button>
+  <button class="bottom-nav-item" data-section="memo" onclick="switchBottomNav('memo')">
+    <span class="bottom-nav-icon">⚡</span>
+    <span class="bottom-nav-label">メモ</span>
+  </button>
+  <button class="bottom-nav-item" data-section="ai" onclick="switchBottomNav('ai')">
+    <span class="bottom-nav-icon">🤖</span>
+    <span class="bottom-nav-label">AI</span>
+  </button>
+  <button class="bottom-nav-item" onclick="openSettings()">
+    <span class="bottom-nav-icon">⚙️</span>
+    <span class="bottom-nav-label">設定</span>
+  </button>
+</nav>
+
+<!-- ========== Scripts ========== -->
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/portal-config.js"></script>
+<script src="js/checklist.js"></script>
+<script src="js/quicklinks.js"></script>
+<script src="js/github.js"></script>
+<script src="js/report.js"></script>
+<script src="js/tasks.js"></script>
+<script src="js/quick-memo.js"></script>
+<script src="js/ai-chat.js"></script>
+
+<script>
+// ========== ボトムナビ切り替え（スマホ） ==========
+function switchBottomNav(section) {
+  document.querySelectorAll('.bottom-nav-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.section === section);
+  });
+
+  // col の表示切り替え
+  const colCalendar = document.getElementById('col-calendar');
+  const colMain     = document.getElementById('col-main');
+  const colRight    = document.getElementById('col-right');
+
+  if (window.innerWidth > 600) return; // PC では無効
+
+  colCalendar.style.display = 'none';
+  colMain.style.display     = 'none';
+  colRight.style.display    = 'none';
+
+  if (section === 'report') {
+    colMain.style.display = 'block';
+    switchMainTab('report');
+  } else if (section === 'tasks') {
+    colCalendar.style.display = 'block';
+    // タスクウィジェットのみ表示（カレンダーは非表示）
+    document.getElementById('gcal-placeholder').style.display = 'none';
+    document.getElementById('gcal-iframe').style.display = 'none';
+  } else if (section === 'memo') {
+    colCalendar.style.display = 'block';
+    document.getElementById('task-widget-card').style.display = 'none';
+    document.getElementById('quick-memo-card').style.display = 'block';
+    document.getElementById('gcal-placeholder').style.display = 'none';
+    document.getElementById('gcal-iframe').style.display = 'none';
+  } else if (section === 'ai') {
+    colMain.style.display = 'block';
+    switchMainTab('ai');
+  }
+}
+
+// Issues ボタンのリポジトリ URL を動的設定
+function updateIssueBtns() {
+  const repo = getRepo();
+  if (!repo) return;
+  const newBtn  = document.getElementById('issues-new-btn');
+  const viewBtn = document.getElementById('issues-view-btn');
+  const morning = document.getElementById('issues-morning-link');
+  if (newBtn)  newBtn.href  = `https://github.com/${repo}/issues/new`;
+  if (viewBtn) viewBtn.href = `https://github.com/${repo}/issues?q=is%3Aopen`;
+  if (morning) morning.href = `https://github.com/${repo}/issues`;
+}
+
+updateIssueBtns();
+
+// Google Calendar iframe（設定済みの場合に表示）
+// ※カレンダー埋め込み URL は localStorage に保存されている場合のみ読み込む
+const GCAL_URL_KEY = 'gcal_embed_url';
+const gcalUrl = localStorage.getItem(GCAL_URL_KEY);
+if (gcalUrl) {
+  document.getElementById('gcal-iframe').src = gcalUrl;
+  document.getElementById('gcal-iframe').style.display = 'block';
+} else {
+  document.getElementById('gcal-placeholder').style.display = 'flex';
+}
+
+// PWA: Service Worker 登録
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .catch(err => console.warn('SW registration failed:', err));
+  });
+}
+</script>
+
+</body>
+</html>

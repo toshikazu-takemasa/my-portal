@@ -1,0 +1,416 @@
+// =====================
+// AI アシスタント
+// =====================
+const CLAUDE_API   = 'https://api.anthropic.com/v1/messages';
+const CLAUDE_MODEL = 'claude-sonnet-4-6';
+const SESSIONS_KEY = 'chat_sessions';
+const WELCOME_MSG  = 'あなた専用のコーチ兼秘書です。本日はどのようなご相談でしょうか？\n\n📝 文章校正・コミュニケーション改善\n🤔 業務相談・意思決定サポート\n🔧 技術タスク・実装支援\n📋 情報整理・作業記録管理\n📅 日報管理・振り返り・工数集計支援';
+
+let chatHistory   = [];
+let reflectResult = '';
+let currentSession = null;   // { id, title, messages }
+let attachedFiles  = [];     // [{ path, content, sha }]
+const applyBlocks  = new Map(); // blockId → { path, content }
+
+// ---- Session management ----
+function getSessions() { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); }
+function saveSessions(s) { localStorage.setItem(SESSIONS_KEY, JSON.stringify(s.slice(0, 30))); }
+
+function saveCurrentSession() {
+  if (!currentSession) return;
+  currentSession.messages = [...chatHistory];
+  const all = getSessions();
+  const idx = all.findIndex(s => s.id === currentSession.id);
+  const updated = { ...currentSession, updatedAt: Date.now() };
+  if (idx >= 0) all[idx] = updated; else all.unshift(updated);
+  saveSessions(all);
+}
+
+function newChatSession() {
+  if (currentSession && chatHistory.length > 0) saveCurrentSession();
+  currentSession = { id: Date.now().toString(), title: '新しい会話', messages: [] };
+  chatHistory = []; attachedFiles = [];
+  renderChatPanel(); closeSessionDropdown();
+}
+
+function loadSession(id) {
+  if (currentSession && chatHistory.length > 0) saveCurrentSession();
+  const s = getSessions().find(s => s.id === id);
+  if (!s) return;
+  currentSession = { ...s };
+  chatHistory = s.messages ? [...s.messages] : [];
+  attachedFiles = [];
+  renderChatPanel(); closeSessionDropdown();
+}
+
+function deleteSession(id, e) {
+  e.stopPropagation();
+  saveSessions(getSessions().filter(s => s.id !== id));
+  if (currentSession && currentSession.id === id) newChatSession();
+  else renderSessionDropdown();
+}
+
+function renderChatPanel() {
+  document.getElementById('session-title-display').textContent =
+    currentSession ? currentSession.title : '新しい会話';
+  const histEl = document.getElementById('chat-history');
+  histEl.innerHTML = '';
+  if (chatHistory.length === 0) {
+    appendChatBubble('ai', WELCOME_MSG);
+  } else {
+    chatHistory.forEach(msg => appendChatBubble(msg.role === 'user' ? 'user' : 'ai', msg.content));
+  }
+  renderFileChips();
+}
+
+function toggleSessionDropdown() {
+  const dd = document.getElementById('session-dropdown');
+  if (dd.style.display === 'none') { renderSessionDropdown(); dd.style.display = 'block'; }
+  else dd.style.display = 'none';
+}
+function closeSessionDropdown() { document.getElementById('session-dropdown').style.display = 'none'; }
+
+function renderSessionDropdown() {
+  const sessions = getSessions();
+  const dd = document.getElementById('session-dropdown');
+  if (sessions.length === 0) {
+    dd.innerHTML = '<div style="padding:10px 12px;font-size:0.78rem;color:#888;">会話履歴なし</div>';
+    return;
+  }
+  dd.innerHTML = sessions.map(s => {
+    const dt  = new Date(parseInt(s.updatedAt || s.id));
+    const lbl = dt.toLocaleDateString('ja-JP', { month:'numeric', day:'numeric' }) + ' '
+              + dt.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+    const active = currentSession && s.id === currentSession.id ? ' active' : '';
+    return `<div class="session-item${active}" onclick="loadSession('${s.id}')">
+      <div class="session-item-title">${escapeHtml(s.title)}</div>
+      <div class="session-item-meta">${lbl}
+        <span class="session-del" onclick="deleteSession('${s.id}',event)">✕</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.chat-session-bar')) closeSessionDropdown();
+});
+
+// ---- File attachment ----
+async function promptFileAttach() {
+  const path = prompt('ファイルパスを入力\n例: 保管庫/ナレッジ/メモ.md');
+  if (!path) return;
+  await fetchFileForAttach(path.trim());
+}
+
+async function fetchFileForAttach(path) {
+  const token = getToken();
+  if (!token) { alert('GitHub PAT が必要です（⚙️ 設定）'); return; }
+  if (!getRepo()) { alert('GitHub リポジトリが設定されていません（⚙️ 設定）'); return; }
+  const enc = path.split('/').map(encodeURIComponent).join('/');
+  try {
+    const res = await fetch(`https://api.github.com/repos/${getRepo()}/contents/${enc}`,
+      { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) { alert(`ファイルが見つかりません:\n${path}`); return; }
+    const data = await res.json();
+    const raw  = atob(data.content.replace(/\n/g, ''));
+    const text = new TextDecoder('utf-8').decode(Uint8Array.from(raw, c => c.charCodeAt(0)));
+    attachedFiles = attachedFiles.filter(f => f.path !== path);
+    attachedFiles.push({ path, content: text, sha: data.sha });
+    renderFileChips();
+  } catch(e) { alert('ファイル取得エラー: ' + e.message); }
+}
+
+function removeAttachedFile(idx) { attachedFiles.splice(idx, 1); renderFileChips(); }
+
+function renderFileChips() {
+  const el = document.getElementById('file-chips');
+  if (attachedFiles.length === 0) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = 'flex';
+  el.innerHTML = attachedFiles.map((f, i) =>
+    `<span class="file-chip">📄 ${escapeHtml(f.path.split('/').pop())}
+      <span class="file-chip-remove" onclick="removeAttachedFile(${i})">✕</span>
+    </span>`).join('');
+}
+
+// ---- File apply ----
+async function applyFileEdit(blockId, btn) {
+  const token = getToken();
+  if (!token) { alert('GitHub PAT が必要です'); return; }
+  if (!getRepo()) { alert('GitHub リポジトリが設定されていません'); return; }
+  const block = applyBlocks.get(blockId);
+  if (!block) return;
+  btn.disabled = true; btn.textContent = '適用中…';
+  try {
+    const enc = block.path.split('/').map(encodeURIComponent).join('/');
+    const url = `https://api.github.com/repos/${getRepo()}/contents/${enc}`;
+    const getRes = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    const body = {
+      message: `✏️ AI編集: ${block.path.split('/').pop()}`,
+      content: encodeUtf8Base64(block.content)
+    };
+    if (getRes.ok) { const d = await getRes.json(); body.sha = d.sha; }
+    const putRes = await fetch(url, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (putRes.ok) {
+      btn.textContent = '✅ 適用完了'; btn.style.background = '#1a7f37';
+      const nd = await putRes.json();
+      const af = attachedFiles.find(f => f.path === block.path);
+      if (af) { af.sha = nd.content.sha; af.content = block.content; }
+    } else {
+      const err = await putRes.json().catch(() => ({}));
+      btn.textContent = `失敗: ${err.message || putRes.status}`;
+      btn.style.background = '#cf222e'; btn.disabled = false;
+    }
+  } catch(e) { btn.textContent = 'エラー: ' + e.message; btn.disabled = false; }
+}
+
+// ---- Claude API ----
+async function callClaude(messages, systemPrompt) {
+  const key = getClaudeKey();
+  if (!key) throw new Error('APIキーが設定されていません（⚙️ 設定から登録してください）');
+  const res = await fetch(CLAUDE_API, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 2000, system: systemPrompt, messages }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API エラー: ${res.status}`);
+  }
+  return (await res.json()).content?.[0]?.text || '';
+}
+
+// ---- Message rendering ----
+function renderAIMessage(text) {
+  const container = document.createElement('div');
+  const applyRe = /===APPLY:\s*(.+?)===\n([\s\S]*?)===END===/g;
+  const parts = []; let lastIdx = 0, m;
+  while ((m = applyRe.exec(text)) !== null) {
+    if (m.index > lastIdx) parts.push({ type: 'text', content: text.slice(lastIdx, m.index) });
+    parts.push({ type: 'apply', path: m[1].trim(), content: m[2] });
+    lastIdx = m.index + m[0].length;
+  }
+  if (lastIdx < text.length) parts.push({ type: 'text', content: text.slice(lastIdx) });
+
+  parts.forEach(part => {
+    if (part.type === 'text') {
+      const span = document.createElement('span');
+      span.innerHTML = escapeHtml(part.content).replace(/\n/g, '<br>');
+      container.appendChild(span);
+    } else {
+      const blockId = 'ab_' + Math.random().toString(36).slice(2);
+      applyBlocks.set(blockId, { path: part.path, content: part.content });
+      const d = document.createElement('div');
+      d.className = 'apply-block';
+      d.innerHTML = `<div class="apply-path">📄 ${escapeHtml(part.path)}</div>
+        <details><summary class="apply-summary">内容を確認（${part.content.split('\n').length}行）</summary>
+          <pre class="apply-preview">${escapeHtml(part.content)}</pre></details>
+        <button class="apply-btn" onclick="applyFileEdit('${blockId}',this)">✅ ファイルに適用</button>`;
+      container.appendChild(d);
+    }
+  });
+  return container;
+}
+
+function appendChatBubble(role, text) {
+  const histEl = document.getElementById('chat-history');
+  const div = document.createElement('div');
+  div.className = `chat-bubble ${role}`;
+  if (role === 'ai') {
+    div.appendChild(renderAIMessage(text));
+  } else {
+    div.textContent = text;
+  }
+  histEl.appendChild(div);
+  histEl.scrollTop = histEl.scrollHeight;
+  return div;
+}
+
+async function sendChat() {
+  const key = getClaudeKey();
+  if (!key) { alert('⚙️ 設定から Anthropic API キーを先に設定してください。'); return; }
+  const input = document.getElementById('chat-input');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('chat-send-btn');
+  btn.disabled = true; input.value = '';
+  appendChatBubble('user', text);
+  chatHistory.push({ role: 'user', content: text });
+
+  if (chatHistory.length === 1 && currentSession && currentSession.title === '新しい会話') {
+    currentSession.title = text.slice(0, 28) + (text.length > 28 ? '…' : '');
+    document.getElementById('session-title-display').textContent = currentSession.title;
+  }
+  saveCurrentSession();
+
+  const thinking = appendChatBubble('ai thinking', '考え中…');
+
+  const includeReport = document.getElementById('include-report').checked;
+  let sys = `あなたは利用者専用のコーチ兼秘書です。
+
+利用可能な機能：
+📝 文章校正・コミュニケーション改善
+🤔 業務相談・意思決定サポート
+🔧 技術タスク・実装支援
+📋 情報整理・作業記録管理
+📅 日報管理・振り返り・工数集計支援
+
+## 応答スタイル
+- 簡潔: 必要な情報のみ提供
+- 問いかけ型: ユーザーの思考を引き出す
+- 段階的: 一度に多くを求めない
+- ユーザー主導: ユーザーの判断を尊重
+
+日本語で丁寧かつ簡潔に回答してください。`;
+  if (includeReport && reportContent) sys += `\n\n今日の日報:\n${reportContent}`;
+  if (attachedFiles.length > 0) {
+    sys += '\n\n## 添付ファイル\nファイルの編集依頼があった場合、完全な新しいファイル内容を以下の形式で出力してください（省略不可）:\n===APPLY: ファイルパス===\n[完全なファイル内容]\n===END===\n\n添付ファイル:';
+    attachedFiles.forEach(f => { sys += `\n\n### ${f.path}\n\`\`\`\n${f.content}\n\`\`\``; });
+  }
+
+  try {
+    const reply = await callClaude(chatHistory, sys);
+    thinking.className = 'chat-bubble ai';
+    thinking.innerHTML = ''; thinking.appendChild(renderAIMessage(reply));
+    chatHistory.push({ role: 'assistant', content: reply });
+    saveCurrentSession();
+  } catch (e) {
+    thinking.className = 'chat-bubble ai'; thinking.style.color = '#cf222e';
+    thinking.textContent = `エラー: ${e.message}`; chatHistory.pop();
+  } finally { btn.disabled = false; input.focus(); }
+}
+
+function clearChat() {
+  chatHistory = [];
+  if (currentSession) { currentSession.messages = []; saveCurrentSession(); }
+  const histEl = document.getElementById('chat-history');
+  histEl.innerHTML = '';
+  appendChatBubble('ai', WELCOME_MSG);
+  attachedFiles = []; renderFileChips();
+}
+
+// ---- Session init ----
+(function initSession() {
+  const sessions = getSessions();
+  if (sessions.length > 0) {
+    currentSession = { ...sessions[0] };
+    chatHistory = sessions[0].messages ? [...sessions[0].messages] : [];
+  } else {
+    currentSession = { id: Date.now().toString(), title: '新しい会話', messages: [] };
+    chatHistory = [];
+  }
+  renderChatPanel();
+})();
+
+// ---- Reflection ----
+async function startAutoReflect() {
+  const key = getClaudeKey();
+  if (!key) { alert('⚙️ 設定から Anthropic API キーを先に設定してください。'); return; }
+
+  const statusEl = document.getElementById('reflect-status');
+  if (!reportContent) {
+    statusEl.textContent = '日報を読み込み中…';
+    await fetchDailyReport();
+    if (!reportContent) {
+      statusEl.textContent = '日報が見つかりません。先に日報を生成してください。';
+      return;
+    }
+  }
+
+  const startBtn = document.getElementById('reflect-start-btn');
+  const outputEl = document.getElementById('reflect-output');
+  const resultEl = document.getElementById('reflect-ai-result');
+  startBtn.disabled    = true;
+  startBtn.textContent = '生成中…';
+  statusEl.textContent = '';
+  outputEl.style.display = 'none';
+
+  const sys = `あなたは経験学習（コルブの経験学習サイクル）を活用したコーチングアシスタントです。
+今日の日報を読み、以下のMarkdown形式で振り返りをまとめてください。日報に含まれる具体的なタスク名・状況に言及してください。
+
+**🌟 うまくいったこと**
+（完了タスクや進捗から具体的に）
+
+**🤔 難しかった点・課題**
+（未完了や課題感のあるタスクから）
+
+**💡 気づき・学び**
+（今日の業務全体を通じて）
+
+**🚀 明日のアクション**
+（明日すぐ試せる具体的な行動を1〜2点）`;
+
+  try {
+    const reply = await callClaude(
+      [{ role: 'user', content: `今日の日報:\n\n${reportContent}` }], sys
+    );
+    reflectResult = reply;
+    resultEl.innerHTML = renderMarkdown(reply);
+    outputEl.style.display = 'block';
+  } catch (e) {
+    statusEl.textContent = `エラー: ${e.message}`;
+    statusEl.style.color = '#cf222e';
+  }
+
+  startBtn.disabled    = false;
+  startBtn.textContent = '🤖 振り返りを生成';
+}
+
+async function appendAutoReflection() {
+  if (!reflectResult || !reportContent) return;
+
+  const comment    = document.getElementById('reflect-comment').value.trim();
+  const appendText =
+    `\n\n---\n## 📔 振り返り（経験学習）\n\n${reflectResult}` +
+    (comment ? `\n\n**追加コメント**: ${comment}` : '');
+
+  reportContent += appendText;
+  const btn = document.getElementById('reflect-append-btn');
+  btn.disabled    = true;
+  btn.textContent = '保存中…';
+
+  await pushReportToGitHub('📔 振り返りを追記');
+
+  if (reportTab === 'preview') {
+    document.getElementById('report-preview').innerHTML = renderMarkdown(reportContent);
+    attachMdCheckboxListeners();
+  } else {
+    document.getElementById('report-textarea').value = reportContent;
+  }
+
+  btn.textContent = '✅ 追記しました';
+  setTimeout(() => {
+    btn.disabled    = false;
+    btn.textContent = '📋 日報に追記して保存';
+  }, 3000);
+}
+
+// =====================
+// 初期化
+// =====================
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+});
+
+if (getToken() && getRepo()) {
+  fetchIssues();
+  fetchDailyReport();
+  fetchTaskWidget();
+  loadPortalConfig().then(() => {
+    renderAllLinks();
+    const kintaiLink = document.getElementById('kintai-sheet-link');
+    if (kintaiLink && getKintaiUrl()) kintaiLink.href = getKintaiUrl();
+  });
+} else if (!getRepo()) {
+  // リポジトリ未設定の場合は設定を促す
+  setTimeout(() => openSettings(), 500);
+}
