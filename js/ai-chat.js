@@ -65,10 +65,14 @@ function renderChatPanel() {
 
 function toggleSessionDropdown() {
   const dd = document.getElementById('session-dropdown');
-  if (dd.style.display === 'none') { renderSessionDropdown(); dd.style.display = 'block'; }
-  else dd.style.display = 'none';
+  if (dd.classList.contains('is-hidden')) {
+    renderSessionDropdown();
+    dd.classList.remove('is-hidden');
+  } else {
+    dd.classList.add('is-hidden');
+  }
 }
-function closeSessionDropdown() { document.getElementById('session-dropdown').style.display = 'none'; }
+function closeSessionDropdown() { document.getElementById('session-dropdown').classList.add('is-hidden'); }
 
 function renderSessionDropdown() {
   const sessions = getSessions();
@@ -124,8 +128,8 @@ function removeAttachedFile(idx) { attachedFiles.splice(idx, 1); renderFileChips
 
 function renderFileChips() {
   const el = document.getElementById('file-chips');
-  if (attachedFiles.length === 0) { el.style.display = 'none'; el.innerHTML = ''; return; }
-  el.style.display = 'flex';
+  if (attachedFiles.length === 0) { el.classList.add('is-hidden'); el.innerHTML = ''; return; }
+  el.classList.remove('is-hidden');
   el.innerHTML = attachedFiles.map((f, i) =>
     `<span class="file-chip">📄 ${escapeHtml(f.path.split('/').pop())}
       <span class="file-chip-remove" onclick="removeAttachedFile(${i})">✕</span>
@@ -332,7 +336,7 @@ async function startAutoReflect() {
   startBtn.disabled    = true;
   startBtn.textContent = '生成中…';
   statusEl.textContent = '';
-  outputEl.style.display = 'none';
+  outputEl.classList.add('is-hidden');
 
   const sys = `あなたは経験学習（コルブの経験学習サイクル）を活用したコーチングアシスタントです。
 今日の日報を読み、以下のMarkdown形式で振り返りをまとめてください。日報に含まれる具体的なタスク名・状況に言及してください。
@@ -355,7 +359,7 @@ async function startAutoReflect() {
     );
     reflectResult = reply;
     resultEl.innerHTML = renderMarkdown(reply);
-    outputEl.style.display = 'block';
+    outputEl.classList.remove('is-hidden');
   } catch (e) {
     statusEl.textContent = `エラー: ${e.message}`;
     statusEl.style.color = '#cf222e';

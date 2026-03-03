@@ -121,7 +121,7 @@ async function fetchDailyReport() {
 function switchMainTab(name) {
   ['report', 'links', 'ai'].forEach(t => {
     document.getElementById('mtab-' + t).classList.toggle('active', t === name);
-    document.getElementById('main-panel-' + t).style.display = t === name ? 'block' : 'none';
+    document.getElementById('main-panel-' + t).classList.toggle('is-hidden', t !== name);
   });
 }
 
@@ -129,8 +129,8 @@ function switchTab(tab) {
   reportTab = tab;
   document.getElementById('tab-preview').classList.toggle('active', tab === 'preview');
   document.getElementById('tab-edit').classList.toggle('active', tab === 'edit');
-  document.getElementById('report-preview').style.display = tab === 'preview' ? 'block' : 'none';
-  document.getElementById('report-edit').style.display    = tab === 'edit'    ? 'block' : 'none';
+  document.getElementById('report-preview').classList.toggle('is-hidden', tab !== 'preview');
+  document.getElementById('report-edit').classList.toggle('is-hidden', tab !== 'edit');
   renderCurrentTab();
 }
 
@@ -234,7 +234,7 @@ async function regenReport() {
   const btn = document.getElementById('regen-btn');
   const statusEl = document.getElementById('regen-status');
   btn.disabled = true;
-  statusEl.style.display = 'block';
+  statusEl.classList.remove('is-hidden');
   statusEl.textContent = '生成中…';
 
   const path        = getDailyReportPath();
@@ -275,7 +275,7 @@ async function regenReport() {
       switchTab('preview');
       statusEl.style.color = '#1a7f37';
       statusEl.textContent = '✅ テンプレートを生成しました';
-      setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+      setTimeout(() => { statusEl.classList.add('is-hidden'); }, 3000);
     } else {
       const err = await res.json().catch(() => ({}));
       statusEl.style.color = '#cf222e';

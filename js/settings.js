@@ -87,8 +87,8 @@ function closeSettingsOnOverlay(e) {
 
 function showModalTokenUI() {
   const hasToken = !!getToken();
-  document.getElementById('modal-pat-set').style.display   = hasToken ? 'block' : 'none';
-  document.getElementById('modal-pat-unset').style.display = hasToken ? 'none'  : 'block';
+  document.getElementById('modal-pat-set').classList.toggle('is-hidden', !hasToken);
+  document.getElementById('modal-pat-unset').classList.toggle('is-hidden', hasToken);
 }
 
 function saveToken() {
@@ -135,8 +135,8 @@ function clearClaudeKey() { localStorage.removeItem(CLAUDE_KEY); showModalClaude
 
 function showModalClaudeUI() {
   const has = !!getClaudeKey();
-  document.getElementById('modal-claude-set').style.display   = has ? 'block' : 'none';
-  document.getElementById('modal-claude-unset').style.display = has ? 'none'  : 'block';
+  document.getElementById('modal-claude-set').classList.toggle('is-hidden', !has);
+  document.getElementById('modal-claude-unset').classList.toggle('is-hidden', has);
 }
 
 // =====================
@@ -165,27 +165,15 @@ function applyCalendarVisibility() {
   const colCalendar = document.getElementById('col-calendar');
   const layout = document.querySelector('.layout');
   const isMobile = window.innerWidth <= 768;
-  const isDesktop = window.innerWidth > 1100;
-  const isMobile = window.innerWidth <= 768;
 
   // スマホではボトムナビが列の表示を管理するため、ここでは変更しない
   if (colCalendar && !isMobile) {
-    colCalendar.style.display = show ? 'block' : 'none';
+    colCalendar.classList.toggle('is-hidden', !show);
   }
-  
-  // レイアウトを調整（デスクトップのみ固定カラムを適用）
+
+  // レイアウトは CSS の状態クラスで制御
   if (layout) {
-    if (isDesktop) {
-      if (show) {
-        // カレンダー表示時: 3列 (380px, 1fr, 285px)
-        layout.style.gridTemplateColumns = '380px 1fr 285px';
-      } else {
-        // カレンダー非表示時: 2列 (1fr, 285px)
-        layout.style.gridTemplateColumns = '1fr 285px';
-      }
-    } else {
-      layout.style.removeProperty('grid-template-columns');
-    }
+    layout.classList.toggle('calendar-hidden', !show && !isMobile);
   }
 }
 

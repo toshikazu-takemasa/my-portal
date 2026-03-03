@@ -15,7 +15,7 @@ async function regenReport() {
   const statusEl = document.getElementById('regen-status');
   btn.disabled = true;
   btn.textContent = '送信中…';
-  statusEl.style.display = 'block';
+  statusEl.classList.remove('is-hidden');
   statusEl.style.color = '#888';
   statusEl.textContent = '';
 

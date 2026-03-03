@@ -154,8 +154,8 @@ function renderAllLinks() {
 
 function toggleAddForm() {
   const form = document.getElementById('add-link-form');
-  const show = form.style.display === 'none';
-  form.style.display = show ? 'flex' : 'none';
+  const show = form.classList.contains('is-hidden');
+  form.classList.toggle('is-hidden', !show);
   if (show) document.getElementById('fl-name').focus();
 }
 
@@ -169,7 +169,7 @@ function addCustomLink() {
   links.push({ id: 'c' + Date.now(), emoji, name, url, category: cat });
   saveLinks(links);
   ['fl-emoji','fl-name','fl-url','fl-cat'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('add-link-form').style.display = 'none';
+  document.getElementById('add-link-form').classList.add('is-hidden');
 }
 
 renderAllLinks();

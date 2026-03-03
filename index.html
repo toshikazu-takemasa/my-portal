@@ -55,7 +55,7 @@
     <!-- GitHub PAT -->
     <div class="modal-section">
       <div class="modal-label">GitHub Personal Access Token</div>
-      <div id="modal-pat-set" style="display:none;">
+      <div id="modal-pat-set" class="is-hidden">
         <div style="font-size:0.82rem;color:#7a9e6e;margin-bottom:8px;">✅ PAT が設定済みです</div>
         <button class="btn-token danger" onclick="clearToken()">トークンを削除</button>
       </div>
@@ -72,7 +72,7 @@
     <!-- Anthropic API Key -->
     <div class="modal-section">
       <div class="modal-label">🤖 Anthropic API キー（AI機能）</div>
-      <div id="modal-claude-set" style="display:none;">
+      <div id="modal-claude-set" class="is-hidden">
         <div style="font-size:0.82rem;color:#7a9e6e;margin-bottom:8px;">✅ APIキーが設定済みです</div>
         <button class="btn-token danger" onclick="clearClaudeKey()">削除</button>
       </div>
@@ -121,16 +121,16 @@
   <button class="settings-btn" onclick="openSettings()" title="設定">⚙️</button>
 </header>
 
-<div class="layout !gap-4 !max-w-[1400px] !mx-auto !items-start">
+<div class="layout !grid ![grid-template-columns:380px_minmax(0,1fr)_285px] max-[768px]:![grid-template-columns:1fr] !gap-4 !max-w-[1400px] !mx-auto !items-start">
 
   <!-- ===== Col 1: Google Calendar ===== -->
   <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="col-calendar">
     <h2>📅 Google Calendar</h2>
-    <div id="gcal-placeholder" class="gcal-placeholder" style="display:none;">
+    <div id="gcal-placeholder" class="gcal-placeholder">
       <p style="font-size:0.82rem;color:#8e8e8e;text-align:center;">Google Calendar を表示するには<br>設定でカレンダー埋め込み URL を入力してください</p>
       <button onclick="openSettings()" style="margin-top:8px;padding:6px 14px;border:1px solid #e0dcd0;border-radius:7px;background:#f7f4ee;color:#8e8e8e;font-size:0.76rem;cursor:pointer;">⚙️ 設定を開く</button>
     </div>
-    <iframe class="gcal-iframe" id="gcal-iframe" src="" frameborder="0" scrolling="no" style="display:none;"></iframe>
+    <iframe class="gcal-iframe is-hidden" id="gcal-iframe" src="" frameborder="0" scrolling="no"></iframe>
 
     <!-- 日々のチェックリスト -->
     <!-- 削除（右側に統合） -->
@@ -155,7 +155,7 @@
       <button class="main-tab active !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-report" onclick="switchMainTab('report')">📄 日報</button>
       <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-links" onclick="switchMainTab('links')">🔗 クイックリンク</button>
       <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-ai" onclick="switchMainTab('ai')">
-        <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" style="width:14px;height:14px;vertical-align:-2px;border-radius:3px;margin-right:3px;" onerror="this.style.display='none'"> AI
+        <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" style="width:14px;height:14px;vertical-align:-2px;border-radius:3px;margin-right:3px;" onerror="this.classList.add('is-hidden')"> AI
       </button>
     </div>
 
@@ -171,13 +171,13 @@
           <button onclick="fetchDailyReport()" style="padding:4px 9px;border:1px solid #e0dcd0;border-radius:7px;background:#f7f4ee;color:#8e8e8e;font-size:0.76rem;font-weight:600;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#fdf0e8';this.style.color='#e69a73';this.style.borderColor='#e69a73'" onmouseout="this.style.background='#f7f4ee';this.style.color='#8e8e8e';this.style.borderColor='#e0dcd0'">↻ 更新</button>
         </div>
       </div>
-      <div id="regen-status" style="font-size:0.75rem;color:#8e8e8e;margin-bottom:8px;display:none;"></div>
+      <div id="regen-status" class="is-hidden" style="font-size:0.75rem;color:#8e8e8e;margin-bottom:8px;"></div>
 
       <div id="report-preview" class="report-preview">
         <p class="md-empty">⚙️ 設定から PAT とリポジトリを設定すると日報を表示します</p>
       </div>
 
-      <div id="report-edit" style="display:none;">
+      <div id="report-edit" class="is-hidden">
         <textarea id="report-textarea" class="report-editor" placeholder="日報を読み込んでください"></textarea>
         <div class="report-save-bar">
           <button onclick="saveDailyReport()" style="padding:6px 14px;border:none;border-radius:7px;background:#e69a73;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;">保存</button>
@@ -189,12 +189,12 @@
     </div>
 
     <!-- クイックリンクパネル -->
-    <div id="main-panel-links" style="display:none;">
+    <div id="main-panel-links" class="is-hidden">
       <div class="links-grid" id="links-body">
         <!-- JS: renderAllLinks() で描画 -->
       </div>
 
-      <div class="add-form" id="add-link-form" style="display:none;margin-top:10px;">
+      <div class="add-form is-hidden" id="add-link-form" style="margin-top:10px;">
         <div class="form-emoji-row">
           <input id="fl-emoji" type="text" placeholder="🔗" maxlength="2">
           <input id="fl-name" type="text" placeholder="サービス名">
@@ -210,20 +210,20 @@
     </div>
 
     <!-- AI チャットパネル -->
-    <div id="main-panel-ai" style="display:none;">
+    <div id="main-panel-ai" class="is-hidden">
       <div class="chat-session-bar">
         <div style="position:relative;flex:1;min-width:0;">
           <button class="session-select-btn" onclick="toggleSessionDropdown()">
             <span id="session-title-display">新しい会話</span> ▾
           </button>
-          <div class="session-dropdown" id="session-dropdown" style="display:none;"></div>
+          <div class="session-dropdown is-hidden" id="session-dropdown"></div>
         </div>
         <button class="btn-new-session" onclick="newChatSession()">＋ New</button>
       </div>
 
       <div class="chat-wrap">
         <div class="chat-history" id="chat-history"></div>
-        <div class="file-chips" id="file-chips" style="display:none;"></div>
+        <div class="file-chips is-hidden" id="file-chips"></div>
         <div class="chat-input-row">
           <textarea class="chat-textarea" id="chat-input" rows="2" placeholder="質問を入力… (Enter で送信 / Shift+Enter で改行)"></textarea>
           <button class="chat-send-btn" id="chat-send-btn" onclick="sendChat()">送信</button>
@@ -316,11 +316,11 @@
       <p style="font-size:0.8rem;color:#8e8e8e;line-height:1.5;margin-bottom:12px;">今日の日報をもとにAIが振り返りを自動生成します。</p>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
         <button id="reflect-start-btn" onclick="startAutoReflect()" style="padding:6px 14px;border:none;border-radius:7px;background:#e69a73;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
-          <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" style="width:13px;height:13px;border-radius:3px;" onerror="this.style.display='none'"> 振り返りを生成
+          <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" style="width:13px;height:13px;border-radius:3px;" onerror="this.classList.add('is-hidden')"> 振り返りを生成
         </button>
         <span id="reflect-status" style="font-size:0.78rem;color:#8e8e8e;"></span>
       </div>
-      <div id="reflect-output" style="display:none;">
+      <div id="reflect-output" class="is-hidden">
         <div class="reflect-result" id="reflect-ai-result"></div>
         <div style="margin-top:10px;">
           <label style="font-size:0.78rem;color:#8e8e8e;display:block;margin-bottom:4px;">💬 追加コメント（任意）</label>
@@ -381,6 +381,11 @@ const MOBILE_BREAKPOINT = 768;
 
 // ========== ボトムナビ切り替え（スマホ） ==========
 function switchBottomNav(section) {
+  const setHidden = (element, hidden) => {
+    if (!element) return;
+    element.classList.toggle('is-hidden', hidden);
+  };
+
   document.querySelectorAll('.bottom-nav-item').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.section === section);
   });
@@ -398,33 +403,33 @@ function switchBottomNav(section) {
 
   closeMobileSideMenu();
 
-  colCalendar.style.display = 'none';
-  colMain.style.display     = 'none';
-  colRight.style.display    = 'none';
+  setHidden(colCalendar, true);
+  setHidden(colMain, true);
+  setHidden(colRight, true);
 
-  if (taskWidgetCard) taskWidgetCard.style.display = 'block';
-  if (quickMemoCard) quickMemoCard.style.display = 'none';
+  setHidden(taskWidgetCard, false);
+  setHidden(quickMemoCard, true);
 
   if (section === 'report') {
-    colMain.style.display = 'block';
+    setHidden(colMain, false);
     switchMainTab('report');
   } else if (section === 'tasks') {
-    colCalendar.style.display = 'block';
+    setHidden(colCalendar, false);
     // タスクウィジェットのみ表示（カレンダーは非表示）
-    if (gcalPlaceholder) gcalPlaceholder.style.display = 'none';
-    if (gcalIframe) gcalIframe.style.display = 'none';
+    setHidden(gcalPlaceholder, true);
+    setHidden(gcalIframe, true);
   } else if (section === 'memo') {
-    colCalendar.style.display = 'block';
-    if (taskWidgetCard) taskWidgetCard.style.display = 'none';
+    setHidden(colCalendar, false);
+    setHidden(taskWidgetCard, true);
     if (quickMemoCard) {
-      quickMemoCard.style.display = 'block';
+      setHidden(quickMemoCard, false);
     } else if (taskWidgetCard) {
-      taskWidgetCard.style.display = 'block';
+      setHidden(taskWidgetCard, false);
     }
-    if (gcalPlaceholder) gcalPlaceholder.style.display = 'none';
-    if (gcalIframe) gcalIframe.style.display = 'none';
+    setHidden(gcalPlaceholder, true);
+    setHidden(gcalIframe, true);
   } else if (section === 'ai') {
-    colMain.style.display = 'block';
+    setHidden(colMain, false);
     switchMainTab('ai');
   }
 }
@@ -435,7 +440,7 @@ function toggleMobileSideMenu() {
   if (!colRight || !overlay || window.innerWidth > MOBILE_BREAKPOINT) return;
 
   const isOpen = colRight.classList.contains('mobile-open');
-  colRight.style.display = 'flex';
+  colRight.classList.remove('is-hidden');
   colRight.classList.toggle('mobile-open', !isOpen);
   overlay.classList.toggle('open', !isOpen);
   document.body.style.overflow = isOpen ? '' : 'hidden';
@@ -451,7 +456,7 @@ function closeMobileSideMenu() {
   document.body.style.overflow = '';
 
   if (window.innerWidth <= MOBILE_BREAKPOINT) {
-    colRight.style.display = 'none';
+    colRight.classList.add('is-hidden');
   }
 }
 
@@ -465,6 +470,10 @@ function syncResponsiveLayout() {
   const colCalendar = document.getElementById('col-calendar');
   const colMain = document.getElementById('col-main');
   const colRight = document.getElementById('col-right');
+  const setHidden = (element, hidden) => {
+    if (!element) return;
+    element.classList.toggle('is-hidden', hidden);
+  };
   if (!colCalendar || !colMain || !colRight) return;
 
   if (window.innerWidth <= MOBILE_BREAKPOINT) {
@@ -475,8 +484,8 @@ function syncResponsiveLayout() {
   }
 
   closeMobileSideMenu();
-  colMain.style.display = 'block';
-  colRight.style.display = 'flex';
+  setHidden(colMain, false);
+  setHidden(colRight, false);
   applyCalendarVisibility();
 }
 
@@ -497,11 +506,17 @@ updateIssueBtns();
 // ※カレンダー埋め込み URL は localStorage に保存されている場合のみ読み込む
 const GCAL_URL_KEY = 'gcal_embed_url';
 const gcalUrl = localStorage.getItem(GCAL_URL_KEY);
+const gcalIframeEl = document.getElementById('gcal-iframe');
+const gcalPlaceholderEl = document.getElementById('gcal-placeholder');
 if (gcalUrl) {
-  document.getElementById('gcal-iframe').src = gcalUrl;
-  document.getElementById('gcal-iframe').style.display = 'block';
+  if (gcalIframeEl) {
+    gcalIframeEl.src = gcalUrl;
+    gcalIframeEl.classList.remove('is-hidden');
+  }
+  if (gcalPlaceholderEl) gcalPlaceholderEl.classList.add('is-hidden');
 } else {
-  document.getElementById('gcal-placeholder').style.display = 'flex';
+  if (gcalPlaceholderEl) gcalPlaceholderEl.classList.remove('is-hidden');
+  if (gcalIframeEl) gcalIframeEl.classList.add('is-hidden');
 }
 
 // カレンダーの表示/非表示設定を適用
