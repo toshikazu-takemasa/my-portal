@@ -164,19 +164,24 @@ function applyCalendarVisibility() {
   const show = getShowCalendar();
   const colCalendar = document.getElementById('col-calendar');
   const layout = document.querySelector('.layout');
+  const isDesktop = window.innerWidth > 1100;
   
   if (colCalendar) {
     colCalendar.style.display = show ? 'block' : 'none';
   }
   
-  // レイアウトを調整して中央カラムが常に中央に来るように
+  // レイアウトを調整（デスクトップのみ固定カラムを適用）
   if (layout) {
-    if (show) {
-      // カレンダー表示時: 3列 (380px, 1fr, 285px)
-      layout.style.gridTemplateColumns = '380px 1fr 285px';
+    if (isDesktop) {
+      if (show) {
+        // カレンダー表示時: 3列 (380px, 1fr, 285px)
+        layout.style.gridTemplateColumns = '380px 1fr 285px';
+      } else {
+        // カレンダー非表示時: 2列 (1fr, 285px)
+        layout.style.gridTemplateColumns = '1fr 285px';
+      }
     } else {
-      // カレンダー非表示時: 2列 (1fr, 285px) で中央カラムが中央に来るように
-      layout.style.gridTemplateColumns = '1fr 285px';
+      layout.style.removeProperty('grid-template-columns');
     }
   }
 }
@@ -189,3 +194,5 @@ function initCalendarDisplay() {
   }
   applyCalendarVisibility();
 }
+
+window.addEventListener('resize', applyCalendarVisibility);

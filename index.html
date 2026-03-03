@@ -365,6 +365,10 @@ function switchBottomNav(section) {
   const colCalendar = document.getElementById('col-calendar');
   const colMain     = document.getElementById('col-main');
   const colRight    = document.getElementById('col-right');
+  const gcalPlaceholder = document.getElementById('gcal-placeholder');
+  const gcalIframe = document.getElementById('gcal-iframe');
+  const taskWidgetCard = document.getElementById('task-widget-card');
+  const quickMemoCard = document.getElementById('quick-memo-card');
 
   if (window.innerWidth > 600) return; // PC では無効
 
@@ -372,25 +376,52 @@ function switchBottomNav(section) {
   colMain.style.display     = 'none';
   colRight.style.display    = 'none';
 
+  if (taskWidgetCard) taskWidgetCard.style.display = 'block';
+  if (quickMemoCard) quickMemoCard.style.display = 'none';
+
   if (section === 'report') {
     colMain.style.display = 'block';
     switchMainTab('report');
   } else if (section === 'tasks') {
     colCalendar.style.display = 'block';
     // タスクウィジェットのみ表示（カレンダーは非表示）
-    document.getElementById('gcal-placeholder').style.display = 'none';
-    document.getElementById('gcal-iframe').style.display = 'none';
+    if (gcalPlaceholder) gcalPlaceholder.style.display = 'none';
+    if (gcalIframe) gcalIframe.style.display = 'none';
   } else if (section === 'memo') {
     colCalendar.style.display = 'block';
-    document.getElementById('task-widget-card').style.display = 'none';
-    document.getElementById('quick-memo-card').style.display = 'block';
-    document.getElementById('gcal-placeholder').style.display = 'none';
-    document.getElementById('gcal-iframe').style.display = 'none';
+    if (taskWidgetCard) taskWidgetCard.style.display = 'none';
+    if (quickMemoCard) {
+      quickMemoCard.style.display = 'block';
+    } else if (taskWidgetCard) {
+      taskWidgetCard.style.display = 'block';
+    }
+    if (gcalPlaceholder) gcalPlaceholder.style.display = 'none';
+    if (gcalIframe) gcalIframe.style.display = 'none';
   } else if (section === 'ai') {
     colMain.style.display = 'block';
     switchMainTab('ai');
   }
 }
+
+function syncResponsiveLayout() {
+  const colCalendar = document.getElementById('col-calendar');
+  const colMain = document.getElementById('col-main');
+  const colRight = document.getElementById('col-right');
+  if (!colCalendar || !colMain || !colRight) return;
+
+  if (window.innerWidth <= 600) {
+    const active = document.querySelector('.bottom-nav-item.active')?.dataset.section || 'report';
+    switchBottomNav(active);
+    return;
+  }
+
+  colMain.style.display = 'block';
+  colRight.style.display = 'flex';
+  applyCalendarVisibility();
+}
+
+window.addEventListener('resize', syncResponsiveLayout);
+syncResponsiveLayout();
 
 // Issues ボタンのリポジトリ URL を動的設定
 function updateIssueBtns() {
