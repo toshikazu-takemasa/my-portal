@@ -81,6 +81,18 @@
       <div id="kintai-url-status" class="modal-status"></div>
     </div>
 
+    <!-- カレンダー表示設定 -->
+    <div class="modal-section">
+      <div class="modal-label">📅 Google Calendar 表示</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <label style="display:flex;align-items:center;cursor:pointer;">
+          <input type="checkbox" id="show-calendar-checkbox" onchange="toggleCalendarDisplay()" style="width:18px;height:18px;cursor:pointer;">
+          <span style="margin-left:8px;font-size:0.85rem;color:#5c5c5c;">カレンダーを表示する</span>
+        </label>
+      </div>
+      <p class="modal-note">非表示にすると画面からカレンダーが消えます</p>
+    </div>
+
     <div class="modal-close-row">
       <button class="btn-modal-close" onclick="closeSettings()">閉じる</button>
     </div>
@@ -454,6 +466,9 @@ if (gcalUrl) {
 } else {
   document.getElementById('gcal-placeholder').style.display = 'flex';
 }
+
+// カレンダーの表示/非表示設定を適用
+applyCalendarVisibility();
 
 // PWA: Service Worker 登録
 if ('serviceWorker' in navigator) {

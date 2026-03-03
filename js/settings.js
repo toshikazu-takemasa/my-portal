@@ -73,6 +73,7 @@ function openSettings() {
   showModalTokenUI();
   showModalClaudeUI();
   showRepoConfig();
+  initCalendarDisplay();
   document.getElementById('modal-status').textContent = '';
 }
 
@@ -136,4 +137,42 @@ function showModalClaudeUI() {
   const has = !!getClaudeKey();
   document.getElementById('modal-claude-set').style.display   = has ? 'block' : 'none';
   document.getElementById('modal-claude-unset').style.display = has ? 'none'  : 'block';
+}
+
+// =====================
+// カレンダー表示設定
+// =====================
+const SHOW_CALENDAR_KEY = 'show_calendar';
+
+function getShowCalendar() {
+  const value = localStorage.getItem(SHOW_CALENDAR_KEY);
+  return value === null ? true : value === 'true'; // デフォルトは表示
+}
+
+function setShowCalendar(show) {
+  localStorage.setItem(SHOW_CALENDAR_KEY, show.toString());
+}
+
+function toggleCalendarDisplay() {
+  const checkbox = document.getElementById('show-calendar-checkbox');
+  const show = checkbox.checked;
+  setShowCalendar(show);
+  applyCalendarVisibility();
+}
+
+function applyCalendarVisibility() {
+  const show = getShowCalendar();
+  const colCalendar = document.getElementById('col-calendar');
+  if (colCalendar) {
+    colCalendar.style.display = show ? 'block' : 'none';
+  }
+}
+
+function initCalendarDisplay() {
+  const show = getShowCalendar();
+  const checkbox = document.getElementById('show-calendar-checkbox');
+  if (checkbox) {
+    checkbox.checked = show;
+  }
+  applyCalendarVisibility();
 }
