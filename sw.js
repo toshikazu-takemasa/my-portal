@@ -48,7 +48,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // 外部 API はキャッシュしない（ネットワークのみ）
+  // 外部 API はネットワークのみ
   if (
     url.hostname === 'api.github.com' ||
     url.hostname === 'api.anthropic.com' ||
@@ -58,7 +58,31 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 静的アセット: キャッシュファースト
+  // 常に更新が必要なファイル: ネットワークファースト
+  const alwaysNetworkFiles = ['index.html', 'portal-config.json', 'daily-checklist.js', 'report.js'];
+  const isAlwaysNetworkFile = alwaysNetworkFiles.some(file => event.request.url.includes(file));
+
+  if (isAlwaysNetworkFile) {
+    // ネットワークファースト戦略
+    event.respondWith(
+      fetch(event.request)
+        .then(res => {
+          // 正常レスポンスはキャッシュに更新
+          if (res.ok && event.request.method === 'GET') {
+            const resClone = res.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, resClone));
+          }
+          return res;
+        })
+        .catch(() => {
+          // オフライン時のみキャッシュ使用
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // その他の静的アセット: キャッシュファースト
   event.respondWith(
     caches.match(event.request)
       .then(cached => cached || fetch(event.request).then(res => {

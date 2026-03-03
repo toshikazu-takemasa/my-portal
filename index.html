@@ -477,10 +477,25 @@ if (gcalUrl) {
 // カレンダーの表示/非表示設定を適用
 applyCalendarVisibility();
 
-// PWA: Service Worker 登録
+// PWA: Service Worker 登録（更新時の再読み込み対応）
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
+      .then(registration => {
+        // Service Worker の更新をチェック
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'activated') {
+              // 新しいworkerが有効になったら自動リロード
+              console.log('Service Worker 更新を検出: ページを再読み込みしています...');
+              window.location.reload();
+            }
+          });
+        });
+        // 定期的にupdateをチェック（5秒ごと）
+        setInterval(() => registration.update(), 5000);
+      })
       .catch(err => console.warn('Service Worker の登録に失敗しました:', err));
   });
 }
