@@ -251,48 +251,10 @@
   <!-- ===== Col 3: Right Column ===== -->
   <div class="right-col" id="col-right">
 
-    <!-- 本日のタスク -->
+    <!-- 本日のチェックリスト（日報テンプレートから） -->
     <div class="card">
-      <h2 style="margin-bottom:14px;">📋 本日のタスク <span id="reset-badge" style="font-size:0.72rem;color:#7a9e6e;font-weight:400;margin-left:6px;"></span></h2>
-
-      <label class="check-item">
-        <input type="checkbox" class="task-check" data-id="w1">
-        <span class="check-label">朝のタスクチェック</span>
-        <span class="check-links">
-          <a class="check-link" id="issues-morning-link" href="https://github.com" target="_blank" title="GitHub Issues" onclick="event.stopPropagation()">
-            <img src="https://www.google.com/s2/favicons?domain=github.com&sz=32" alt="GitHub">
-          </a>
-        </span>
-      </label>
-      <label class="check-item">
-        <input type="checkbox" class="task-check" data-id="w2">
-        <span class="check-label">メール・メッセージ確認</span>
-        <span class="check-links">
-          <a class="check-link" href="https://mail.google.com" target="_blank" title="Gmail" onclick="event.stopPropagation()">
-            <img src="https://www.google.com/s2/favicons?domain=mail.google.com&sz=32" alt="Gmail">
-          </a>
-        </span>
-      </label>
-      <label class="check-item">
-        <input type="checkbox" class="task-check" data-id="w3">
-        <span class="check-label">集中タイム（作業）</span>
-      </label>
-      <label class="check-item">
-        <input type="checkbox" class="task-check" data-id="w4">
-        <span class="check-label">振り返り・日報記入</span>
-        <span class="check-links">
-          <a class="check-link" id="kintai-sheet-link" href="#" target="_blank" title="勤怠・日報シート" onclick="event.stopPropagation()">
-            <img src="https://www.google.com/s2/favicons?domain=docs.google.com&sz=32" alt="勤怠シート">
-          </a>
-        </span>
-      </label>
-      <label class="check-item">
-        <input type="checkbox" class="task-check" data-id="w5">
-        <span class="check-label">明日のタスク整理</span>
-      </label>
-
-      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-      <div class="progress-text" id="progress-text">0 / 5</div>
+      <h2 style="margin-bottom:14px;">📋 本日のチェックリスト</h2>
+      <div id="daily-checklist-list-right" class="daily-checklist"></div>
     </div>
 
     <!-- 日の3つの柱（アコーディオン） -->
