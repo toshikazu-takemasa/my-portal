@@ -68,6 +68,11 @@ function renderDailyChecklist() {
 }
 
 // ページ読み込み時に実行
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    loadDailyTasks();
+  });
+} else {
+  // スクリプトが </body> の直前で読み込まれる場合、DOMContentLoaded は既に発火している
   loadDailyTasks();
-});
+}
