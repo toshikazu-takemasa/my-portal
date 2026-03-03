@@ -230,6 +230,10 @@
   <!-- ===== Col 3: Right Column ===== -->
   <div class="right-col" id="col-right">
 
+    <div class="side-panel-head">
+      <button class="side-close-btn" onclick="closeMobileSideMenu()">✕ 閉じる</button>
+    </div>
+
     <!-- 本日のチェックリスト（日報テンプレートから） -->
     <div class="card">
       <h2 style="margin-bottom:14px;">📋 本日のチェックリスト</h2>
@@ -435,6 +439,12 @@ function closeMobileSideMenu() {
     colRight.style.display = 'none';
   }
 }
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    closeMobileSideMenu();
+  }
+});
 
 function syncResponsiveLayout() {
   const colCalendar = document.getElementById('col-calendar');

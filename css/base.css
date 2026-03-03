@@ -139,6 +139,22 @@ header h1 {
   gap: 16px;
 }
 
+.side-panel-head {
+  display: none;
+}
+
+.side-close-btn {
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-sub);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  min-height: 36px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
 /* ========== Quick Links (Card Grid) ========== */
 .links-grid {
   display: grid;
@@ -482,6 +498,11 @@ header h1 {
     transform: translateX(110%);
     transition: transform 0.22s ease;
     box-shadow: -6px 0 20px rgba(0,0,0,0.12);
+  }
+
+  .side-panel-head {
+    display: flex;
+    justify-content: flex-end;
   }
 
   .right-col.mobile-open {
