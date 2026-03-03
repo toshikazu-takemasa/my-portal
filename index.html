@@ -151,10 +151,10 @@
   <!-- ===== Col 2: Tabs (日報 / クイックリンク / AI) ===== -->
   <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="col-main">
     <!-- メインタブ -->
-    <div class="main-tabs">
-      <button class="main-tab active" id="mtab-report" onclick="switchMainTab('report')">📄 日報</button>
-      <button class="main-tab" id="mtab-links" onclick="switchMainTab('links')">🔗 クイックリンク</button>
-      <button class="main-tab" id="mtab-ai" onclick="switchMainTab('ai')">
+    <div class="main-tabs !flex !gap-0.5 !mb-[18px] !border-b-[1.5px] !border-b-[var(--border)] !pb-0">
+      <button class="main-tab active !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-report" onclick="switchMainTab('report')">📄 日報</button>
+      <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-links" onclick="switchMainTab('links')">🔗 クイックリンク</button>
+      <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-ai" onclick="switchMainTab('ai')">
         <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" style="width:14px;height:14px;vertical-align:-2px;border-radius:3px;margin-right:3px;" onerror="this.style.display='none'"> AI
       </button>
     </div>
@@ -162,9 +162,9 @@
     <!-- 日報パネル -->
     <div id="main-panel-report">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div class="report-tabs">
-          <button class="report-tab active" id="tab-preview" onclick="switchTab('preview')">プレビュー</button>
-          <button class="report-tab" id="tab-edit" onclick="switchTab('edit')">編集</button>
+        <div class="report-tabs !flex !bg-[var(--section-bg)] !rounded-[var(--radius-sm)] !p-0.5 !gap-0.5 !border !border-[var(--border)]">
+          <button class="report-tab active !px-3 !py-1 !border-0 !rounded-[5px] !text-[0.76rem] !font-semibold !cursor-pointer !bg-transparent !text-[var(--text-sub)] !transition-all [&.active]:!bg-[var(--card-bg)] [&.active]:!text-[var(--text)] [&.active]:!shadow-[0_1px_3px_rgba(0,0,0,0.06)]" id="tab-preview" onclick="switchTab('preview')">プレビュー</button>
+          <button class="report-tab !px-3 !py-1 !border-0 !rounded-[5px] !text-[0.76rem] !font-semibold !cursor-pointer !bg-transparent !text-[var(--text-sub)] !transition-all [&.active]:!bg-[var(--card-bg)] [&.active]:!text-[var(--text)] [&.active]:!shadow-[0_1px_3px_rgba(0,0,0,0.06)]" id="tab-edit" onclick="switchTab('edit')">編集</button>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
           <button class="regen-btn" id="regen-btn" onclick="regenReport()">↻ 日報を再生成</button>

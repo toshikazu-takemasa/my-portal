@@ -37,7 +37,8 @@
 ## レイアウトFW試験導入（Tailwind PoC）
 
 - Tailwind は **CDN版を最小導入** しています（ビルド工程なし）。
-- 現在の適用範囲は **`.layout` / `header` / `card` のレイアウト・外枠** です。
+
+- 現在の適用範囲は **`.layout` / `header` / `card` / `main-tabs` / `report-tabs` のレイアウト・外枠** です。
 	- モバイル: 1カラム
 	- タブレット: 2カラム
 	- デスクトップ: `380px 1fr 285px`
