@@ -4,6 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Private Portal</title>
+  <script>
+    tailwind = {
+      config: {
+        theme: {
+          extend: {
+            screens: {
+              tablet: '769px',
+              desktop: '1101px'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#e69a73">
@@ -99,17 +114,17 @@
   </div>
 </div>
 
-<header>
-  <h1>My Portal</h1>
-  <span id="today"></span>
+<header class="!flex !items-center !gap-4 !mb-6 !max-w-[1400px] !mx-auto max-[768px]:!mb-[14px]">
+  <h1 class="!text-[1.25rem] !font-bold !text-[var(--text)] !tracking-[-0.01em] max-[768px]:!text-[1rem]">My Portal</h1>
+  <span id="today" class="!text-[0.88rem] !text-[var(--text-sub)] !flex-1"></span>
   <button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleMobileSideMenu()" title="メニュー">☰</button>
   <button class="settings-btn" onclick="openSettings()" title="設定">⚙️</button>
 </header>
 
-<div class="layout">
+<div class="layout !grid !grid-cols-1 tablet:!grid-cols-2 desktop:![grid-template-columns:380px_minmax(0,1fr)_285px] !gap-4 !max-w-[1400px] !mx-auto !items-start">
 
   <!-- ===== Col 1: Google Calendar ===== -->
-  <div class="card" id="col-calendar">
+  <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="col-calendar">
     <h2>📅 Google Calendar</h2>
     <div id="gcal-placeholder" class="gcal-placeholder" style="display:none;">
       <p style="font-size:0.82rem;color:#8e8e8e;text-align:center;">Google Calendar を表示するには<br>設定でカレンダー埋め込み URL を入力してください</p>
@@ -121,7 +136,7 @@
     <!-- 削除（右側に統合） -->
 
     <!-- タスクウィジェット（スマホ: col1 に表示） -->
-    <div class="card" id="task-widget-card" style="margin-top:16px;padding:0;border:none;box-shadow:none;">
+    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="task-widget-card" style="margin-top:16px;padding:0;border:none;box-shadow:none;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <h2 style="margin-bottom:0;">📌 タスク</h2>
       </div>
@@ -134,7 +149,7 @@
   </div>
 
   <!-- ===== Col 2: Tabs (日報 / クイックリンク / AI) ===== -->
-  <div class="card" id="col-main">
+  <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="col-main">
     <!-- メインタブ -->
     <div class="main-tabs">
       <button class="main-tab active" id="mtab-report" onclick="switchMainTab('report')">📄 日報</button>
@@ -235,13 +250,13 @@
     </div>
 
     <!-- 本日のチェックリスト（日報テンプレートから） -->
-    <div class="card">
+    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]">
       <h2 style="margin-bottom:14px;">📋 本日のチェックリスト</h2>
       <div id="daily-checklist-list-right" class="daily-checklist"></div>
     </div>
 
     <!-- 日の3つの柱（アコーディオン） -->
-    <div class="card">
+    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]">
       <div class="accordion-header" id="pillars-header" onclick="togglePillars()">
         <div class="acc-left">
           <h2 style="margin-bottom:0;">🏛️ 日の3つの柱</h2>
@@ -296,7 +311,7 @@
     </div>
 
     <!-- 振り返り -->
-    <div class="card">
+    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]">
       <h2 style="margin-bottom:10px;">📔 振り返り</h2>
       <p style="font-size:0.8rem;color:#8e8e8e;line-height:1.5;margin-bottom:12px;">今日の日報をもとにAIが振り返りを自動生成します。</p>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
