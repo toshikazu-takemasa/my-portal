@@ -3,7 +3,7 @@
   display: none;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .bottom-nav {
     display: flex;
     position: fixed;
@@ -180,7 +180,7 @@
 }
 
 /* スマホでのタップ領域拡大 */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .task-filter-tab {
     min-height: 36px;
     padding: 6px 12px;

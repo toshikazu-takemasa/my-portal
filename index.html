@@ -355,6 +355,8 @@
 <script src="js/ai-chat.js"></script>
 
 <script>
+const MOBILE_BREAKPOINT = 768;
+
 // ========== ボトムナビ切り替え（スマホ） ==========
 function switchBottomNav(section) {
   document.querySelectorAll('.bottom-nav-item').forEach(btn => {
@@ -370,7 +372,7 @@ function switchBottomNav(section) {
   const taskWidgetCard = document.getElementById('task-widget-card');
   const quickMemoCard = document.getElementById('quick-memo-card');
 
-  if (window.innerWidth > 600) return; // PC では無効
+  if (window.innerWidth > MOBILE_BREAKPOINT) return; // PC では無効
 
   colCalendar.style.display = 'none';
   colMain.style.display     = 'none';
@@ -409,7 +411,7 @@ function syncResponsiveLayout() {
   const colRight = document.getElementById('col-right');
   if (!colCalendar || !colMain || !colRight) return;
 
-  if (window.innerWidth <= 600) {
+  if (window.innerWidth <= MOBILE_BREAKPOINT) {
     const active = document.querySelector('.bottom-nav-item.active')?.dataset.section || 'report';
     switchBottomNav(active);
     return;
