@@ -1,7 +1,7 @@
 // =====================
 // Service Worker - Private Portal
 // =====================
-const CACHE_NAME = 'private-portal-v1';
+const CACHE_NAME = 'private-portal-v3';
 
 const STATIC_ASSETS = [
   './',
@@ -18,9 +18,9 @@ const STATIC_ASSETS = [
   './js/quicklinks.js',
   './js/github.js',
   './js/report.js',
-  './js/ai-chat.js',
   './js/tasks.js',
-  './js/quick-memo.js',
+  './js/daily-checklist.js',
+  './js/ai-chat.js',
   './manifest.json',
 ];
 

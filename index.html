@@ -416,26 +416,28 @@ if (gcalUrl) {
 // カレンダーの表示/非表示設定を適用
 applyCalendarVisibility();
 
-// PWA: Service Worker 登録（更新時の再読み込み対応）
+// PWA: Service Worker 登録（キャッシュ更新対応）
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then(registration => {
-        // Service Worker の更新をチェック
+        // Service Worker の更新をチェック（定期的に5秒ごと）
+        setInterval(() => registration.update(), 5000);
+        
+        // updatefound イベント: 新しいworkerがインストール中
         registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'activated') {
-              // 新しいworkerが有効になったら自動リロード
-              console.log('Service Worker 更新を検出: ページを再読み込みしています...');
+            if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+              // workerが切り替わり、既に古いworkerがactiveだった場合のみリロード
+              // これにより無限リロードを防ぐ
+              console.log('Service Worker 更新を検出: ページを再読み込みします');
               window.location.reload();
             }
           });
         });
-        // 定期的にupdateをチェック（5秒ごと）
-        setInterval(() => registration.update(), 5000);
       })
-      .catch(err => console.warn('Service Worker の登録に失敗しました:', err));
+      .catch(err => console.warn('Service Worker 登録エラー:', err));
   });
 }
 </script>
