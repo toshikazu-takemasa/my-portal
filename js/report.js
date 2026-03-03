@@ -72,6 +72,7 @@ async function fetchDailyReport() {
       metaEl.textContent  = '日報ファイルなし';
       // 新規作成用にテンプレートを用意
       reportContent = generateDailyReportTemplate();
+      reportSha     = '';
       return;
     }
     if (res.status === 401) {
@@ -178,7 +179,6 @@ async function pushReportToGitHub(message) {
     if (res.ok) {
       const data = await res.json();
       reportSha = data.content.sha;
-      reportContent = template;
       renderCurrentTab();
       if (saveEl) { saveEl.style.color = '#1a7f37'; saveEl.textContent = '✅ 保存しました'; }
       const now = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
@@ -220,6 +220,7 @@ async function regenReport() {
       body: JSON.stringify({
         message: '🆕 日報を新規作成',
         content: encodeUtf8Base64(template),
+        ...(reportSha ? { sha: reportSha } : {}),
       })
     });
 
