@@ -19,9 +19,15 @@ function save() {
 function updateProgress() {
   const total = checkboxes.length;
   const done  = Array.from(checkboxes).filter(c => c.checked).length;
-  document.getElementById('progress-fill').style.width = (done / total * 100) + '%';
-  document.getElementById('progress-text').textContent = done + ' / ' + total;
-  document.getElementById('reset-badge').textContent   = done === total ? '✅ 完了' : '';
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const resetBadge = document.getElementById('reset-badge');
+  if (progressFill) {
+    const ratio = total === 0 ? 0 : (done / total * 100);
+    progressFill.style.width = ratio + '%';
+  }
+  if (progressText) progressText.textContent = done + ' / ' + total;
+  if (resetBadge) resetBadge.textContent = total > 0 && done === total ? '✅ 完了' : '';
 }
 
 checkboxes.forEach(cb => {
@@ -34,7 +40,7 @@ checkboxes.forEach(cb => {
 updateProgress();
 
 // =====================
-// 日の3つの柱（アコーディオン）
+// 確認事項（アコーディオン）
 // =====================
 let pillarsOpen = false;
 const CHECKLIST_PILLARS_CONFIG_KEY = 'pillars_config_v1';
