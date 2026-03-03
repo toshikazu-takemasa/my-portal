@@ -43,6 +43,28 @@ function generateDailyReportTemplate() {
   return template;
 }
 
+async function getCurrentDailyReportSha(token, repo) {
+  const path        = getDailyReportPath();
+  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+  const apiUrl      = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
+
+  const res = await fetch(apiUrl, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github+json',
+    },
+  });
+
+  if (res.status === 404) return null;  // 新規作成
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(`sha 取得失敗 (${res.status}): ${err.message || ''}`);
+  }
+
+  const data = await res.json();
+  return data.sha || null;
+}
+
 async function fetchDailyReport() {
   const token = getToken();
   if (!token) {
@@ -153,13 +175,29 @@ async function saveDailyReport() {
 
 async function pushReportToGitHub(message) {
   const token = getToken();
-  if (!token || !getRepo()) return;
+  const repo = getRepo();
+  if (!token || !repo) return;
 
   const saveEl  = document.getElementById('save-status');
   const metaEl  = document.getElementById('report-meta');
   const path        = getDailyReportPath();
   const encodedPath = path.split('/').map(encodeURIComponent).join('/');
-  const apiUrl      = `https://api.github.com/repos/${getRepo()}/contents/${encodedPath}`;
+  const apiUrl      = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
+
+  if (!reportSha) {
+    try {
+      reportSha = await getCurrentDailyReportSha(token, repo) || '';
+    } catch (e) {
+      if (saveEl) { saveEl.style.color = '#cf222e'; saveEl.textContent = `保存失敗: ${e.message}`; }
+      return;
+    }
+  }
+
+  const body = {
+    message,
+    content: encodeUtf8Base64(reportContent),
+    ...(reportSha ? { sha: reportSha } : {}),
+  };
 
   try {
     const res = await fetch(apiUrl, {
@@ -169,11 +207,7 @@ async function pushReportToGitHub(message) {
         Accept: 'application/vnd.github+json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        message,
-        content: encodeUtf8Base64(reportContent),
-        sha: reportSha,
-      })
+      body: JSON.stringify(body)
     });
 
     if (res.ok) {
@@ -210,6 +244,15 @@ async function regenReport() {
   try {
     const template = generateDailyReportTemplate();
 
+    let latestSha;
+    try {
+      latestSha = await getCurrentDailyReportSha(token, repo);
+    } catch (e) {
+      statusEl.style.color = '#cf222e';
+      statusEl.textContent = `生成失敗: ${e.message}`;
+      return;
+    }
+
     const res = await fetch(apiUrl, {
       method: 'PUT',
       headers: {
@@ -218,9 +261,9 @@ async function regenReport() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: '🆕 日報を新規作成',
+        message: latestSha != null ? '📝 日報を再生成' : '🆕 日報を新規作成',
         content: encodeUtf8Base64(template),
-        ...(reportSha ? { sha: reportSha } : {}),
+        ...(latestSha != null ? { sha: latestSha } : {}),
       })
     });
 
