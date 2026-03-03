@@ -102,6 +102,7 @@
 <header>
   <h1>My Portal</h1>
   <span id="today"></span>
+  <button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleMobileSideMenu()" title="メニュー">☰</button>
   <button class="settings-btn" onclick="openSettings()" title="設定">⚙️</button>
 </header>
 
@@ -317,6 +318,8 @@
 
 </div><!-- /layout -->
 
+<div class="mobile-side-overlay" id="mobile-side-overlay" onclick="closeMobileSideMenu()"></div>
+
 <!-- ========== ボトムナビゲーション（スマホ） ========== -->
 <nav class="bottom-nav" id="bottom-nav">
   <button class="bottom-nav-item active" data-section="report" onclick="switchBottomNav('report')">
@@ -374,6 +377,8 @@ function switchBottomNav(section) {
 
   if (window.innerWidth > MOBILE_BREAKPOINT) return; // PC では無効
 
+  closeMobileSideMenu();
+
   colCalendar.style.display = 'none';
   colMain.style.display     = 'none';
   colRight.style.display    = 'none';
@@ -405,6 +410,32 @@ function switchBottomNav(section) {
   }
 }
 
+function toggleMobileSideMenu() {
+  const colRight = document.getElementById('col-right');
+  const overlay = document.getElementById('mobile-side-overlay');
+  if (!colRight || !overlay || window.innerWidth > MOBILE_BREAKPOINT) return;
+
+  const isOpen = colRight.classList.contains('mobile-open');
+  colRight.style.display = 'flex';
+  colRight.classList.toggle('mobile-open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+  document.body.style.overflow = isOpen ? '' : 'hidden';
+}
+
+function closeMobileSideMenu() {
+  const colRight = document.getElementById('col-right');
+  const overlay = document.getElementById('mobile-side-overlay');
+  if (!colRight || !overlay) return;
+
+  colRight.classList.remove('mobile-open');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+
+  if (window.innerWidth <= MOBILE_BREAKPOINT) {
+    colRight.style.display = 'none';
+  }
+}
+
 function syncResponsiveLayout() {
   const colCalendar = document.getElementById('col-calendar');
   const colMain = document.getElementById('col-main');
@@ -413,10 +444,12 @@ function syncResponsiveLayout() {
 
   if (window.innerWidth <= MOBILE_BREAKPOINT) {
     const active = document.querySelector('.bottom-nav-item.active')?.dataset.section || 'report';
+    closeMobileSideMenu();
     switchBottomNav(active);
     return;
   }
 
+  closeMobileSideMenu();
   colMain.style.display = 'block';
   colRight.style.display = 'flex';
   applyCalendarVisibility();

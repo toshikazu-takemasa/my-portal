@@ -73,6 +73,29 @@ header h1 {
 
 .settings-btn:hover { background: var(--accent-light); border-color: var(--accent); }
 
+.mobile-menu-btn {
+  display: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+  color: var(--text-sub);
+  font-size: 1rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.mobile-menu-btn:hover { background: var(--accent-light); border-color: var(--accent); }
+
+.mobile-side-overlay {
+  display: none;
+}
+
 /* ========== Layout ========== */
 .layout {
   display: grid;
@@ -400,6 +423,12 @@ header h1 {
     padding: 12px 12px 72px; /* ボトムナビ分の下余白 */
   }
 
+  .mobile-menu-btn {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+  }
+
   header {
     margin-bottom: 14px;
   }
@@ -427,6 +456,36 @@ header h1 {
   .settings-btn {
     width: 44px;
     height: 44px;
+  }
+
+  .mobile-side-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(61,61,61,0.28);
+    z-index: 58;
+  }
+
+  .mobile-side-overlay.open {
+    display: block;
+  }
+
+  .right-col {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 60px;
+    width: min(92vw, 360px);
+    padding: 14px 12px;
+    background: var(--bg);
+    z-index: 60;
+    overflow-y: auto;
+    transform: translateX(110%);
+    transition: transform 0.22s ease;
+    box-shadow: -6px 0 20px rgba(0,0,0,0.12);
+  }
+
+  .right-col.mobile-open {
+    transform: translateX(0);
   }
 
   .links-grid {
