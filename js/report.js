@@ -14,6 +14,35 @@ function getDailyReportPath() {
   return `保管庫/日報/${y}-${m}-${d}_${days[jst.getDay()]}_日報.md`;
 }
 
+function generateDailyReportTemplate() {
+  const jst  = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+  const y    = jst.getFullYear();
+  const m    = String(jst.getMonth() + 1).padStart(2, '0');
+  const d    = String(jst.getDate()).padStart(2, '0');
+  const headerDate = `${y}-${m}-${d}`;
+  
+  const template = `# ${headerDate}
+
+- [ ] 朝メールチェック  
+- [ ] 夜マネーフォワード  
+- [ ] タスクチェック  
+- [ ] [エクササイズ](https://youtu.be/GxDRXrpJjpI?si=kQMTI3Ps8Eo2bE4k)：5分  
+- [ ] 読書または勉強
+
+[数基礎](https://suukiso.com/):
+
+残予算：　日   
+次回クレカ：
+
+—
+
+- [ ] 確定申告  
+- [ ] 緑瓶
+
+`;
+  return template;
+}
+
 async function fetchDailyReport() {
   const token = getToken();
   if (!token) {
@@ -41,6 +70,8 @@ async function fetchDailyReport() {
     if (res.status === 404) {
       previewEl.innerHTML = '<p class="md-empty">日報がまだ作成されていません。<br>「↻ 日報を再生成」で生成してください。</p>';
       metaEl.textContent  = '日報ファイルなし';
+      // 新規作成用にテンプレートを用意
+      reportContent = generateDailyReportTemplate();
       return;
     }
     if (res.status === 401) {
@@ -147,6 +178,8 @@ async function pushReportToGitHub(message) {
     if (res.ok) {
       const data = await res.json();
       reportSha = data.content.sha;
+      reportContent = template;
+      renderCurrentTab();
       if (saveEl) { saveEl.style.color = '#1a7f37'; saveEl.textContent = '✅ 保存しました'; }
       const now = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
       metaEl.textContent = `保存完了 ${now}（git pull で同期）`;
@@ -156,5 +189,58 @@ async function pushReportToGitHub(message) {
     }
   } catch (e) {
     if (saveEl) { saveEl.style.color = '#cf222e'; saveEl.textContent = '保存エラー'; }
+  }
+}
+
+async function regenReport() {
+  const token = getToken();
+  const repo = getRepo();
+  if (!token || !repo) { alert('GitHub PAT とリポジトリを設定してください'); return; }
+
+  const btn = document.getElementById('regen-btn');
+  const statusEl = document.getElementById('regen-status');
+  btn.disabled = true;
+  statusEl.style.display = 'block';
+  statusEl.textContent = '生成中…';
+
+  const path        = getDailyReportPath();
+  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+  const apiUrl      = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
+
+  try {
+    const template = generateDailyReportTemplate();
+
+    const res = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: '🆕 日報を新規作成',
+        content: encodeUtf8Base64(template),
+      })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      reportSha = data.content.sha;
+      reportContent = template;
+      renderCurrentTab();
+      switchTab('preview');
+      statusEl.style.color = '#1a7f37';
+      statusEl.textContent = '✅ テンプレートを生成しました';
+      setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+    } else {
+      const err = await res.json().catch(() => ({}));
+      statusEl.style.color = '#cf222e';
+      statusEl.textContent = `生成失敗: ${err.message || res.status}`;
+    }
+  } catch (e) {
+    statusEl.style.color = '#cf222e';
+    statusEl.textContent = '生成エラー';
+  } finally {
+    btn.disabled = false;
   }
 }
