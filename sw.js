@@ -1,7 +1,7 @@
 // =====================
 // Service Worker - Private Portal
 // =====================
-const CACHE_NAME = 'private-portal-v4';
+const CACHE_NAME = 'private-portal-v5';
 
 const STATIC_ASSETS = [
   './',
@@ -58,17 +58,25 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 常に更新が必要なファイル: ネットワークファースト
-  const alwaysNetworkFiles = ['index.html', 'portal-config.json', 'daily-checklist.js', 'report.js'];
-  const isAlwaysNetworkFile = alwaysNetworkFiles.some(file => event.request.url.includes(file));
+  const isGet = event.request.method === 'GET';
+  const isSameOrigin = url.origin === self.location.origin;
+  const isAppShell = isSameOrigin && (
+    url.pathname === '/' ||
+    url.pathname.endsWith('/index.html') ||
+    url.pathname.endsWith('.html') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('portal-config.json') ||
+    url.pathname.endsWith('manifest.json')
+  );
 
-  if (isAlwaysNetworkFile) {
+  if (isGet && isAppShell) {
     // ネットワークファースト戦略
     event.respondWith(
       fetch(event.request)
         .then(res => {
           // 正常レスポンスはキャッシュに更新
-          if (res.ok && event.request.method === 'GET') {
+          if (res.ok) {
             const resClone = res.clone();
             caches.open(CACHE_NAME).then(cache => cache.put(event.request, resClone));
           }
@@ -87,7 +95,7 @@ self.addEventListener('fetch', event => {
     caches.match(event.request)
       .then(cached => cached || fetch(event.request).then(res => {
         // 正常レスポンスはキャッシュに追加
-        if (res.ok && event.request.method === 'GET') {
+        if (res.ok && isGet) {
           const resClone = res.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, resClone));
         }
