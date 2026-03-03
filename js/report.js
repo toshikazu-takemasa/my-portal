@@ -120,17 +120,25 @@ async function fetchDailyReport() {
 
 function switchMainTab(name) {
   ['report', 'links', 'ai'].forEach(t => {
-    document.getElementById('mtab-' + t).classList.toggle('active', t === name);
-    document.getElementById('main-panel-' + t).classList.toggle('is-hidden', t !== name);
+    const tabEl = document.getElementById('mtab-' + t);
+    const panelEl = document.getElementById('main-panel-' + t);
+    const isActive = t === name;
+    tabEl.classList.toggle('active', isActive);
+    panelEl.classList.toggle('is-hidden', !isActive);
+    if (isActive) panelEl.style.removeProperty('display');
   });
 }
 
 function switchTab(tab) {
   reportTab = tab;
+  const previewEl = document.getElementById('report-preview');
+  const editEl = document.getElementById('report-edit');
   document.getElementById('tab-preview').classList.toggle('active', tab === 'preview');
   document.getElementById('tab-edit').classList.toggle('active', tab === 'edit');
-  document.getElementById('report-preview').classList.toggle('is-hidden', tab !== 'preview');
-  document.getElementById('report-edit').classList.toggle('is-hidden', tab !== 'edit');
+  previewEl.classList.toggle('is-hidden', tab !== 'preview');
+  editEl.classList.toggle('is-hidden', tab !== 'edit');
+  if (tab === 'preview') previewEl.style.removeProperty('display');
+  if (tab === 'edit') editEl.style.removeProperty('display');
   renderCurrentTab();
 }
 
@@ -234,6 +242,7 @@ async function regenReport() {
   const btn = document.getElementById('regen-btn');
   const statusEl = document.getElementById('regen-status');
   btn.disabled = true;
+  statusEl.style.removeProperty('display');
   statusEl.classList.remove('is-hidden');
   statusEl.textContent = '生成中…';
 
