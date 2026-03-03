@@ -164,6 +164,7 @@ function applyCalendarVisibility() {
   const show = getShowCalendar();
   const colCalendar = document.getElementById('col-calendar');
   const layout = document.querySelector('.layout');
+  const isMobile = window.innerWidth <= 768;
   const isDesktop = window.innerWidth > 1100;
   const isMobile = window.innerWidth <= 768;
 
