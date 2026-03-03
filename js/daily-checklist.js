@@ -15,8 +15,8 @@ async function loadDailyTasks() {
 }
 
 function renderDailyChecklist() {
+  // 右側のみに表示（左側は削除）
   const listEls = [
-    document.getElementById('daily-checklist-list'),
     document.getElementById('daily-checklist-list-right')
   ];
   

@@ -117,41 +117,19 @@
     <iframe class="gcal-iframe" id="gcal-iframe" src="" frameborder="0" scrolling="no" style="display:none;"></iframe>
 
     <!-- 日々のチェックリスト -->
-    <div class="card" id="daily-checklist-card" style="margin-top:16px;padding:0;border:none;box-shadow:none;">
-      <h2 style="margin-bottom:10px;">📋 今日のチェックリスト</h2>
-      <div id="daily-checklist-list" class="daily-checklist"></div>
-    </div>
+    <!-- 削除（右側に統合） -->
 
     <!-- タスクウィジェット（スマホ: col1 に表示） -->
     <div class="card" id="task-widget-card" style="margin-top:16px;padding:0;border:none;box-shadow:none;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <h2 style="margin-bottom:0;">📌 タスク</h2>
-        <div class="task-filter-tabs">
-          <button class="task-filter-tab" data-filter="today" onclick="switchTaskFilter('today')">P1</button>
-          <button class="task-filter-tab" data-filter="week" onclick="switchTaskFilter('week')">P1/P2</button>
-          <button class="task-filter-tab active" data-filter="all" onclick="switchTaskFilter('all')">すべて</button>
-        </div>
       </div>
       <div class="task-widget-list" id="task-widget-list"></div>
       <div id="task-widget-status" class="issues-status"></div>
     </div>
 
     <!-- クイックメモ -->
-    <div class="card" id="quick-memo-card" style="margin-top:16px;padding:0;border:none;box-shadow:none;">
-      <h2 style="margin-bottom:10px;">⚡ クイックメモ</h2>
-      <div class="quick-memo-form">
-        <input type="text" id="quick-memo-title" class="quick-memo-input" placeholder="タイトルを入力して Issue を即作成…">
-        <div class="quick-memo-actions">
-          <select id="quick-memo-label" class="quick-memo-select">
-            <option value="type: idea">💡 アイデア</option>
-            <option value="type: task">📋 タスク</option>
-            <option value="type: learning">📚 学習</option>
-          </select>
-          <button class="quick-memo-btn" onclick="createQuickMemo()">Issue 作成</button>
-        </div>
-      </div>
-      <div id="quick-memo-status" class="quick-memo-status"></div>
-    </div>
+    <!-- 削除（タスク機能に統合） -->
   </div>
 
   <!-- ===== Col 2: Tabs (日報 / クイックリンク / AI) ===== -->
@@ -373,7 +351,6 @@
 <script src="js/github.js"></script>
 <script src="js/report.js"></script>
 <script src="js/tasks.js"></script>
-<script src="js/quick-memo.js"></script>
 <script src="js/daily-checklist.js"></script>
 <script src="js/ai-chat.js"></script>
 
