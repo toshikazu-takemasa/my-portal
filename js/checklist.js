@@ -36,23 +36,119 @@ updateProgress();
 // =====================
 // 日の3つの柱（アコーディオン）
 // =====================
-const pillarChecks = document.querySelectorAll('.pillar-check');
 let pillarsOpen = false;
+const CHECKLIST_PILLARS_CONFIG_KEY = 'pillars_config_v1';
 
-const savedPillars = JSON.parse(localStorage.getItem(PILLARS_KEY) || '{}');
-pillarChecks.forEach(cb => {
-  cb.checked = !!savedPillars[cb.dataset.pid];
-  cb.closest('.check-item').classList.toggle('done', cb.checked);
+const DEFAULT_PILLARS = [
+  { id: 'p1', title: '扉は常に気をつける' },
+  { id: 'p2', title: 'すり足注意' },
+  { id: 'p3', title: 'こたつの電気' },
+  { id: 'p4', title: '昨日の食器' },
+  { id: 'p5', title: '弁当' },
+  { id: 'p6', title: 'パン' },
+  { id: 'p7', title: '着替え' },
+  { id: 'p8', title: '明日の服' },
+  { id: 'p9', title: 'エアコン' },
+  { id: 'p10', title: 'スマホしまう' }
+];
+
+let pillars = DEFAULT_PILLARS.map(item => ({ ...item }));
+
+function getPillarChecks() {
+  return document.querySelectorAll('.pillar-check');
+}
+
+function renderPillars() {
+  const list = document.getElementById('pillars-list');
+  if (!list) return;
+
+  list.innerHTML = '';
+  pillars.forEach(item => {
+    const label = document.createElement('label');
+    label.className = 'check-item';
+    label.innerHTML =
+      `<input type="checkbox" class="pillar-check" data-pid="${escapeHtml(item.id)}">` +
+      `<span class="check-label">${escapeHtml(item.title)}</span>`;
+    list.appendChild(label);
+  });
+}
+
+function bindPillarCheckEvents() {
+  const pillarChecks = getPillarChecks();
+  pillarChecks.forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.check-item').classList.toggle('done', cb.checked);
+      savePillars();
+    });
+  });
+}
+
+function applySavedPillarsState() {
+  const savedPillars = JSON.parse(localStorage.getItem(PILLARS_KEY) || '{}');
+  const pillarChecks = getPillarChecks();
+  pillarChecks.forEach(cb => {
+    cb.checked = !!savedPillars[cb.dataset.pid];
+    cb.closest('.check-item').classList.toggle('done', cb.checked);
+  });
+}
+
+function setPillars(nextPillars) {
+  if (!Array.isArray(nextPillars) || nextPillars.length === 0) return;
+  pillars = nextPillars.map((item, idx) => ({
+    id: (item.id || `p${idx + 1}`).toString(),
+    title: (item.title || '').toString().trim()
+  })).filter(item => item.title);
+  if (pillars.length === 0) pillars = DEFAULT_PILLARS.map(item => ({ ...item }));
+
+  renderPillars();
+  applySavedPillarsState();
+  bindPillarCheckEvents();
+  updatePillarsChip();
+}
+
+async function loadPillarsConfig() {
+  const stored = localStorage.getItem(CHECKLIST_PILLARS_CONFIG_KEY);
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) setPillars(parsed);
+    } catch {}
+  } else {
+    setPillars(DEFAULT_PILLARS);
+  }
+
+  try {
+    const res = await fetch('./data/portal-config.json');
+    if (!res.ok) return;
+    const config = await res.json();
+    if (Array.isArray(config.pillars) && config.pillars.length > 0) {
+      localStorage.setItem(CHECKLIST_PILLARS_CONFIG_KEY, JSON.stringify(config.pillars));
+      setPillars(config.pillars);
+    }
+  } catch (e) {
+    console.warn('Failed to load pillars config:', e);
+  }
+}
+
+window.addEventListener('portal-config-loaded', () => {
+  const stored = localStorage.getItem(CHECKLIST_PILLARS_CONFIG_KEY);
+  if (!stored) return;
+  try {
+    const parsed = JSON.parse(stored);
+    if (Array.isArray(parsed) && parsed.length > 0) setPillars(parsed);
+  } catch {}
 });
 
 function savePillars() {
   const state = {};
+  const pillarChecks = getPillarChecks();
   pillarChecks.forEach(cb => { state[cb.dataset.pid] = cb.checked; });
   localStorage.setItem(PILLARS_KEY, JSON.stringify(state));
   updatePillarsChip();
 }
 
 function updatePillarsChip() {
+  const pillarChecks = getPillarChecks();
   const total = pillarChecks.length;
   const done  = Array.from(pillarChecks).filter(c => c.checked).length;
   const chip  = document.getElementById('pillars-chip');
@@ -67,11 +163,4 @@ function togglePillars() {
   document.getElementById('pillars-header').classList.toggle('open', pillarsOpen);
 }
 
-pillarChecks.forEach(cb => {
-  cb.addEventListener('change', () => {
-    cb.closest('.check-item').classList.toggle('done', cb.checked);
-    savePillars();
-  });
-});
-
-updatePillarsChip();
+loadPillarsConfig();

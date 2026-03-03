@@ -1,8 +1,9 @@
 // =====================
 // portal-config.json 同期レイヤー
-// クイックリンク・勤怠URL を GitHub JSON で永続化
+// クイックリンク・勤怠URL・日の3つの柱 を GitHub JSON で永続化
 // =====================
 const CONFIG_PATH = 'docs/data/portal-config.json';
+const PILLARS_CONFIG_KEY = 'pillars_config_v1';
 
 let portalConfig    = null;  // { links: [...], kintaiUrl: '...' }
 let portalConfigSha = '';
@@ -32,6 +33,11 @@ async function loadPortalConfig() {
       if (portalConfig.kintaiUrl) {
         localStorage.setItem(KINTAI_URL_KEY, portalConfig.kintaiUrl);
       }
+      if (Array.isArray(portalConfig.pillars) && portalConfig.pillars.length > 0) {
+        localStorage.setItem(PILLARS_CONFIG_KEY, JSON.stringify(portalConfig.pillars));
+      }
+
+      window.dispatchEvent(new Event('portal-config-loaded'));
     } else if (res.status === 404) {
       // 初回: localStorage から移行してファイルを作成
       await _migrateToPortalConfig();
@@ -82,7 +88,15 @@ async function savePortalConfig(message = '⚙️ ポータル設定を更新') 
 async function _migrateToPortalConfig() {
   portalConfig = {
     links:     getAllLinks(),
-    kintaiUrl: getKintaiUrl()
+    kintaiUrl: getKintaiUrl(),
+    pillars: (() => {
+      try {
+        const stored = JSON.parse(localStorage.getItem(PILLARS_CONFIG_KEY) || '[]');
+        return Array.isArray(stored) ? stored : [];
+      } catch {
+        return [];
+      }
+    })()
   };
   await savePortalConfig('🔧 portal-config 初期作成（localStorage から移行）');
 }

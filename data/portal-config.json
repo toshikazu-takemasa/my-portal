@@ -14,5 +14,17 @@
     { "id": "dt4", "title": "エクササイズ：5分", "type": "daily", "url": "https://youtu.be/GxDRXrpJjpI?si=kQMTI3Ps8Eo2bE4k" },
     { "id": "dt5", "title": "読書または勉強", "type": "daily" }
   ],
+  "pillars": [
+    { "id": "p1", "title": "扉は常に気をつける" },
+    { "id": "p2", "title": "すり足注意" },
+    { "id": "p3", "title": "こたつの電気" },
+    { "id": "p4", "title": "昨日の食器" },
+    { "id": "p5", "title": "弁当" },
+    { "id": "p6", "title": "パン" },
+    { "id": "p7", "title": "着替え" },
+    { "id": "p8", "title": "明日の服" },
+    { "id": "p9", "title": "エアコン" },
+    { "id": "p10", "title": "スマホしまう" }
+  ],
   "kintaiUrl": ""
 }
