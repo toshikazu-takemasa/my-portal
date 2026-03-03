@@ -14,13 +14,5 @@
     { "id": "dt4", "title": "エクササイズ：5分", "type": "daily", "url": "https://youtu.be/GxDRXrpJjpI?si=kQMTI3Ps8Eo2bE4k" },
     { "id": "dt5", "title": "読書または勉強", "type": "daily" }
   ],
-  "continuingItems": [
-    { "id": "ci1", "title": "確定申告", "priority": "high" },
-    { "id": "ci2", "title": "緑瓶", "priority": "medium" }
-  ],
-  "learningResource": {
-    "name": "数基礎",
-    "url": "https://suukiso.com/"
-  },
   "kintaiUrl": ""
 }
