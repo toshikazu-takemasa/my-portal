@@ -21,7 +21,7 @@ jobs:
             const d    = String(jst.getDate()).padStart(2, '0');
             const days = ['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
             const day  = days[jst.getDay()];
-            const path = `保管庫/日報/${y}-${m}-${d}_${day}_日報.md`;
+            const path = `日記/${y}-${m}-${d}_${day}_日報.md`;
 
             const content = [
               `# ${y}/${m}/${d}（${day}） 日報`,

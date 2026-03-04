@@ -223,7 +223,7 @@ function checkAuth() {
 
 ## 7. 日報・記録管理
 
-現在の `保管庫/日報/` 運用を継続しつつ以下を整備。
+現在の `日記/` 運用を継続しつつ以下を整備。
 
 ### 7-1. ファイル命名規則（変更なし）
 
@@ -234,7 +234,7 @@ YYYY-MM-DD_曜日_日報.md
 ### 7-2. スマホからの日報作成
 
 **方法A: GitHub Mobile**
-- リポジトリ > 保管庫/日報/ > ファイル作成（`.md`）
+- リポジトリ > 日記/ > ファイル作成（`.md`）
 - テンプレートをコピー&ペーストして記入
 
 **方法B: GitHub Actions（自動生成）**
@@ -258,8 +258,8 @@ jobs:
         run: |
           DATE=$(TZ=Asia/Tokyo date +%Y-%m-%d)
           DAY=$(TZ=Asia/Tokyo date +%A)
-          FILE="保管庫/日報/${DATE}_${DAY}_日報.md"
-          cp "保管庫/日報/日報テンプレート.md" "$FILE"
+          FILE="日記/${DATE}_${DAY}_日報.md"
+          cp "日記/日報テンプレート.md" "$FILE"
           sed -i "s/{{DATE}}/$DATE/g" "$FILE"
           git config user.email "action@github.com"
           git config user.name "GitHub Actions"

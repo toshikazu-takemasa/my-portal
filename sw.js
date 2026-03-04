@@ -1,7 +1,7 @@
 // =====================
 // Service Worker - Private Portal
 // =====================
-const CACHE_NAME = 'private-portal-v5';
+const CACHE_NAME = 'private-portal-v6';
 
 const STATIC_ASSETS = [
   './',

@@ -1,18 +1,23 @@
 // =====================
 // 本日のタスク チェックリスト
 // =====================
+var pillarsOpen = false;
+
 const checkboxes = document.querySelectorAll('.task-check');
 
-const saved = JSON.parse(localStorage.getItem(todayKey) || '{}');
+const taskStorageKey = (typeof todayKey !== 'undefined' && todayKey) ? todayKey : null;
+const saved = taskStorageKey ? JSON.parse(localStorage.getItem(taskStorageKey) || '{}') : {};
+
 checkboxes.forEach(cb => {
   cb.checked = !!saved[cb.dataset.id];
   cb.closest('.check-item').classList.toggle('done', cb.checked);
 });
 
 function save() {
+  if (!taskStorageKey) return;
   const state = {};
   checkboxes.forEach(cb => { state[cb.dataset.id] = cb.checked; });
-  localStorage.setItem(todayKey, JSON.stringify(state));
+  localStorage.setItem(taskStorageKey, JSON.stringify(state));
   updateProgress();
 }
 
@@ -42,7 +47,6 @@ updateProgress();
 // =====================
 // 確認事項（アコーディオン）
 // =====================
-let pillarsOpen = false;
 const CHECKLIST_PILLARS_CONFIG_KEY = 'pillars_config_v1';
 
 const DEFAULT_PILLARS = [

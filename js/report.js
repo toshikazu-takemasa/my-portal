@@ -11,7 +11,7 @@ function getDailyReportPath() {
   const m    = String(jst.getMonth() + 1).padStart(2, '0');
   const d    = String(jst.getDate()).padStart(2, '0');
   const days = ['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
-  return `保管庫/日報/${y}-${m}-${d}_${days[jst.getDay()]}_日報.md`;
+  return `日記/${y}-${m}-${d}_${days[jst.getDay()]}_日報.md`;
 }
 
 function generateDailyReportTemplate() {
