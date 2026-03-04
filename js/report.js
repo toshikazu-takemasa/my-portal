@@ -87,8 +87,17 @@ async function getCheckedLinesForReport() {
   return [...checklistLines, ...taskLines];
 }
 
+function getDailyMemoForReport() {
+  const keyDate = (typeof todayISO !== 'undefined' && todayISO)
+    ? todayISO
+    : new Date().toISOString().slice(0, 10);
+  const memo = localStorage.getItem(`daily-memo_${keyDate}`) || '';
+  return memo.trim();
+}
+
 async function applyCheckedChecklistToReportContent(content) {
   const checkedLines = await getCheckedLinesForReport();
+  const memo = getDailyMemoForReport();
   const lines = (content || '').split('\n');
   const headerIdx = lines.findIndex(line => line.startsWith('# '));
   const budgetIdx = lines.findIndex(line => line.trim().startsWith('残予算'));
@@ -103,6 +112,7 @@ async function applyCheckedChecklistToReportContent(content) {
     '',
     ...checkedLines,
     ...(checkedLines.length > 0 ? [''] : []),
+    ...(memo ? ['## 📝 メモ', memo, ''] : []),
     ...after,
   ];
 
@@ -116,13 +126,17 @@ async function generateDailyReportTemplate() {
   const d    = String(jst.getDate()).padStart(2, '0');
   const headerDate = `${y}-${m}-${d}`;
   const checkedLines = await getCheckedLinesForReport();
+  const memo = getDailyMemoForReport();
   const checklistBlock = checkedLines.length > 0
     ? `${checkedLines.join('  \n')}\n\n`
+    : '';
+  const memoBlock = memo
+    ? `## 📝 メモ\n${memo}\n\n`
     : '';
   
   const template = `# ${headerDate}
 
-${checklistBlock}残予算：　日   
+${checklistBlock}${memoBlock}残予算：　日   
 次回クレカ：
 
 `;
