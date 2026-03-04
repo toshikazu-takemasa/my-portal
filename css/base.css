@@ -17,7 +17,6 @@
   --border:       #111111;
   --section-bg:   #f3f3f3;
   --section-bg2:  #e3e3e3;
-  --mobile-bottom-nav-height: 58px;
   --radius-lg:    0px;
   --radius-md:    0px;
   --radius-sm:    0px;
@@ -131,7 +130,7 @@ header h1 {
   position: relative;
   overflow: hidden;
   box-shadow: 8px 8px 0 #c6002b;
-  clip-path: polygon(0 0, 95% 0, 100% 28%, 100% 100%, 4% 100%, 0 76%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 4% 100%, 0 76%);
 }
 
 .analytics-card::after {
@@ -149,6 +148,40 @@ header h1 {
   letter-spacing: 0.14em;
   font-size: 1rem;
   margin-bottom: 8px;
+}
+
+.analytics-main-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.analytics-big {
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 2.8rem;
+  line-height: 1;
+}
+
+.analytics-delta {
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: #111;
+  color: #fff;
+  padding: 3px 6px;
+}
+
+.analytics-bars {
+  height: 54px;
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.analytics-bars span {
+  flex: 1;
+  background: linear-gradient(180deg, #ff2f56 0%, #c6002b 100%);
+  border: 1px solid #111;
 }
 
 .analytics-progress-track {
@@ -169,6 +202,25 @@ header h1 {
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.05em;
+}
+
+.analytics-avatars {
+  display: flex;
+  gap: 8px;
+}
+
+.analytics-avatars span {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  color: #fff;
+  border: 2px solid #c6002b;
+  font-size: 0.75rem;
+  font-weight: 800;
+  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
 }
 
 .mobile-side-overlay {
@@ -204,7 +256,7 @@ header h1 {
   padding: 20px 22px;
   border: 2px solid #111 !important;
   box-shadow: 9px 9px 0 rgba(198, 0, 43, 0.95) !important;
-  clip-path: polygon(0 0, 97% 0, 100% 11%, 100% 100%, 3% 100%, 0 90%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 3% 100%, 0 90%);
   position: relative;
   overflow: hidden;
 }
@@ -551,7 +603,7 @@ header h1 {
 /* ========== スマホ対応 ========== */
 @media (max-width: 768px) {
   body {
-    padding: 10px 10px calc(var(--mobile-bottom-nav-height) + 14px + env(safe-area-inset-bottom, 0px));
+    padding: 10px 10px 72px; /* ボトムナビ分の下余白 */
   }
 
   .mobile-menu-btn {
@@ -585,10 +637,14 @@ header h1 {
     padding: 10px 12px;
   }
 
+  .analytics-big {
+    font-size: 2.35rem;
+  }
+
   .card {
     padding: 14px 14px;
     border-radius: 0;
-    clip-path: polygon(0 0, 97% 0, 100% 8%, 100% 100%, 3% 100%, 0 92%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 3% 100%, 0 92%);
     box-shadow: 6px 6px 0 rgba(198, 0, 43, 0.95) !important;
   }
 
@@ -623,25 +679,15 @@ header h1 {
     position: fixed;
     top: 0;
     right: 0;
-    bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px));
-    height: calc(100dvh - var(--mobile-bottom-nav-height) - env(safe-area-inset-bottom, 0px));
-    max-height: calc(100dvh - var(--mobile-bottom-nav-height) - env(safe-area-inset-bottom, 0px));
+    bottom: 60px;
     width: min(92vw, 340px);
-    padding: 12px 10px calc(20px + env(safe-area-inset-bottom, 0px));
+    padding: 12px 10px;
     background: var(--bg);
     z-index: 60;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-    overscroll-behavior: contain;
     transform: translateX(110%);
     transition: transform 0.22s ease;
     box-shadow: -6px 0 0 #c6002b;
-  }
-
-  #col-right .card {
-    clip-path: none;
-    overflow: visible;
   }
 
   .side-panel-head {
