@@ -44,12 +44,12 @@ async function applyCheckedChecklistToReportContent(content) {
   const checkedLines = await getCheckedChecklistLinesForReport();
   const lines = (content || '').split('\n');
   const headerIdx = lines.findIndex(line => line.startsWith('# '));
-  const suukisoIdx = lines.findIndex(line => line.trim() === '[数基礎](https://suukiso.com/):');
+  const budgetIdx = lines.findIndex(line => line.trim().startsWith('残予算'));
 
-  if (headerIdx < 0 || suukisoIdx < 0 || suukisoIdx <= headerIdx) return content;
+  if (headerIdx < 0 || budgetIdx < 0 || budgetIdx <= headerIdx) return content;
 
   const before = lines.slice(0, headerIdx + 1);
-  const after = lines.slice(suukisoIdx);
+  const after = lines.slice(budgetIdx);
 
   const merged = [
     ...before,
@@ -75,9 +75,7 @@ async function generateDailyReportTemplate() {
   
   const template = `# ${headerDate}
 
-${checklistBlock}[数基礎](https://suukiso.com/):
-
-残予算：　日   
+${checklistBlock}残予算：　日   
 次回クレカ：
 
 `;
