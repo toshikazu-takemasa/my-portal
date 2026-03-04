@@ -625,13 +625,20 @@ header h1 {
     right: 0;
     bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px));
     width: min(92vw, 340px);
-    padding: 12px 10px;
+    padding: 12px 10px calc(20px + env(safe-area-inset-bottom, 0px));
     background: var(--bg);
     z-index: 60;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     transform: translateX(110%);
     transition: transform 0.22s ease;
     box-shadow: -6px 0 0 #c6002b;
+  }
+
+  #col-right .card {
+    clip-path: none;
+    overflow: visible;
   }
 
   .side-panel-head {

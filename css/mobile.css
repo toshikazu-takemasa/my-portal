@@ -44,6 +44,15 @@
     font-weight: 700;
     letter-spacing: 0.05em;
   }
+
+  #col-right .task-widget-list {
+    max-height: none;
+    overflow: visible;
+  }
+
+  #col-right .accordion-body.open {
+    max-height: none;
+  }
 }
 
 /* ========== タスクウィジェット ========== */
