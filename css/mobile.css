@@ -45,9 +45,16 @@
     letter-spacing: 0.05em;
   }
 
+  #col-right .daily-checklist,
   #col-right .task-widget-list {
-    max-height: none;
-    overflow: visible;
+    max-height: min(42dvh, 360px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+  }
+
+  #col-right .task-widget-list {
+    overflow-x: hidden;
   }
 
   #col-right .accordion-body.open {

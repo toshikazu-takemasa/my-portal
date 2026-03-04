@@ -389,7 +389,6 @@ function switchBottomNav(section) {
   } else if (section === 'tasks') {
     setHidden(colRight, false);
     colRight.classList.add('mobile-open');
-    document.body.style.overflow = 'hidden';
   } else if (section === 'memo') {
     setHidden(colCalendar, false);
     setHidden(taskWidgetCard, true);
@@ -415,7 +414,6 @@ function toggleMobileSideMenu() {
   colRight.classList.remove('is-hidden');
   colRight.classList.toggle('mobile-open', !isOpen);
   overlay.classList.toggle('open', !isOpen);
-  document.body.style.overflow = isOpen ? '' : 'hidden';
 }
 
 function closeMobileSideMenu() {

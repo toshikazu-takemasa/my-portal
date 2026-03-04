@@ -624,12 +624,15 @@ header h1 {
     top: 0;
     right: 0;
     bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+    height: calc(100dvh - var(--mobile-bottom-nav-height) - env(safe-area-inset-bottom, 0px));
+    max-height: calc(100dvh - var(--mobile-bottom-nav-height) - env(safe-area-inset-bottom, 0px));
     width: min(92vw, 340px);
     padding: 12px 10px calc(20px + env(safe-area-inset-bottom, 0px));
     background: var(--bg);
     z-index: 60;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
     overscroll-behavior: contain;
     transform: translateX(110%);
     transition: transform 0.22s ease;
