@@ -317,10 +317,9 @@ function clearChat() {
 
 // ---- Reflection ----
 async function startAutoReflect() {
-  const key = getClaudeKey();
-  if (!key) { alert('⚙️ 設定から Anthropic API キーを先に設定してください。'); return; }
-
   const statusEl = document.getElementById('reflect-status');
+  const startBtn = document.getElementById('reflect-start-btn');
+  statusEl.style.color = '#8e8e8e';
   if (!reportContent) {
     statusEl.textContent = '日報を読み込み中…';
     await fetchDailyReport();
@@ -330,43 +329,36 @@ async function startAutoReflect() {
     }
   }
 
-  const startBtn = document.getElementById('reflect-start-btn');
-  const outputEl = document.getElementById('reflect-output');
-  const resultEl = document.getElementById('reflect-ai-result');
   startBtn.disabled    = true;
-  startBtn.textContent = '生成中…';
+  startBtn.textContent = '反映中…';
   statusEl.textContent = '';
-  outputEl.classList.add('is-hidden');
-
-  const sys = `あなたは経験学習（コルブの経験学習サイクル）を活用したコーチングアシスタントです。
-今日の日報を読み、以下のMarkdown形式で振り返りをまとめてください。日報に含まれる具体的なタスク名・状況に言及してください。
-
-**🌟 うまくいったこと**
-（完了タスクや進捗から具体的に）
-
-**🤔 難しかった点・課題**
-（未完了や課題感のあるタスクから）
-
-**💡 気づき・学び**
-（今日の業務全体を通じて）
-
-**🚀 明日のアクション**
-（明日すぐ試せる具体的な行動を1〜2点）`;
 
   try {
-    const reply = await callClaude(
-      [{ role: 'user', content: `今日の日報:\n\n${reportContent}` }], sys
-    );
-    reflectResult = reply;
-    resultEl.innerHTML = renderMarkdown(reply);
-    outputEl.classList.remove('is-hidden');
+    const nextContent = await applyCheckedChecklistToReportContent(reportContent);
+    if (nextContent === reportContent) {
+      statusEl.textContent = '反映対象が見つかりませんでした。';
+      return;
+    }
+
+    reportContent = nextContent;
+    await pushReportToGitHub('📋 チェックリストを反映');
+
+    if (reportTab === 'preview') {
+      document.getElementById('report-preview').innerHTML = renderMarkdown(reportContent);
+      attachMdCheckboxListeners();
+    } else {
+      document.getElementById('report-textarea').value = reportContent;
+    }
+
+    statusEl.style.color = '#1a7f37';
+    statusEl.textContent = '✅ チェック済み項目を日報へ反映しました';
   } catch (e) {
     statusEl.textContent = `エラー: ${e.message}`;
     statusEl.style.color = '#cf222e';
   }
 
   startBtn.disabled    = false;
-  startBtn.textContent = '🤖 振り返りを生成';
+  startBtn.textContent = '📋 チェックリストを日報に反映';
 }
 
 async function appendAutoReflection() {

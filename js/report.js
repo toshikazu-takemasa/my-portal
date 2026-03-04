@@ -14,30 +14,71 @@ function getDailyReportPath() {
   return `日記/${y}-${m}-${d}_${days[jst.getDay()]}_日報.md`;
 }
 
-function generateDailyReportTemplate() {
+async function loadDailyTasksConfigForReport() {
+  try {
+    const res = await fetch('./data/portal-config.json');
+    if (!res.ok) return [];
+    const config = await res.json();
+    return Array.isArray(config.dailyTasks) ? config.dailyTasks : [];
+  } catch {
+    return [];
+  }
+}
+
+function toReportChecklistLine(task) {
+  const title = (task?.title || '').trim();
+  if (!title) return null;
+  if (task.url) return `- [x] [${title}](${task.url})`;
+  return `- [x] ${title}`;
+}
+
+async function getCheckedChecklistLinesForReport() {
+  const dailyTasks = await loadDailyTasksConfigForReport();
+  return dailyTasks
+    .filter(task => localStorage.getItem(`daily-task-${task.id}`) === 'true')
+    .map(toReportChecklistLine)
+    .filter(Boolean);
+}
+
+async function applyCheckedChecklistToReportContent(content) {
+  const checkedLines = await getCheckedChecklistLinesForReport();
+  const lines = (content || '').split('\n');
+  const headerIdx = lines.findIndex(line => line.startsWith('# '));
+  const suukisoIdx = lines.findIndex(line => line.trim() === '[数基礎](https://suukiso.com/):');
+
+  if (headerIdx < 0 || suukisoIdx < 0 || suukisoIdx <= headerIdx) return content;
+
+  const before = lines.slice(0, headerIdx + 1);
+  const after = lines.slice(suukisoIdx);
+
+  const merged = [
+    ...before,
+    '',
+    ...checkedLines,
+    ...(checkedLines.length > 0 ? [''] : []),
+    ...after,
+  ];
+
+  return merged.join('\n');
+}
+
+async function generateDailyReportTemplate() {
   const jst  = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
   const y    = jst.getFullYear();
   const m    = String(jst.getMonth() + 1).padStart(2, '0');
   const d    = String(jst.getDate()).padStart(2, '0');
   const headerDate = `${y}-${m}-${d}`;
+  const checkedLines = await getCheckedChecklistLinesForReport();
+  const checklistBlock = checkedLines.length > 0
+    ? `${checkedLines.join('  \n')}\n\n`
+    : '';
   
   const template = `# ${headerDate}
 
-- [ ] 朝メールチェック  
-- [ ] 夜マネーフォワード  
-- [ ] タスクチェック  
-- [ ] [エクササイズ](https://youtu.be/GxDRXrpJjpI?si=kQMTI3Ps8Eo2bE4k)：5分  
-- [ ] 読書または勉強
-
-[数基礎](https://suukiso.com/):
+${checklistBlock}[数基礎](https://suukiso.com/):
 
 残予算：　日   
 次回クレカ：
-
-—
-
-- [ ] 確定申告  
-- [ ] 緑瓶
 
 `;
   return template;
@@ -93,7 +134,7 @@ async function fetchDailyReport() {
       previewEl.innerHTML = '<p class="md-empty">日報がまだ作成されていません。<br>「↻ 日報を再生成」で生成してください。</p>';
       metaEl.textContent  = '日報ファイルなし';
       // 新規作成用にテンプレートを用意
-      reportContent = generateDailyReportTemplate();
+      reportContent = await generateDailyReportTemplate();
       reportSha     = '';
       return;
     }
@@ -251,7 +292,7 @@ async function regenReport() {
   const apiUrl      = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
 
   try {
-    const template = generateDailyReportTemplate();
+    const template = await generateDailyReportTemplate();
 
     let latestSha;
     try {
