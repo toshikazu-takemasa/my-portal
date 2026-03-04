@@ -3,6 +3,13 @@
 // =====================
 
 function getTaskWidgetProgress() {
+  const checks = document.querySelectorAll('#task-widget-list input[type="checkbox"]');
+  if (checks.length > 0) {
+    const total = checks.length;
+    const done = Array.from(checks).filter(check => check.checked).length;
+    return { done, total };
+  }
+
   const taskDateKey = (typeof todayISO !== 'undefined' && todayISO)
     ? todayISO
     : new Date().toISOString().slice(0, 10);
