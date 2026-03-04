@@ -149,18 +149,18 @@
     <!-- 削除（タスク機能に統合） -->
   </div>
 
-  <!-- ===== Col 2: Tabs (日報 / クイックリンク / AI) ===== -->
+  <!-- ===== Col 2: Tabs (日記 / クイックリンク / AI) ===== -->
   <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="col-main">
     <!-- メインタブ -->
     <div class="main-tabs !flex !gap-0.5 !mb-[18px] !border-b-[1.5px] !border-b-[var(--border)] !pb-0">
-      <button class="main-tab active !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-report" onclick="switchMainTab('report')">📄 日報</button>
+      <button class="main-tab active !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-report" onclick="switchMainTab('report')">📄 日記</button>
       <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-links" onclick="switchMainTab('links')">🔗 クイックリンク</button>
       <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-ai" onclick="switchMainTab('ai')">
         <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" style="width:14px;height:14px;vertical-align:-2px;border-radius:3px;margin-right:3px;" onerror="this.classList.add('is-hidden')"> AI
       </button>
     </div>
 
-    <!-- 日報パネル -->
+    <!-- 日記パネル -->
     <div id="main-panel-report">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div class="report-tabs !flex !bg-[var(--section-bg)] !rounded-[var(--radius-sm)] !p-0.5 !gap-0.5 !border !border-[var(--border)]">
@@ -168,18 +168,18 @@
           <button class="report-tab !px-3 !py-1 !border-0 !rounded-[5px] !text-[0.76rem] !font-semibold !cursor-pointer !bg-transparent !text-[var(--text-sub)] !transition-all [&.active]:!bg-[var(--card-bg)] [&.active]:!text-[var(--text)] [&.active]:!shadow-[0_1px_3px_rgba(0,0,0,0.06)]" id="tab-edit" onclick="switchTab('edit')">編集</button>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
-          <button class="regen-btn" id="regen-btn" onclick="regenReport()">↻ 日報を再生成</button>
+          <button class="regen-btn" id="regen-btn" onclick="regenReport()">↻ 日記を再生成</button>
           <button onclick="fetchDailyReport()" style="padding:4px 9px;border:2px solid #111;border-radius:0;background:#fff;color:#111;font-size:0.76rem;font-weight:700;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#111';this.style.color='#fff';this.style.borderColor='#111'" onmouseout="this.style.background='#fff';this.style.color='#111';this.style.borderColor='#111'">↻ 更新</button>
         </div>
       </div>
       <div id="regen-status" class="is-hidden" style="font-size:0.75rem;color:#8e8e8e;margin-bottom:8px;"></div>
 
       <div id="report-preview" class="report-preview">
-        <p class="md-empty">⚙️ 設定から PAT とリポジトリを設定すると日報を表示します</p>
+        <p class="md-empty">⚙️ 設定から PAT とリポジトリを設定すると日記を表示します</p>
       </div>
 
       <div id="report-edit" class="is-hidden">
-        <textarea id="report-textarea" class="report-editor" placeholder="日報を読み込んでください"></textarea>
+        <textarea id="report-textarea" class="report-editor" placeholder="日記を読み込んでください"></textarea>
         <div class="report-save-bar">
           <button onclick="saveDailyReport()" style="padding:6px 14px;border:2px solid #111;border-radius:0;background:#c6002b;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;">保存</button>
           <span id="save-status" style="font-size:0.78rem;color:#8e8e8e;"></span>
@@ -187,6 +187,27 @@
       </div>
 
       <div id="report-meta" class="issues-status"></div>
+
+      <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #d7d7d7;">
+        <p style="font-size:0.8rem;color:#8e8e8e;line-height:1.5;margin-bottom:10px;">📋 本日のチェックリストと📌タスクでチェック済みの項目だけを日記に反映します。</p>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+          <button id="reflect-start-btn" onclick="startAutoReflect()" style="padding:6px 14px;border:2px solid #111;border-radius:0;background:#c6002b;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
+            📋 チェックリストを日記に反映
+          </button>
+          <span id="reflect-status" style="font-size:0.78rem;color:#8e8e8e;"></span>
+        </div>
+        <div id="reflect-output" class="is-hidden">
+          <div class="reflect-result" id="reflect-ai-result"></div>
+          <div style="margin-top:10px;">
+            <label style="font-size:0.78rem;color:#8e8e8e;display:block;margin-bottom:4px;">💬 追加コメント（任意）</label>
+            <textarea id="reflect-comment" rows="3" placeholder="気づき・明日のメモ…" style="width:100%;box-sizing:border-box;padding:7px 9px;border:2px solid #111;border-radius:0;font-size:0.8rem;resize:vertical;background:#fff;font-family:inherit;outline:none;"></textarea>
+          </div>
+          <div style="display:flex;gap:5px;margin-top:8px;">
+            <button id="reflect-append-btn" onclick="appendAutoReflection()" style="flex:1;padding:7px;border:2px solid #111;border-radius:0;background:#111;color:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;">📋 日記に追記して保存</button>
+            <button onclick="startAutoReflect()" style="padding:7px 11px;border:2px solid #111;border-radius:0;background:#fff;color:#111;font-size:0.78rem;cursor:pointer;">↻</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- クイックリンクパネル -->
@@ -232,7 +253,7 @@
         <div class="chat-options">
           <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
             <input type="checkbox" id="include-report" style="accent-color:#c6002b;">
-            日報をコンテキストに含める
+            日記をコンテキストに含める
           </label>
           <div style="display:flex;align-items:center;gap:6px;">
             <button class="chat-clear-btn" title="ファイルを添付" onclick="promptFileAttach()">📎</button>
@@ -250,7 +271,7 @@
       <button class="side-close-btn" onclick="closeMobileSideMenu()">✕ 閉じる</button>
     </div>
 
-    <!-- 本日のチェックリスト（日報テンプレートから） -->
+    <!-- 本日のチェックリスト（日記テンプレートから） -->
     <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]">
       <h2 style="margin-bottom:14px;">📋 本日のチェックリスト</h2>
       <div id="daily-checklist-list-right" class="daily-checklist"></div>
@@ -282,29 +303,6 @@
       </div>
     </div>
 
-    <!-- 振り返り -->
-    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]">
-      <h2 style="margin-bottom:10px;">📔 振り返り</h2>
-      <p style="font-size:0.8rem;color:#8e8e8e;line-height:1.5;margin-bottom:12px;">📋 本日のチェックリストと📌タスクでチェック済みの項目だけを日報に反映します。</p>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-        <button id="reflect-start-btn" onclick="startAutoReflect()" style="padding:6px 14px;border:2px solid #111;border-radius:0;background:#c6002b;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
-          📋 チェックリストを日報に反映
-        </button>
-        <span id="reflect-status" style="font-size:0.78rem;color:#8e8e8e;"></span>
-      </div>
-      <div id="reflect-output" class="is-hidden">
-        <div class="reflect-result" id="reflect-ai-result"></div>
-        <div style="margin-top:10px;">
-          <label style="font-size:0.78rem;color:#8e8e8e;display:block;margin-bottom:4px;">💬 追加コメント（任意）</label>
-          <textarea id="reflect-comment" rows="3" placeholder="気づき・明日のメモ…" style="width:100%;box-sizing:border-box;padding:7px 9px;border:2px solid #111;border-radius:0;font-size:0.8rem;resize:vertical;background:#fff;font-family:inherit;outline:none;"></textarea>
-        </div>
-        <div style="display:flex;gap:5px;margin-top:8px;">
-          <button id="reflect-append-btn" onclick="appendAutoReflection()" style="flex:1;padding:7px;border:2px solid #111;border-radius:0;background:#111;color:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;">📋 日報に追記して保存</button>
-          <button onclick="startAutoReflect()" style="padding:7px 11px;border:2px solid #111;border-radius:0;background:#fff;color:#111;font-size:0.78rem;cursor:pointer;">↻</button>
-        </div>
-      </div>
-    </div>
-
   </div><!-- /right-col -->
 
 </div><!-- /layout -->
@@ -315,7 +313,7 @@
 <nav class="bottom-nav" id="bottom-nav">
   <button class="bottom-nav-item active" data-section="report" onclick="switchBottomNav('report')">
     <span class="bottom-nav-icon">📄</span>
-    <span class="bottom-nav-label">日報</span>
+    <span class="bottom-nav-label">日記</span>
   </button>
   <button class="bottom-nav-item" data-section="tasks" onclick="switchBottomNav('tasks')">
     <span class="bottom-nav-icon">📌</span>
@@ -325,10 +323,12 @@
     <span class="bottom-nav-icon">⚡</span>
     <span class="bottom-nav-label">メモ</span>
   </button>
+  <!--
   <button class="bottom-nav-item" data-section="ai" onclick="switchBottomNav('ai')">
     <span class="bottom-nav-icon">🤖</span>
     <span class="bottom-nav-label">AI</span>
   </button>
+  -->
   <button class="bottom-nav-item" onclick="openSettings()">
     <span class="bottom-nav-icon">⚙️</span>
     <span class="bottom-nav-label">設定</span>

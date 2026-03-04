@@ -4,7 +4,7 @@
 const CLAUDE_API   = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
 const SESSIONS_KEY = 'chat_sessions';
-const WELCOME_MSG  = 'あなた専用のコーチ兼秘書です。本日はどのようなご相談でしょうか？\n\n📝 文章校正・コミュニケーション改善\n🤔 業務相談・意思決定サポート\n🔧 技術タスク・実装支援\n📋 情報整理・作業記録管理\n📅 日報管理・振り返り・工数集計支援';
+const WELCOME_MSG  = 'あなた専用のコーチ兼秘書です。本日はどのようなご相談でしょうか？\n\n📝 文章校正・コミュニケーション改善\n🤔 業務相談・意思決定サポート\n🔧 技術タスク・実装支援\n📋 情報整理・作業記録管理\n📅 日記管理・振り返り・工数集計支援';
 
 let chatHistory   = [];
 let reflectResult = '';
@@ -266,7 +266,7 @@ async function sendChat() {
 🤔 業務相談・意思決定サポート
 🔧 技術タスク・実装支援
 📋 情報整理・作業記録管理
-📅 日報管理・振り返り・工数集計支援
+📅 日記管理・振り返り・工数集計支援
 
 ## 応答スタイル
 - 簡潔: 必要な情報のみ提供
@@ -275,7 +275,7 @@ async function sendChat() {
 - ユーザー主導: ユーザーの判断を尊重
 
 日本語で丁寧かつ簡潔に回答してください。`;
-  if (includeReport && reportContent) sys += `\n\n今日の日報:\n${reportContent}`;
+  if (includeReport && reportContent) sys += `\n\n今日の日記:\n${reportContent}`;
   if (attachedFiles.length > 0) {
     sys += '\n\n## 添付ファイル\nファイルの編集依頼があった場合、完全な新しいファイル内容を以下の形式で出力してください（省略不可）:\n===APPLY: ファイルパス===\n[完全なファイル内容]\n===END===\n\n添付ファイル:';
     attachedFiles.forEach(f => { sys += `\n\n### ${f.path}\n\`\`\`\n${f.content}\n\`\`\``; });
@@ -321,10 +321,10 @@ async function startAutoReflect() {
   const startBtn = document.getElementById('reflect-start-btn');
   statusEl.style.color = '#8e8e8e';
   if (!reportContent) {
-    statusEl.textContent = '日報を読み込み中…';
+    statusEl.textContent = '日記を読み込み中…';
     await fetchDailyReport();
     if (!reportContent) {
-      statusEl.textContent = '日報が見つかりません。先に日報を生成してください。';
+      statusEl.textContent = '日記が見つかりません。先に日記を生成してください。';
       return;
     }
   }
@@ -351,14 +351,14 @@ async function startAutoReflect() {
     }
 
     statusEl.style.color = '#1a7f37';
-    statusEl.textContent = '✅ チェック済み項目を日報へ反映しました';
+    statusEl.textContent = '✅ チェック済み項目を日記へ反映しました';
   } catch (e) {
     statusEl.textContent = `エラー: ${e.message}`;
     statusEl.style.color = '#cf222e';
   }
 
   startBtn.disabled    = false;
-  startBtn.textContent = '📋 チェックリストを日報に反映';
+  startBtn.textContent = '📋 チェックリストを日記に反映';
 }
 
 async function appendAutoReflection() {
@@ -386,7 +386,7 @@ async function appendAutoReflection() {
   btn.textContent = '✅ 追記しました';
   setTimeout(() => {
     btn.disabled    = false;
-    btn.textContent = '📋 日報に追記して保存';
+    btn.textContent = '📋 日記に追記して保存';
   }, 3000);
 }
 

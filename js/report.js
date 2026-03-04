@@ -1,17 +1,23 @@
 // =====================
-// 日報 Viewer
+// 日記 Viewer
 // =====================
 let reportContent = '';
 let reportSha     = '';
 let reportTab     = 'preview';
+let reportPath    = '';
 
-function getDailyReportPath() {
+function getDailyReportPaths() {
   const jst  = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
   const y    = jst.getFullYear();
   const m    = String(jst.getMonth() + 1).padStart(2, '0');
   const d    = String(jst.getDate()).padStart(2, '0');
   const days = ['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
-  return `日記/${y}-${m}-${d}_${days[jst.getDay()]}_日報.md`;
+  const base = `日記/${y}-${m}-${d}_${days[jst.getDay()]}`;
+  return [`${base}_日記.md`, `${base}_日報.md`];
+}
+
+function getDailyReportPath() {
+  return reportPath || getDailyReportPaths()[0];
 }
 
 async function loadDailyTasksConfigForReport() {
@@ -148,7 +154,7 @@ async function getCurrentDailyReportSha(token, repo) {
 async function fetchDailyReport() {
   const token = getToken();
   if (!token) {
-    document.getElementById('report-preview').innerHTML = '<p class="md-empty">⚙️ 設定から PAT を設定すると日報を表示します</p>';
+    document.getElementById('report-preview').innerHTML = '<p class="md-empty">⚙️ 設定から PAT を設定すると日記を表示します</p>';
     return;
   }
   if (!getRepo()) {
@@ -160,35 +166,47 @@ async function fetchDailyReport() {
   const previewEl = document.getElementById('report-preview');
   metaEl.textContent = '取得中…';
 
-  const path        = getDailyReportPath();
-  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
-  const apiUrl      = `https://api.github.com/repos/${getRepo()}/contents/${encodedPath}`;
-
   try {
-    const res = await fetch(apiUrl, {
-      headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
-    });
+    let found = false;
+    for (const path of getDailyReportPaths()) {
+      const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+      const apiUrl      = `https://api.github.com/repos/${getRepo()}/contents/${encodedPath}`;
+      const res = await fetch(apiUrl, {
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
+      });
 
-    if (res.status === 404) {
-      previewEl.innerHTML = '<p class="md-empty">日報がまだ作成されていません。<br>「↻ 日報を再生成」で生成してください。</p>';
-      metaEl.textContent  = '日報ファイルなし';
+      if (res.status === 404) {
+        continue;
+      }
+      if (res.status === 401) {
+        previewEl.innerHTML = '<p class="md-empty">認証エラー。トークンを確認してください。</p>';
+        metaEl.textContent  = '';
+        return;
+      }
+      if (!res.ok) {
+        metaEl.textContent = `エラー: ${res.status}`;
+        return;
+      }
+
+      const data  = await res.json();
+      const raw   = atob(data.content.replace(/\n/g, ''));
+      const bytes = Uint8Array.from(raw, c => c.charCodeAt(0));
+      reportContent = new TextDecoder('utf-8').decode(bytes);
+      reportSha     = data.sha;
+      reportPath    = path;
+      found = true;
+      break;
+    }
+
+    if (!found) {
+      previewEl.innerHTML = '<p class="md-empty">日記がまだ作成されていません。<br>「↻ 日記を再生成」で生成してください。</p>';
+      metaEl.textContent  = '日記ファイルなし';
       // 新規作成用にテンプレートを用意
       reportContent = await generateDailyReportTemplate();
       reportSha     = '';
+      reportPath    = getDailyReportPaths()[0];
       return;
     }
-    if (res.status === 401) {
-      previewEl.innerHTML = '<p class="md-empty">認証エラー。トークンを確認してください。</p>';
-      metaEl.textContent  = '';
-      return;
-    }
-    if (!res.ok) { metaEl.textContent = `エラー: ${res.status}`; return; }
-
-    const data  = await res.json();
-    const raw   = atob(data.content.replace(/\n/g, ''));
-    const bytes = Uint8Array.from(raw, c => c.charCodeAt(0));
-    reportContent = new TextDecoder('utf-8').decode(bytes);
-    reportSha     = data.sha;
 
     renderCurrentTab();
     const now = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
@@ -281,7 +299,7 @@ async function saveDailyReport() {
   const statusEl = document.getElementById('save-status');
   statusEl.style.color = '#888';
   statusEl.textContent = '保存中…';
-  await pushReportToGitHub('✏️ 日報を編集');
+  await pushReportToGitHub('✏️ 日記を編集');
 }
 
 async function pushReportToGitHub(message) {
@@ -373,7 +391,7 @@ async function regenReport() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: latestSha != null ? '📝 日報を再生成' : '🆕 日報を新規作成',
+        message: latestSha != null ? '📝 日記を再生成' : '🆕 日記を新規作成',
         content: encodeUtf8Base64(template),
         ...(latestSha != null ? { sha: latestSha } : {}),
       })

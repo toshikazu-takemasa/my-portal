@@ -1,5 +1,5 @@
 // =====================
-// 日報再生成
+// 日記再生成
 // =====================
 async function regenReport() {
   const token = getToken();
@@ -51,9 +51,9 @@ async function regenReport() {
         if (reportSha && reportSha !== prevSha) {
           clearInterval(poll);
           statusEl.style.color = '#1a7f37';
-          statusEl.textContent = '✅ 日報が更新されました！';
+          statusEl.textContent = '✅ 日記が更新されました！';
           btn.disabled = false;
-          btn.textContent = '↻ 日報を再生成';
+          btn.textContent = '↻ 日記を再生成';
           return;
         }
 
@@ -62,7 +62,7 @@ async function regenReport() {
           statusEl.style.color = '#cf222e';
           statusEl.textContent = '⏱ タイムアウト。手動で ↻ 更新 を押してください。';
           btn.disabled = false;
-          btn.textContent = '↻ 日報を再生成';
+          btn.textContent = '↻ 日記を再生成';
         }
       }, INTERVAL * 1000);
 
@@ -81,5 +81,5 @@ async function regenReport() {
   }
 
   btn.disabled = false;
-  btn.textContent = '↻ 日報を再生成';
+  btn.textContent = '↻ 日記を再生成';
 }

@@ -108,7 +108,7 @@ function saveToken() {
 function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
   showModalTokenUI();
-  document.getElementById('report-preview').innerHTML = '<p class="md-empty">⚙️ 設定から PAT を設定すると日報を表示します</p>';
+  document.getElementById('report-preview').innerHTML = '<p class="md-empty">⚙️ 設定から PAT を設定すると日記を表示します</p>';
   const statusEl = document.getElementById('modal-status');
   statusEl.style.color = '#cf222e';
   statusEl.textContent = 'トークンを削除しました';
