@@ -1,7 +1,7 @@
 // =====================
 // Service Worker - Private Portal
 // =====================
-const CACHE_NAME = 'private-portal-v6';
+const CACHE_NAME = 'private-portal-v7';
 
 const STATIC_ASSETS = [
   './',
@@ -60,6 +60,13 @@ self.addEventListener('fetch', event => {
 
   const isGet = event.request.method === 'GET';
   const isSameOrigin = url.origin === self.location.origin;
+  const isHtmlRequest = isSameOrigin && (
+    event.request.mode === 'navigate' ||
+    event.request.destination === 'document' ||
+    url.pathname === '/' ||
+    url.pathname.endsWith('/index.html') ||
+    url.pathname.endsWith('.html')
+  );
   const isAppShell = isSameOrigin && (
     url.pathname === '/' ||
     url.pathname.endsWith('/index.html') ||
@@ -69,6 +76,21 @@ self.addEventListener('fetch', event => {
     url.pathname.endsWith('portal-config.json') ||
     url.pathname.endsWith('manifest.json')
   );
+
+  if (isGet && isHtmlRequest) {
+    event.respondWith(
+      fetch(new Request(event.request, { cache: 'no-store' }))
+        .then(res => {
+          if (res.ok) {
+            const resClone = res.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, resClone));
+          }
+          return res;
+        })
+        .catch(() => caches.match(event.request).then(cached => cached || caches.match('./index.html')))
+    );
+    return;
+  }
 
   if (isGet && isAppShell) {
     // ネットワークファースト戦略
