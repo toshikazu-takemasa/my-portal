@@ -159,15 +159,11 @@
     </div>
   </div>
 
-  <!-- ===== Col 2: Tabs (日記 / クイックリンク / AI) ===== -->
+  <!-- ===== Col 2: Tabs (日記) ===== -->
   <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="col-main">
     <!-- メインタブ -->
     <div class="main-tabs !flex !gap-0.5 !mb-[18px] !border-b-[1.5px] !border-b-[var(--border)] !pb-0">
       <button class="main-tab active !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-report" onclick="switchMainTab('report')">📄 日記</button>
-      <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-links" onclick="switchMainTab('links')">🔗 クイックリンク</button>
-      <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-ai" onclick="switchMainTab('ai')">
-        <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" style="width:14px;height:14px;vertical-align:-2px;border-radius:3px;margin-right:3px;" onerror="this.classList.add('is-hidden')"> AI
-      </button>
     </div>
 
     <!-- 日記パネル -->
@@ -184,21 +180,7 @@
       </div>
       <div id="regen-status" class="is-hidden" style="font-size:0.75rem;color:#8e8e8e;margin-bottom:8px;"></div>
 
-      <div id="report-preview" class="report-preview">
-        <p class="md-empty">⚙️ 設定から PAT とリポジトリを設定すると日記を表示します</p>
-      </div>
-
-      <div id="report-edit" class="is-hidden">
-        <textarea id="report-textarea" class="report-editor" placeholder="日記を読み込んでください"></textarea>
-        <div class="report-save-bar">
-          <button onclick="saveDailyReport()" style="padding:6px 14px;border:2px solid #111;border-radius:0;background:#c6002b;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;">保存</button>
-          <span id="save-status" style="font-size:0.78rem;color:#8e8e8e;"></span>
-        </div>
-      </div>
-
-      <div id="report-meta" class="issues-status"></div>
-
-      <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #d7d7d7;">
+      <div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed #d7d7d7;">
         <p style="font-size:0.8rem;color:#8e8e8e;line-height:1.5;margin-bottom:10px;">📋 本日のチェックリストと📌タスクでチェック済みの項目だけを日記に反映します。</p>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
           <button id="reflect-start-btn" onclick="startAutoReflect()" style="padding:6px 14px;border:2px solid #111;border-radius:0;background:#c6002b;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
@@ -218,6 +200,20 @@
           </div>
         </div>
       </div>
+
+      <div id="report-preview" class="report-preview">
+        <p class="md-empty">⚙️ 設定から PAT とリポジトリを設定すると日記を表示します</p>
+      </div>
+
+      <div id="report-edit" class="is-hidden">
+        <textarea id="report-textarea" class="report-editor" placeholder="日記を読み込んでください"></textarea>
+        <div class="report-save-bar">
+          <button onclick="saveDailyReport()" style="padding:6px 14px;border:2px solid #111;border-radius:0;background:#c6002b;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;">保存</button>
+          <span id="save-status" style="font-size:0.78rem;color:#8e8e8e;"></span>
+        </div>
+      </div>
+
+      <div id="report-meta" class="issues-status"></div>
     </div>
 
     <!-- クイックリンクパネル -->
@@ -414,9 +410,6 @@ function switchBottomNav(section) {
     setHidden(gcalTitle, true);
     setHidden(gcalPlaceholder, true);
     setHidden(gcalIframe, true);
-  } else if (section === 'ai') {
-    setHidden(colMain, false);
-    switchMainTab('ai');
   }
 }
 
