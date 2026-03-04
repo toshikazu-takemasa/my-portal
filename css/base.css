@@ -600,7 +600,7 @@ header h1 {
   }
 
   .mobile-menu-btn {
-    display: inline-flex;
+    display: none;
     width: 44px;
     height: 44px;
   }
@@ -658,38 +658,31 @@ header h1 {
   }
 
   .mobile-side-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(61,61,61,0.28);
-    z-index: 58;
+    display: none !important;
   }
 
   .mobile-side-overlay.open {
-    display: block;
+    display: none !important;
   }
 
   .right-col {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 60px;
-    width: min(92vw, 340px);
-    padding: 12px 10px;
-    background: var(--bg);
-    z-index: 60;
-    overflow-y: auto;
-    transform: translateX(110%);
-    transition: transform 0.22s ease;
-    box-shadow: -6px 0 0 #c6002b;
+    position: static;
+    width: auto;
+    padding: 0;
+    background: transparent;
+    z-index: 1;
+    overflow: visible;
+    transform: none;
+    transition: none;
+    box-shadow: none;
   }
 
   .side-panel-head {
-    display: flex;
-    justify-content: flex-end;
+    display: none;
   }
 
   .right-col.mobile-open {
-    transform: translateX(0);
+    transform: none;
   }
 
   .links-grid {

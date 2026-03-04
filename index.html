@@ -117,7 +117,6 @@
 <header class="!flex !items-center !gap-4 !mb-6 !max-w-[1400px] !mx-auto max-[768px]:!mb-[14px]">
   <h1 class="!text-[1.25rem] !font-bold !text-[var(--text)] !tracking-[-0.01em] max-[768px]:!text-[1rem]">My Portal</h1>
   <span id="today" class="!text-[0.88rem] !text-[var(--text-sub)] !flex-1"></span>
-  <button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleMobileSideMenu()" title="メニュー">☰</button>
   <button class="settings-btn" onclick="openSettings()" title="設定">⚙️</button>
 </header>
 
@@ -278,7 +277,7 @@
     </div>
 
     <!-- 本日のチェックリスト（日記テンプレートから） -->
-    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]">
+    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="daily-checklist-card">
       <h2 style="margin-bottom:14px;">📋 本日のチェックリスト</h2>
       <div id="daily-checklist-list-right" class="daily-checklist"></div>
     </div>
@@ -293,7 +292,7 @@
     </div>
 
     <!-- 確認事項（アコーディオン） -->
-    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]">
+    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="pillars-card">
       <div class="accordion-header" id="pillars-header" onclick="togglePillars()">
         <div class="acc-left">
           <h2 style="margin-bottom:0;">✅ 確認事項</h2>
@@ -321,9 +320,17 @@
     <span class="bottom-nav-icon">📄</span>
     <span class="bottom-nav-label">日記</span>
   </button>
+  <button class="bottom-nav-item" data-section="checklist" onclick="switchBottomNav('checklist')">
+    <span class="bottom-nav-icon">📋</span>
+    <span class="bottom-nav-label">チェック</span>
+  </button>
   <button class="bottom-nav-item" data-section="tasks" onclick="switchBottomNav('tasks')">
     <span class="bottom-nav-icon">📌</span>
     <span class="bottom-nav-label">タスク</span>
+  </button>
+  <button class="bottom-nav-item" data-section="pillars" onclick="switchBottomNav('pillars')">
+    <span class="bottom-nav-icon">✅</span>
+    <span class="bottom-nav-label">確認</span>
   </button>
   <button class="bottom-nav-item" data-section="memo" onclick="switchBottomNav('memo')">
     <span class="bottom-nav-icon">⚡</span>
@@ -377,35 +384,53 @@ function switchBottomNav(section) {
   const gcalPlaceholder = document.getElementById('gcal-placeholder');
   const gcalIframe = document.getElementById('gcal-iframe');
   const gcalTitle = document.getElementById('gcal-title');
+  const dailyChecklistCard = document.getElementById('daily-checklist-card');
   const taskWidgetCard = document.getElementById('task-widget-card');
+  const pillarsCard = document.getElementById('pillars-card');
+  const pillarsBody = document.getElementById('pillars-body');
+  const pillarsHeader = document.getElementById('pillars-header');
   const quickMemoCard = document.getElementById('quick-memo-card');
 
   if (window.innerWidth > MOBILE_BREAKPOINT) return; // PC では無効
-
-  closeMobileSideMenu();
 
   setHidden(colCalendar, true);
   setHidden(colMain, true);
   setHidden(colRight, true);
 
+  setHidden(dailyChecklistCard, false);
   setHidden(taskWidgetCard, false);
+  setHidden(pillarsCard, false);
   setHidden(quickMemoCard, true);
   setHidden(gcalTitle, false);
+  if (pillarsBody) pillarsBody.classList.remove('open');
+  if (pillarsHeader) pillarsHeader.classList.remove('open');
+  if (typeof pillarsOpen !== 'undefined') pillarsOpen = false;
 
   if (section === 'report') {
     setHidden(colMain, false);
     switchMainTab('report');
+  } else if (section === 'checklist') {
+    setHidden(colRight, false);
+    setHidden(taskWidgetCard, true);
+    setHidden(pillarsCard, true);
   } else if (section === 'tasks') {
     setHidden(colRight, false);
-    colRight.classList.add('mobile-open');
-    document.body.style.overflow = 'hidden';
+    setHidden(dailyChecklistCard, true);
+    setHidden(pillarsCard, true);
+  } else if (section === 'pillars') {
+    setHidden(colRight, false);
+    setHidden(dailyChecklistCard, true);
+    setHidden(taskWidgetCard, true);
+    if (pillarsBody) pillarsBody.classList.add('open');
+    if (pillarsHeader) pillarsHeader.classList.add('open');
+    if (typeof pillarsOpen !== 'undefined') pillarsOpen = true;
   } else if (section === 'memo') {
     setHidden(colCalendar, false);
+    setHidden(dailyChecklistCard, true);
     setHidden(taskWidgetCard, true);
+    setHidden(pillarsCard, true);
     if (quickMemoCard) {
       setHidden(quickMemoCard, false);
-    } else if (taskWidgetCard) {
-      setHidden(taskWidgetCard, false);
     }
     setHidden(gcalTitle, true);
     setHidden(gcalPlaceholder, true);
