@@ -10,11 +10,11 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 60px;
+    height: 58px;
     background: var(--card-bg);
     border-top: 2px solid #111;
     z-index: 50;
-    box-shadow: 0 -6px 0 #c6002b;
+    box-shadow: 0 -5px 0 #c6002b;
   }
 
   .bottom-nav-item {
@@ -23,12 +23,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 1px;
     border: 0;
     background: none;
     color: var(--text-sub);
     cursor: pointer;
-    min-height: 44px;
+    min-height: 40px;
     transition: color 0.15s;
     padding: 0;
     -webkit-tap-highlight-color: transparent;
@@ -39,9 +39,9 @@
   .bottom-nav-icon { font-size: 1.25rem; line-height: 1; }
 
   .bottom-nav-label {
-    font-size: 0.60rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
   }
 }
 
@@ -87,7 +87,7 @@
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 5px;
-  padding: 8px 10px;
+  padding: 7px 8px;
   border-radius: 0;
   background: var(--section-bg);
   border: 2px solid #111;
@@ -126,7 +126,7 @@
 
 .quick-memo-input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 9px 10px;
   border: 2px solid #111;
   border-radius: 0;
   font-size: 0.84rem;
@@ -146,7 +146,7 @@
 
 .quick-memo-select {
   flex: 1;
-  padding: 8px 10px;
+  padding: 7px 9px;
   border: 2px solid #111;
   border-radius: 0;
   font-size: 0.78rem;
@@ -157,7 +157,7 @@
 }
 
 .quick-memo-btn {
-  padding: 8px 16px;
+  padding: 7px 14px;
   border: none;
   border-radius: 0;
   font-size: 0.82rem;
@@ -167,7 +167,7 @@
   color: #fff;
   transition: opacity 0.15s;
   white-space: nowrap;
-  min-height: 44px;
+  min-height: 40px;
 }
 
 .quick-memo-btn:hover { opacity: 0.85; }
