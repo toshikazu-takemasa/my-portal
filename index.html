@@ -156,6 +156,33 @@
         <div class="quick-memo-status" id="quick-memo-status"></div>
       </div>
     </div>
+
+    <div class="card is-hidden !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-4 !pb-4 !px-4 !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)]" id="finance-card" style="margin-top:12px;">
+      <h2 style="margin-bottom:10px;">💴 家計記録</h2>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <input id="finance-date" type="date" class="quick-memo-input" style="flex:1;min-width:130px;padding:7px 9px;font-size:0.8rem;">
+        <select id="finance-type" class="quick-memo-select" style="min-width:110px;">
+          <option value="expense">支出</option>
+          <option value="income">収入</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <input id="finance-category" type="text" class="quick-memo-input" placeholder="カテゴリ（食費/交通など）" style="flex:1;min-width:140px;padding:7px 9px;font-size:0.8rem;">
+        <input id="finance-amount" type="number" class="quick-memo-input" placeholder="金額" style="width:120px;padding:7px 9px;font-size:0.8rem;">
+      </div>
+      <input id="finance-note" type="text" class="quick-memo-input" placeholder="メモ（任意）" style="margin-bottom:8px;padding:7px 9px;font-size:0.8rem;">
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <button class="quick-memo-btn" onclick="addFinanceRecord()">追加</button>
+        <button class="quick-memo-btn" style="background:#fff;color:#111;border:2px solid #111;" onclick="clearFinanceInputs()">クリア</button>
+      </div>
+      <div id="finance-status" class="quick-memo-status" style="margin-bottom:8px;"></div>
+      <div style="font-size:0.78rem;border-top:1px dashed #d7d7d7;padding-top:8px;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;">
+        <span>収入: <strong id="finance-total-income">0円</strong></span>
+        <span>支出: <strong id="finance-total-expense">0円</strong></span>
+        <span>収支: <strong id="finance-total-balance">0円</strong></span>
+      </div>
+      <div id="finance-list" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
   </div>
 
   <!-- ===== Col 2: Tabs (日記) ===== -->
@@ -322,15 +349,15 @@
   </button>
   <button class="bottom-nav-item" data-section="checklist" onclick="switchBottomNav('checklist')">
     <span class="bottom-nav-icon">📋</span>
-    <span class="bottom-nav-label">チェック</span>
-  </button>
-  <button class="bottom-nav-item" data-section="tasks" onclick="switchBottomNav('tasks')">
-    <span class="bottom-nav-icon">📌</span>
-    <span class="bottom-nav-label">タスク</span>
+    <span class="bottom-nav-label">チェック/タスク</span>
   </button>
   <button class="bottom-nav-item" data-section="pillars" onclick="switchBottomNav('pillars')">
     <span class="bottom-nav-icon">✅</span>
     <span class="bottom-nav-label">確認</span>
+  </button>
+  <button class="bottom-nav-item" data-section="finance" onclick="switchBottomNav('finance')">
+    <span class="bottom-nav-icon">💴</span>
+    <span class="bottom-nav-label">家計</span>
   </button>
   <button class="bottom-nav-item" data-section="memo" onclick="switchBottomNav('memo')">
     <span class="bottom-nav-icon">⚡</span>
@@ -361,6 +388,7 @@
 <script src="js/daily-checklist.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/quick-memo.js"></script>
+<script src="js/finance.js"></script>
 <script src="js/ai-chat.js"></script>
 
 <script>
@@ -387,6 +415,7 @@ function switchBottomNav(section) {
   const dailyChecklistCard = document.getElementById('daily-checklist-card');
   const taskWidgetCard = document.getElementById('task-widget-card');
   const pillarsCard = document.getElementById('pillars-card');
+  const financeCard = document.getElementById('finance-card');
   const pillarsBody = document.getElementById('pillars-body');
   const pillarsHeader = document.getElementById('pillars-header');
   const quickMemoCard = document.getElementById('quick-memo-card');
@@ -401,6 +430,7 @@ function switchBottomNav(section) {
   setHidden(taskWidgetCard, false);
   setHidden(pillarsCard, false);
   setHidden(quickMemoCard, true);
+  setHidden(financeCard, true);
   setHidden(gcalTitle, false);
   if (pillarsBody) pillarsBody.classList.remove('open');
   if (pillarsHeader) pillarsHeader.classList.remove('open');
@@ -411,11 +441,6 @@ function switchBottomNav(section) {
     switchMainTab('report');
   } else if (section === 'checklist') {
     setHidden(colRight, false);
-    setHidden(taskWidgetCard, true);
-    setHidden(pillarsCard, true);
-  } else if (section === 'tasks') {
-    setHidden(colRight, false);
-    setHidden(dailyChecklistCard, true);
     setHidden(pillarsCard, true);
   } else if (section === 'pillars') {
     setHidden(colRight, false);
@@ -432,6 +457,16 @@ function switchBottomNav(section) {
     if (quickMemoCard) {
       setHidden(quickMemoCard, false);
     }
+    setHidden(gcalTitle, true);
+    setHidden(gcalPlaceholder, true);
+    setHidden(gcalIframe, true);
+  } else if (section === 'finance') {
+    setHidden(colCalendar, false);
+    setHidden(dailyChecklistCard, true);
+    setHidden(taskWidgetCard, true);
+    setHidden(pillarsCard, true);
+    setHidden(quickMemoCard, true);
+    setHidden(financeCard, false);
     setHidden(gcalTitle, true);
     setHidden(gcalPlaceholder, true);
     setHidden(gcalIframe, true);
