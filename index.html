@@ -21,7 +21,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#e69a73">
+  <meta name="theme-color" content="#c6002b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Portal">
@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="css/ai-chat.css">
   <link rel="stylesheet" href="css/mobile.css">
 </head>
-<body>
+<body class="persona-dashboard">
 
 <!-- ========== Settings Modal ========== -->
 <div class="modal-overlay" id="settings-modal" onclick="closeSettingsOnOverlay(event)">
@@ -56,7 +56,7 @@
     <div class="modal-section">
       <div class="modal-label">GitHub Personal Access Token</div>
       <div id="modal-pat-set" class="is-hidden">
-        <div style="font-size:0.82rem;color:#7a9e6e;margin-bottom:8px;">✅ PAT が設定済みです</div>
+        <div style="font-size:0.82rem;color:#c6002b;margin-bottom:8px;font-weight:700;">✅ PAT が設定済みです</div>
         <button class="btn-token danger" onclick="clearToken()">トークンを削除</button>
       </div>
       <div id="modal-pat-unset">
@@ -73,7 +73,7 @@
     <div class="modal-section">
       <div class="modal-label">🤖 Anthropic API キー（AI機能）</div>
       <div id="modal-claude-set" class="is-hidden">
-        <div style="font-size:0.82rem;color:#7a9e6e;margin-bottom:8px;">✅ APIキーが設定済みです</div>
+        <div style="font-size:0.82rem;color:#c6002b;margin-bottom:8px;font-weight:700;">✅ APIキーが設定済みです</div>
         <button class="btn-token danger" onclick="clearClaudeKey()">削除</button>
       </div>
       <div id="modal-claude-unset">
@@ -121,6 +121,41 @@
   <button class="settings-btn" onclick="openSettings()" title="設定">⚙️</button>
 </header>
 
+<section class="analytics-band">
+  <article class="analytics-card analytics-card-kpi">
+    <p class="analytics-label">USER ANALYTICS</p>
+    <div class="analytics-main-row">
+      <span class="analytics-big">94%</span>
+      <span class="analytics-delta">+7 TODAY</span>
+    </div>
+    <div class="analytics-bars" aria-hidden="true">
+      <span style="height:28%"></span>
+      <span style="height:44%"></span>
+      <span style="height:63%"></span>
+      <span style="height:52%"></span>
+      <span style="height:84%"></span>
+      <span style="height:69%"></span>
+    </div>
+  </article>
+
+  <article class="analytics-card analytics-card-progress">
+    <p class="analytics-label">PROGRESS CHART</p>
+    <div class="analytics-progress-track">
+      <div class="analytics-progress-fill"></div>
+    </div>
+    <p class="analytics-footnote">SPRINT EXECUTION / AGGRESSIVE MODE</p>
+  </article>
+
+  <article class="analytics-card analytics-card-profile">
+    <p class="analytics-label">PROFILE ICONS</p>
+    <div class="analytics-avatars" aria-label="Team profiles">
+      <span>TK</span>
+      <span>AI</span>
+      <span>GH</span>
+    </div>
+  </article>
+</section>
+
 <div class="layout !grid !gap-4 !max-w-[1400px] !mx-auto !items-start">
 
   <!-- ===== Col 1: Google Calendar ===== -->
@@ -128,7 +163,7 @@
     <h2>📅 Google Calendar</h2>
     <div id="gcal-placeholder" class="gcal-placeholder">
       <p style="font-size:0.82rem;color:#8e8e8e;text-align:center;">Google Calendar を表示するには<br>設定でカレンダー埋め込み URL を入力してください</p>
-      <button onclick="openSettings()" style="margin-top:8px;padding:6px 14px;border:1px solid #e0dcd0;border-radius:7px;background:#f7f4ee;color:#8e8e8e;font-size:0.76rem;cursor:pointer;">⚙️ 設定を開く</button>
+      <button onclick="openSettings()" style="margin-top:8px;padding:6px 14px;border:2px solid #111;border-radius:0;background:#fff;color:#111;font-size:0.76rem;cursor:pointer;font-weight:700;">⚙️ 設定を開く</button>
     </div>
     <iframe class="gcal-iframe is-hidden" id="gcal-iframe" src="" frameborder="0" scrolling="no"></iframe>
 
@@ -159,7 +194,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
           <button class="regen-btn" id="regen-btn" onclick="regenReport()">↻ 日報を再生成</button>
-          <button onclick="fetchDailyReport()" style="padding:4px 9px;border:1px solid #e0dcd0;border-radius:7px;background:#f7f4ee;color:#8e8e8e;font-size:0.76rem;font-weight:600;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#fdf0e8';this.style.color='#e69a73';this.style.borderColor='#e69a73'" onmouseout="this.style.background='#f7f4ee';this.style.color='#8e8e8e';this.style.borderColor='#e0dcd0'">↻ 更新</button>
+          <button onclick="fetchDailyReport()" style="padding:4px 9px;border:2px solid #111;border-radius:0;background:#fff;color:#111;font-size:0.76rem;font-weight:700;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#111';this.style.color='#fff';this.style.borderColor='#111'" onmouseout="this.style.background='#fff';this.style.color='#111';this.style.borderColor='#111'">↻ 更新</button>
         </div>
       </div>
       <div id="regen-status" class="is-hidden" style="font-size:0.75rem;color:#8e8e8e;margin-bottom:8px;"></div>
@@ -171,7 +206,7 @@
       <div id="report-edit" class="is-hidden">
         <textarea id="report-textarea" class="report-editor" placeholder="日報を読み込んでください"></textarea>
         <div class="report-save-bar">
-          <button onclick="saveDailyReport()" style="padding:6px 14px;border:none;border-radius:7px;background:#e69a73;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;">保存</button>
+          <button onclick="saveDailyReport()" style="padding:6px 14px;border:2px solid #111;border-radius:0;background:#c6002b;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;">保存</button>
           <span id="save-status" style="font-size:0.78rem;color:#8e8e8e;"></span>
         </div>
       </div>
@@ -221,7 +256,7 @@
         </div>
         <div class="chat-options">
           <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
-            <input type="checkbox" id="include-report" style="accent-color:#e69a73;">
+            <input type="checkbox" id="include-report" style="accent-color:#c6002b;">
             日報をコンテキストに含める
           </label>
           <div style="display:flex;align-items:center;gap:6px;">
@@ -277,7 +312,7 @@
       <h2 style="margin-bottom:10px;">📔 振り返り</h2>
       <p style="font-size:0.8rem;color:#8e8e8e;line-height:1.5;margin-bottom:12px;">📋 本日のチェックリストと📌タスクでチェック済みの項目だけを日報に反映します。</p>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-        <button id="reflect-start-btn" onclick="startAutoReflect()" style="padding:6px 14px;border:none;border-radius:7px;background:#e69a73;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
+        <button id="reflect-start-btn" onclick="startAutoReflect()" style="padding:6px 14px;border:2px solid #111;border-radius:0;background:#c6002b;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
           📋 チェックリストを日報に反映
         </button>
         <span id="reflect-status" style="font-size:0.78rem;color:#8e8e8e;"></span>
@@ -286,11 +321,11 @@
         <div class="reflect-result" id="reflect-ai-result"></div>
         <div style="margin-top:10px;">
           <label style="font-size:0.78rem;color:#8e8e8e;display:block;margin-bottom:4px;">💬 追加コメント（任意）</label>
-          <textarea id="reflect-comment" rows="3" placeholder="気づき・明日のメモ…" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid #e0dcd0;border-radius:7px;font-size:0.8rem;resize:vertical;background:#f7f4ee;font-family:inherit;outline:none;"></textarea>
+          <textarea id="reflect-comment" rows="3" placeholder="気づき・明日のメモ…" style="width:100%;box-sizing:border-box;padding:7px 9px;border:2px solid #111;border-radius:0;font-size:0.8rem;resize:vertical;background:#fff;font-family:inherit;outline:none;"></textarea>
         </div>
         <div style="display:flex;gap:5px;margin-top:8px;">
-          <button id="reflect-append-btn" onclick="appendAutoReflection()" style="flex:1;padding:7px;border:none;border-radius:7px;background:#7a9e6e;color:#fff;font-size:0.78rem;font-weight:600;cursor:pointer;">📋 日報に追記して保存</button>
-          <button onclick="startAutoReflect()" style="padding:7px 11px;border:1px solid #e0dcd0;border-radius:7px;background:#f7f4ee;color:#8e8e8e;font-size:0.78rem;cursor:pointer;">↻</button>
+          <button id="reflect-append-btn" onclick="appendAutoReflection()" style="flex:1;padding:7px;border:2px solid #111;border-radius:0;background:#111;color:#fff;font-size:0.78rem;font-weight:700;cursor:pointer;">📋 日報に追記して保存</button>
+          <button onclick="startAutoReflect()" style="padding:7px 11px;border:2px solid #111;border-radius:0;background:#fff;color:#111;font-size:0.78rem;cursor:pointer;">↻</button>
         </div>
       </div>
     </div>

@@ -1,33 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;500;700;800;900&display=swap');
+
 :root {
-  --bg:           #f5f2e9;
+  --bg:           #070707;
   --card-bg:      #ffffff;
-  --accent:       #e69a73;
-  --accent-light: #fdf0e8;
-  --accent-dim:   #faeee4;
-  --green:        #7a9e6e;
-  --green-light:  #f0f4ec;
-  --red:          #c0504a;
-  --red-light:    #fde8e7;
-  --link:         #7da3cc;
-  --link-light:   #eaf0f8;
-  --text:         #3d3d3d;
-  --text-sub:     #8e8e8e;
-  --border:       #e0dcd0;
-  --section-bg:   #f7f4ee;
-  --section-bg2:  #f0ece1;
-  --radius-lg:    16px;
-  --radius-md:    10px;
-  --radius-sm:    7px;
+  --accent:       #c6002b;
+  --accent-light: #ffe6eb;
+  --accent-dim:   #ffccd7;
+  --green:        #c6002b;
+  --green-light:  #ffe6eb;
+  --red:          #ff1a45;
+  --red-light:    #2a0e14;
+  --link:         #111111;
+  --link-light:   #ffffff;
+  --text:         #111111;
+  --text-sub:     #5e5e5e;
+  --border:       #111111;
+  --section-bg:   #f3f3f3;
+  --section-bg2:  #e3e3e3;
+  --radius-lg:    0px;
+  --radius-md:    0px;
+  --radius-sm:    0px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  font-family: "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
+  background:
+    radial-gradient(circle at 10% 15%, rgba(198, 0, 43, 0.26) 0 2px, transparent 2px 100%),
+    radial-gradient(circle at 72% 38%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 100%),
+    linear-gradient(164deg, #080808 0%, #101010 42%, #000 100%);
+  background-size: 14px 14px, 11px 11px, 100% 100%;
+  color: #f7f7f7;
   min-height: 100vh;
   padding: 24px 20px;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(130deg, transparent 33%, rgba(198, 0, 43, 0.14) 33.5%, rgba(198, 0, 43, 0.14) 34.2%, transparent 35%);
+  opacity: 0.75;
+  z-index: -1;
 }
 
 /* ========== Header ========== */
@@ -42,55 +59,168 @@ header {
 }
 
 header h1 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.01em;
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 2rem;
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: 0.08em;
+  text-shadow: 2px 2px 0 #c6002b;
 }
 
 #today {
   font-size: 0.88rem;
-  color: var(--text-sub);
+  color: #d9d9d9;
   flex: 1;
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
 
 .settings-btn {
   width: 36px;
   height: 36px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--card-bg);
-  color: var(--text-sub);
+  border: 2px solid #ffffff;
+  border-radius: 0;
+  background: #111111;
+  color: #ffffff;
   font-size: 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 4px 4px 0 #c6002b;
   transition: background 0.15s, border-color 0.15s;
   flex-shrink: 0;
 }
 
-.settings-btn:hover { background: var(--accent-light); border-color: var(--accent); }
+.settings-btn:hover { background: #c6002b; border-color: #fff; }
 
 .mobile-menu-btn {
   display: none;
   width: 36px;
   height: 36px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--card-bg);
-  color: var(--text-sub);
+  border: 2px solid #ffffff;
+  border-radius: 0;
+  background: #111111;
+  color: #ffffff;
   font-size: 1rem;
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 4px 4px 0 #c6002b;
   transition: background 0.15s, border-color 0.15s;
   flex-shrink: 0;
 }
 
-.mobile-menu-btn:hover { background: var(--accent-light); border-color: var(--accent); }
+.mobile-menu-btn:hover { background: #c6002b; border-color: #fff; }
+
+.analytics-band {
+  max-width: 1400px;
+  margin: 0 auto 14px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 0.9fr;
+  gap: 12px;
+}
+
+.analytics-card {
+  background: #fff;
+  border: 2px solid #111;
+  padding: 12px 14px;
+  color: #111;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 6px 6px 0 #c6002b;
+  clip-path: polygon(0 0, 95% 0, 100% 28%, 100% 100%, 4% 100%, 0 76%);
+}
+
+.analytics-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(198, 0, 43, 0.15) 1px, transparent 1px);
+  background-size: 6px 6px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.analytics-label {
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  letter-spacing: 0.1em;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.analytics-main-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.analytics-big {
+  font-family: "Bebas Neue", "Noto Sans JP", sans-serif;
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.analytics-delta {
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: #111;
+  color: #fff;
+  padding: 3px 6px;
+}
+
+.analytics-bars {
+  height: 54px;
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.analytics-bars span {
+  flex: 1;
+  background: linear-gradient(180deg, #ff2f56 0%, #c6002b 100%);
+  border: 1px solid #111;
+}
+
+.analytics-progress-track {
+  height: 22px;
+  border: 2px solid #111;
+  background: repeating-linear-gradient(-45deg, #f2f2f2 0 8px, #fff 8px 16px);
+  margin-bottom: 8px;
+}
+
+.analytics-progress-fill {
+  width: 73%;
+  height: 100%;
+  background: linear-gradient(90deg, #111 0 25%, #c6002b 25% 100%);
+  clip-path: polygon(0 0, 96% 0, 100% 50%, 96% 100%, 0 100%);
+}
+
+.analytics-footnote {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.analytics-avatars {
+  display: flex;
+  gap: 8px;
+}
+
+.analytics-avatars span {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  color: #fff;
+  border: 2px solid #c6002b;
+  font-size: 0.75rem;
+  font-weight: 800;
+  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+}
 
 .mobile-side-overlay {
   display: none;
@@ -99,7 +229,7 @@ header h1 {
 /* ========== Layout ========== */
 .layout {
   display: grid;
-  grid-template-columns: 380px 1fr 285px;
+  grid-template-columns: 360px minmax(0, 1fr) 300px;
   gap: 16px;
   max-width: 1400px;
   margin: 0 auto;
@@ -120,20 +250,50 @@ header h1 {
 
 /* ========== Card ========== */
 .card {
-  background: var(--card-bg);
-  border-radius: var(--radius-lg);
+  background: var(--card-bg) !important;
+  border-radius: 0 !important;
   padding: 20px 22px;
-  border: 1px solid var(--border);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 2px solid #111 !important;
+  box-shadow: 8px 8px 0 rgba(198, 0, 43, 0.95) !important;
+  clip-path: polygon(0 0, 97% 0, 100% 11%, 100% 100%, 3% 100%, 0 90%);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 72px;
+  height: 20px;
+  background: #111;
+  transform: skewX(-28deg) translateX(28px);
 }
 
 .card h2 {
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: 0.78rem;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--text-sub);
+  letter-spacing: 0.13em;
+  color: #c6002b;
   margin-bottom: 14px;
+}
+
+#col-main {
+  margin-top: -10px;
+  z-index: 3;
+}
+
+#col-calendar {
+  margin-top: 12px;
+  z-index: 2;
+}
+
+.right-col {
+  margin-top: 22px;
+  gap: 18px;
+  z-index: 1;
 }
 
 /* ========== Right column ========== */
@@ -148,10 +308,10 @@ header h1 {
 }
 
 .side-close-btn {
-  border: 1px solid var(--border);
-  background: var(--card-bg);
-  color: var(--text-sub);
-  border-radius: var(--radius-sm);
+  border: 2px solid #111;
+  background: #fff;
+  color: #111;
+  border-radius: 0;
   font-size: 0.78rem;
   font-weight: 600;
   min-height: 36px;
@@ -173,11 +333,11 @@ header h1 {
   justify-content: center;
   gap: 5px;
   padding: 14px 6px 12px;
-  border-radius: var(--radius-md);
+  border-radius: 0;
   text-decoration: none;
   color: var(--text);
   background: var(--section-bg);
-  border: 1px solid transparent;
+  border: 2px solid #111;
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
   position: relative;
   min-height: 76px;
@@ -185,9 +345,9 @@ header h1 {
 }
 
 .link-card:hover {
-  background: var(--accent-light);
-  border-color: var(--border);
-  transform: translateY(-1px);
+  background: #fff1f4;
+  border-color: #c6002b;
+  transform: translate(-2px, -2px);
 }
 
 .link-card-icon {
@@ -255,8 +415,8 @@ header h1 {
   justify-content: center;
   gap: 4px;
   padding: 14px 6px 12px;
-  border: 1.5px dashed var(--border);
-  border-radius: var(--radius-md);
+  border: 2px dashed #111;
+  border-radius: 0;
   background: none;
   color: var(--text-sub);
   font-size: 0.68rem;
@@ -269,13 +429,13 @@ header h1 {
 
 .add-form {
   background: var(--section-bg);
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   padding: 12px;
   margin-top: 6px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  border: 1px solid var(--border);
+  border: 2px solid #111;
 }
 
 .add-form input {
@@ -326,7 +486,7 @@ header h1 {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(61,61,61,0.28);
+  background: rgba(0,0,0,0.7);
   z-index: 100;
   align-items: center;
   justify-content: center;
@@ -337,21 +497,23 @@ header h1 {
 
 .modal {
   background: var(--card-bg);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   padding: 28px 30px;
   width: 400px;
   max-width: 94vw;
   max-height: 90vh;
   overflow-y: auto;
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  border: 2px solid #111;
+  box-shadow: 12px 12px 0 #c6002b;
+  clip-path: polygon(0 0, 95% 0, 100% 10%, 100% 100%, 5% 100%, 0 90%);
 }
 
 .modal h3 {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 900;
   margin-bottom: 20px;
   color: var(--text);
+  letter-spacing: 0.04em;
 }
 
 .modal-section {
@@ -361,7 +523,7 @@ header h1 {
 .modal-label {
   font-size: 0.74rem;
   font-weight: 700;
-  color: var(--text-sub);
+  color: #c6002b;
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -424,12 +586,12 @@ header h1 {
 
 .btn-modal-close {
   padding: 8px 20px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border: 2px solid #111;
+  border-radius: 0;
   font-size: 0.82rem;
   cursor: pointer;
   background: var(--card-bg);
-  color: var(--text-sub);
+  color: #111;
   font-weight: 500;
   transition: background 0.15s;
   min-height: 44px;
@@ -454,12 +616,18 @@ header h1 {
   }
 
   header h1 {
-    font-size: 1rem;
+    font-size: 1.5rem;
+  }
+
+  .analytics-band {
+    grid-template-columns: 1fr;
+    margin-bottom: 10px;
   }
 
   .card {
     padding: 16px 16px;
-    border-radius: var(--radius-md);
+    border-radius: 0;
+    clip-path: polygon(0 0, 97% 0, 100% 8%, 100% 100%, 3% 100%, 0 92%);
   }
 
   /* タップ領域を 44px 以上に */
@@ -501,7 +669,7 @@ header h1 {
     overflow-y: auto;
     transform: translateX(110%);
     transition: transform 0.22s ease;
-    box-shadow: -6px 0 20px rgba(0,0,0,0.12);
+    box-shadow: -8px 0 0 #c6002b;
   }
 
   .side-panel-head {
