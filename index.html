@@ -135,7 +135,7 @@
 
   <!-- ===== Col 1: Google Calendar ===== -->
   <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="col-calendar">
-    <h2>📅 Google Calendar</h2>
+    <h2 id="gcal-title">📅 Google Calendar</h2>
     <div id="gcal-placeholder" class="gcal-placeholder">
       <p style="font-size:0.82rem;color:#8e8e8e;text-align:center;">Google Calendar を表示するには<br>設定でカレンダー埋め込み URL を入力してください</p>
       <button onclick="openSettings()" style="margin-top:8px;padding:6px 14px;border:2px solid #111;border-radius:0;background:#fff;color:#111;font-size:0.76rem;cursor:pointer;font-weight:700;">⚙️ 設定を開く</button>
@@ -380,6 +380,7 @@ function switchBottomNav(section) {
   const colRight    = document.getElementById('col-right');
   const gcalPlaceholder = document.getElementById('gcal-placeholder');
   const gcalIframe = document.getElementById('gcal-iframe');
+  const gcalTitle = document.getElementById('gcal-title');
   const taskWidgetCard = document.getElementById('task-widget-card');
   const quickMemoCard = document.getElementById('quick-memo-card');
 
@@ -393,6 +394,7 @@ function switchBottomNav(section) {
 
   setHidden(taskWidgetCard, false);
   setHidden(quickMemoCard, true);
+  setHidden(gcalTitle, false);
 
   if (section === 'report') {
     setHidden(colMain, false);
@@ -409,6 +411,7 @@ function switchBottomNav(section) {
     } else if (taskWidgetCard) {
       setHidden(taskWidgetCard, false);
     }
+    setHidden(gcalTitle, true);
     setHidden(gcalPlaceholder, true);
     setHidden(gcalIframe, true);
   } else if (section === 'ai') {
@@ -457,6 +460,7 @@ function syncResponsiveLayout() {
     if (!element) return;
     element.classList.toggle('is-hidden', hidden);
   };
+  const gcalTitle = document.getElementById('gcal-title');
   if (!colCalendar || !colMain || !colRight) return;
 
   if (window.innerWidth <= MOBILE_BREAKPOINT) {
@@ -469,6 +473,7 @@ function syncResponsiveLayout() {
   closeMobileSideMenu();
   setHidden(colMain, false);
   setHidden(colRight, false);
+  setHidden(gcalTitle, false);
   applyCalendarVisibility();
 }
 
