@@ -199,11 +199,26 @@ async function fetchDailyReport() {
 }
 
 function switchMainTab(name) {
-  ['report', 'links', 'ai'].forEach(t => {
+  const tabs = ['report', 'links', 'ai'];
+  const enabledTabs = tabs.filter(t => {
     const tabEl = document.getElementById('mtab-' + t);
     const panelEl = document.getElementById('main-panel-' + t);
-    const isActive = t === name;
-    tabEl.classList.toggle('active', isActive);
+    return !!tabEl && !!panelEl;
+  });
+
+  const fallback = enabledTabs.includes('report')
+    ? 'report'
+    : (enabledTabs[0] || 'report');
+  const target = enabledTabs.includes(name) ? name : fallback;
+
+  tabs.forEach(t => {
+    const tabEl = document.getElementById('mtab-' + t);
+    const panelEl = document.getElementById('main-panel-' + t);
+    const isActive = t === target;
+
+    if (tabEl) tabEl.classList.toggle('active', isActive);
+    if (!panelEl) return;
+
     panelEl.classList.toggle('is-hidden', !isActive);
     if (isActive) panelEl.style.removeProperty('display');
   });

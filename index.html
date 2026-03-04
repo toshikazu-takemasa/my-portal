@@ -154,10 +154,12 @@
     <!-- メインタブ -->
     <div class="main-tabs !flex !gap-0.5 !mb-[18px] !border-b-[1.5px] !border-b-[var(--border)] !pb-0">
       <button class="main-tab active !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-report" onclick="switchMainTab('report')">📄 日報</button>
-      <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-links" onclick="switchMainTab('links')">🔗 クイックリンク</button>
-      <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-ai" onclick="switchMainTab('ai')">
+      <!-- 一時停止: クイックリンク -->
+      <!-- <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-links" onclick="switchMainTab('links')">🔗 クイックリンク</button> -->
+      <!-- 一時停止: AI -->
+      <!-- <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-ai" onclick="switchMainTab('ai')">
         <img src="https://www.google.com/s2/favicons?domain=claude.ai&sz=32" style="width:14px;height:14px;vertical-align:-2px;border-radius:3px;margin-right:3px;" onerror="this.classList.add('is-hidden')"> AI
-      </button>
+      </button> -->
     </div>
 
     <!-- 日報パネル -->
@@ -243,6 +245,8 @@
     </div>
   </div>
 
+  <div id="mobile-daily-checklist-anchor" class="is-hidden"></div>
+
   <!-- ===== Col 3: Right Column ===== -->
   <div class="right-col" id="col-right">
 
@@ -251,7 +255,7 @@
     </div>
 
     <!-- 本日のチェックリスト（日報テンプレートから） -->
-    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]">
+    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="daily-checklist-card">
       <h2 style="margin-bottom:14px;">📋 本日のチェックリスト</h2>
       <div id="daily-checklist-list-right" class="daily-checklist"></div>
     </div>
@@ -325,10 +329,11 @@
     <span class="bottom-nav-icon">⚡</span>
     <span class="bottom-nav-label">メモ</span>
   </button>
-  <button class="bottom-nav-item" data-section="ai" onclick="switchBottomNav('ai')">
+  <!-- 一時停止: AI -->
+  <!-- <button class="bottom-nav-item" data-section="ai" onclick="switchBottomNav('ai')">
     <span class="bottom-nav-icon">🤖</span>
     <span class="bottom-nav-label">AI</span>
-  </button>
+  </button> -->
   <button class="bottom-nav-item" onclick="openSettings()">
     <span class="bottom-nav-icon">⚙️</span>
     <span class="bottom-nav-label">設定</span>
@@ -352,6 +357,26 @@
 <script>
 const MOBILE_BREAKPOINT = 768;
 
+function relocateDailyChecklistCard() {
+  const checklistCard = document.getElementById('daily-checklist-card');
+  const rightCol = document.getElementById('col-right');
+  const mobileAnchor = document.getElementById('mobile-daily-checklist-anchor');
+  if (!checklistCard || !rightCol || !mobileAnchor) return;
+
+  if (window.innerWidth <= MOBILE_BREAKPOINT) {
+    if (checklistCard.parentElement !== mobileAnchor) {
+      mobileAnchor.appendChild(checklistCard);
+    }
+    return;
+  }
+
+  const sidePanelHead = rightCol.querySelector('.side-panel-head');
+  if (!sidePanelHead) return;
+  if (checklistCard.parentElement !== rightCol || checklistCard.previousElementSibling !== sidePanelHead) {
+    sidePanelHead.insertAdjacentElement('afterend', checklistCard);
+  }
+}
+
 // ========== ボトムナビ切り替え（スマホ） ==========
 function switchBottomNav(section) {
   const setHidden = (element, hidden) => {
@@ -367,6 +392,7 @@ function switchBottomNav(section) {
   const colCalendar = document.getElementById('col-calendar');
   const colMain     = document.getElementById('col-main');
   const colRight    = document.getElementById('col-right');
+  const mobileChecklistAnchor = document.getElementById('mobile-daily-checklist-anchor');
   const gcalPlaceholder = document.getElementById('gcal-placeholder');
   const gcalIframe = document.getElementById('gcal-iframe');
   const taskWidgetCard = document.getElementById('task-widget-card');
@@ -379,12 +405,14 @@ function switchBottomNav(section) {
   setHidden(colCalendar, true);
   setHidden(colMain, true);
   setHidden(colRight, true);
+  setHidden(mobileChecklistAnchor, true);
 
   setHidden(taskWidgetCard, false);
   setHidden(quickMemoCard, true);
 
   if (section === 'report') {
     setHidden(colMain, false);
+    setHidden(mobileChecklistAnchor, false);
     switchMainTab('report');
   } else if (section === 'tasks') {
     setHidden(colRight, false);
@@ -399,10 +427,12 @@ function switchBottomNav(section) {
     }
     setHidden(gcalPlaceholder, true);
     setHidden(gcalIframe, true);
-  } else if (section === 'ai') {
-    setHidden(colMain, false);
-    switchMainTab('ai');
   }
+  // 一時停止: AI
+  // else if (section === 'ai') {
+  //   setHidden(colMain, false);
+  //   switchMainTab('ai');
+  // }
 }
 
 function toggleMobileSideMenu() {
@@ -440,11 +470,14 @@ function syncResponsiveLayout() {
   const colCalendar = document.getElementById('col-calendar');
   const colMain = document.getElementById('col-main');
   const colRight = document.getElementById('col-right');
+  const mobileChecklistAnchor = document.getElementById('mobile-daily-checklist-anchor');
   const setHidden = (element, hidden) => {
     if (!element) return;
     element.classList.toggle('is-hidden', hidden);
   };
   if (!colCalendar || !colMain || !colRight) return;
+
+  relocateDailyChecklistCard();
 
   if (window.innerWidth <= MOBILE_BREAKPOINT) {
     const active = document.querySelector('.bottom-nav-item.active')?.dataset.section || 'report';
@@ -456,6 +489,7 @@ function syncResponsiveLayout() {
   closeMobileSideMenu();
   setHidden(colMain, false);
   setHidden(colRight, false);
+  setHidden(mobileChecklistAnchor, true);
   applyCalendarVisibility();
 }
 

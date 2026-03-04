@@ -45,6 +45,7 @@
     letter-spacing: 0.05em;
   }
 
+  #mobile-daily-checklist-anchor .daily-checklist,
   #col-right .daily-checklist,
   #col-right .task-widget-list {
     max-height: min(42dvh, 360px);
