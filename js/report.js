@@ -40,8 +40,49 @@ async function getCheckedChecklistLinesForReport() {
     .filter(Boolean);
 }
 
+function getCheckedTaskWidgetLinesForReport() {
+  const taskDateKey = (typeof todayISO !== 'undefined' && todayISO)
+    ? todayISO
+    : new Date().toISOString().slice(0, 10);
+  const stateKey = `task-widget-checked_${taskDateKey}`;
+  const snapshotKey = `task-widget-snapshot_${taskDateKey}`;
+
+  let checkedState = {};
+  let snapshot = [];
+
+  try {
+    const parsedState = JSON.parse(localStorage.getItem(stateKey) || '{}');
+    checkedState = parsedState && typeof parsedState === 'object' ? parsedState : {};
+  } catch {
+    checkedState = {};
+  }
+
+  try {
+    const parsedSnapshot = JSON.parse(localStorage.getItem(snapshotKey) || '[]');
+    snapshot = Array.isArray(parsedSnapshot) ? parsedSnapshot : [];
+  } catch {
+    snapshot = [];
+  }
+
+  return snapshot
+    .filter(item => checkedState[String(item.id)] === true)
+    .map(item => {
+      const title = (item?.title || '').trim();
+      if (!title) return null;
+      if (item.url) return `- [x] [${title}](${item.url})`;
+      return `- [x] ${title}`;
+    })
+    .filter(Boolean);
+}
+
+async function getCheckedLinesForReport() {
+  const checklistLines = await getCheckedChecklistLinesForReport();
+  const taskLines = getCheckedTaskWidgetLinesForReport();
+  return [...checklistLines, ...taskLines];
+}
+
 async function applyCheckedChecklistToReportContent(content) {
-  const checkedLines = await getCheckedChecklistLinesForReport();
+  const checkedLines = await getCheckedLinesForReport();
   const lines = (content || '').split('\n');
   const headerIdx = lines.findIndex(line => line.startsWith('# '));
   const budgetIdx = lines.findIndex(line => line.trim().startsWith('残予算'));
@@ -68,7 +109,7 @@ async function generateDailyReportTemplate() {
   const m    = String(jst.getMonth() + 1).padStart(2, '0');
   const d    = String(jst.getDate()).padStart(2, '0');
   const headerDate = `${y}-${m}-${d}`;
-  const checkedLines = await getCheckedChecklistLinesForReport();
+  const checkedLines = await getCheckedLinesForReport();
   const checklistBlock = checkedLines.length > 0
     ? `${checkedLines.join('  \n')}\n\n`
     : '';

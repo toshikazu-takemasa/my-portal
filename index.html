@@ -135,15 +135,6 @@
     <!-- 日々のチェックリスト -->
     <!-- 削除（右側に統合） -->
 
-    <!-- タスクウィジェット（スマホ: col1 に表示） -->
-    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="task-widget-card" style="margin-top:16px;padding:0;border:none;box-shadow:none;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <h2 style="margin-bottom:0;">📌 タスク</h2>
-      </div>
-      <div class="task-widget-list" id="task-widget-list"></div>
-      <div id="task-widget-status" class="issues-status"></div>
-    </div>
-
     <!-- クイックメモ -->
     <!-- 削除（タスク機能に統合） -->
   </div>
@@ -255,6 +246,15 @@
       <div id="daily-checklist-list-right" class="daily-checklist"></div>
     </div>
 
+    <!-- タスクウィジェット -->
+    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="task-widget-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <h2 style="margin-bottom:0;">📌 タスク</h2>
+      </div>
+      <div class="task-widget-list" id="task-widget-list"></div>
+      <div id="task-widget-status" class="issues-status"></div>
+    </div>
+
     <!-- 確認事項（アコーディオン） -->
     <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]">
       <div class="accordion-header" id="pillars-header" onclick="togglePillars()">
@@ -275,7 +275,7 @@
     <!-- 振り返り -->
     <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]">
       <h2 style="margin-bottom:10px;">📔 振り返り</h2>
-      <p style="font-size:0.8rem;color:#8e8e8e;line-height:1.5;margin-bottom:12px;">📋 本日のチェックリストでチェック済みの項目だけを日報に反映します。</p>
+      <p style="font-size:0.8rem;color:#8e8e8e;line-height:1.5;margin-bottom:12px;">📋 本日のチェックリストと📌タスクでチェック済みの項目だけを日報に反映します。</p>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
         <button id="reflect-start-btn" onclick="startAutoReflect()" style="padding:6px 14px;border:none;border-radius:7px;background:#e69a73;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
           📋 チェックリストを日報に反映
@@ -376,10 +376,9 @@ function switchBottomNav(section) {
     setHidden(colMain, false);
     switchMainTab('report');
   } else if (section === 'tasks') {
-    setHidden(colCalendar, false);
-    // タスクウィジェットのみ表示（カレンダーは非表示）
-    setHidden(gcalPlaceholder, true);
-    setHidden(gcalIframe, true);
+    setHidden(colRight, false);
+    colRight.classList.add('mobile-open');
+    document.body.style.overflow = 'hidden';
   } else if (section === 'memo') {
     setHidden(colCalendar, false);
     setHidden(taskWidgetCard, true);

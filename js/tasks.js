@@ -2,6 +2,35 @@
 // タスクウィジェット（GitHub Issues ベース）
 // =====================
 let currentTaskFilter = 'all';
+const taskDateKey = (typeof todayISO !== 'undefined' && todayISO)
+  ? todayISO
+  : new Date().toISOString().slice(0, 10);
+const TASK_WIDGET_STATE_KEY = `task-widget-checked_${taskDateKey}`;
+const TASK_WIDGET_SNAPSHOT_KEY = `task-widget-snapshot_${taskDateKey}`;
+
+function getTaskWidgetCheckedState() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(TASK_WIDGET_STATE_KEY) || '{}');
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveTaskWidgetCheckedState(state) {
+  localStorage.setItem(TASK_WIDGET_STATE_KEY, JSON.stringify(state || {}));
+}
+
+function saveTaskWidgetSnapshot(issues) {
+  const snapshot = Array.isArray(issues)
+    ? issues.map(issue => ({
+        id: issue.number,
+        title: issue.title,
+        url: issue.html_url,
+      }))
+    : [];
+  localStorage.setItem(TASK_WIDGET_SNAPSHOT_KEY, JSON.stringify(snapshot));
+}
 
 function switchTaskFilter(filter) {
   currentTaskFilter = filter;
@@ -48,15 +77,44 @@ async function fetchTaskWidget() {
 
     const issues = (await res.json()).filter(i => !i.pull_request);
 
+    saveTaskWidgetSnapshot(issues);
+
     if (issues.length === 0) {
       listEl.innerHTML = '<p style="font-size:0.78rem;color:#aaa;padding:8px 0;">タスクはありません</p>';
       statusEl.textContent = '0件';
     } else {
+      const checkedState = getTaskWidgetCheckedState();
+
       issues.forEach(issue => {
-        const a = document.createElement('a');
-        a.className = 'issue-item task-widget-item';
-        a.href = issue.html_url;
-        a.target = '_blank';
+        const row = document.createElement('div');
+        row.className = 'issue-item task-widget-item';
+
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.className = 'task-widget-check';
+        check.checked = checkedState[String(issue.number)] === true;
+        check.style.cssText = 'width:15px;height:15px;margin-top:2px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;';
+
+        const content = document.createElement('div');
+        content.style.cssText = 'display:flex;flex-wrap:wrap;gap:5px;flex:1;min-width:0;';
+
+        const link = document.createElement('a');
+        link.href = issue.html_url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.style.cssText = 'display:flex;gap:7px;align-items:flex-start;text-decoration:none;color:inherit;flex:1;min-width:0;';
+
+        const num = document.createElement('span');
+        num.className = 'issue-num';
+        num.textContent = `#${issue.number}`;
+
+        const title = document.createElement('span');
+        title.className = 'issue-title';
+        title.textContent = issue.title;
+
+        link.appendChild(num);
+        link.appendChild(title);
+        content.appendChild(link);
 
         // ラベルチップ（色付き）
         const labelsHtml = issue.labels.map(l => {
@@ -64,12 +122,22 @@ async function fetchTaskWidget() {
           return `<span class="label-chip" style="background:#${color}22;color:#${color};border-color:#${color}55">${escapeHtml(l.name)}</span>`;
         }).join('');
 
-        a.innerHTML =
-          `<span class="issue-num">#${issue.number}</span>` +
-          `<span class="issue-title">${escapeHtml(issue.title)}</span>` +
-          (labelsHtml ? `<span class="issue-labels">${labelsHtml}</span>` : '');
+        if (labelsHtml) {
+          const labels = document.createElement('span');
+          labels.className = 'issue-labels';
+          labels.innerHTML = labelsHtml;
+          content.appendChild(labels);
+        }
 
-        listEl.appendChild(a);
+        check.addEventListener('change', () => {
+          const nextState = getTaskWidgetCheckedState();
+          nextState[String(issue.number)] = check.checked;
+          saveTaskWidgetCheckedState(nextState);
+        });
+
+        row.appendChild(check);
+        row.appendChild(content);
+        listEl.appendChild(row);
       });
 
       const now = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
