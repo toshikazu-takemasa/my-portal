@@ -249,7 +249,7 @@ function renderCurrentTab() {
 
 function attachMdCheckboxListeners() {
   document.querySelectorAll('.md-cb').forEach(cb => {
-    cb.addEventListener('change', async () => {
+    cb.addEventListener('change', () => {
       const lineIdx = parseInt(cb.dataset.line);
       const lines   = reportContent.split('\n');
       if (!lines[lineIdx]) return;
@@ -262,7 +262,15 @@ function attachMdCheckboxListeners() {
       const span = cb.nextElementSibling;
       if (span) span.classList.toggle('md-done', cb.checked);
 
-      await pushReportToGitHub(cb.checked ? '✅ チェック' : '⬜ チェック解除');
+      const saveEl = document.getElementById('save-status');
+      if (saveEl) {
+        saveEl.style.color = '#8e8e8e';
+        saveEl.textContent = '未反映の変更があります（📋 振り返りで反映 / 保存）';
+      }
+      const metaEl = document.getElementById('report-meta');
+      if (metaEl) {
+        metaEl.textContent = 'ローカル変更あり（未反映）';
+      }
     });
   });
 }
