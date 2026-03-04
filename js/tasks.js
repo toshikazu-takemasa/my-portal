@@ -133,6 +133,7 @@ async function fetchTaskWidget() {
           const nextState = getTaskWidgetCheckedState();
           nextState[String(issue.number)] = check.checked;
           saveTaskWidgetCheckedState(nextState);
+          window.dispatchEvent(new Event('progress-data-changed'));
         });
 
         row.appendChild(check);
@@ -142,6 +143,7 @@ async function fetchTaskWidget() {
 
       const now = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
       statusEl.textContent = `${issues.length}件 · ${now}`;
+      window.dispatchEvent(new Event('progress-data-changed'));
     }
   } catch (e) {
     statusEl.textContent = 'ネットワークエラー';

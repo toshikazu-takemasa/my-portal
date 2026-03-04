@@ -56,6 +56,7 @@ function renderDailyChecklist() {
         localStorage.setItem(key, e.target.checked.toString());
         label.style.color = e.target.checked ? '#aaa' : '#333';
         label.style.textDecoration = e.target.checked ? 'line-through' : 'none';
+        window.dispatchEvent(new Event('progress-data-changed'));
       });
 
       div.appendChild(checkbox);
@@ -70,6 +71,8 @@ function renderDailyChecklist() {
 
       listEl.appendChild(div);
     });
+
+    window.dispatchEvent(new Event('progress-data-changed'));
   });
 }
 
