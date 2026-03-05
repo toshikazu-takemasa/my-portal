@@ -101,11 +101,14 @@ async function applyCheckedChecklistToReportContent(content) {
   const lines = (content || '').split('\n');
   const headerIdx = lines.findIndex(line => line.startsWith('# '));
   const budgetIdx = lines.findIndex(line => line.trim().startsWith('残予算'));
+  const cardIdx = lines.findIndex(line => line.trim().startsWith('次回クレカ'));
+  const splitIdxCandidates = [budgetIdx, cardIdx].filter(idx => idx >= 0);
+  const splitIdx = splitIdxCandidates.length > 0 ? Math.min(...splitIdxCandidates) : lines.length;
 
-  if (headerIdx < 0 || budgetIdx < 0 || budgetIdx <= headerIdx) return content;
+  if (headerIdx < 0 || splitIdx <= headerIdx) return content;
 
   const before = lines.slice(0, headerIdx + 1);
-  const after = lines.slice(budgetIdx);
+  const after = lines.slice(splitIdx);
 
   const merged = [
     ...before,
@@ -136,9 +139,7 @@ async function generateDailyReportTemplate() {
   
   const template = `# ${headerDate}
 
-${checklistBlock}${memoBlock}残予算：　日   
-次回クレカ：
-
+${checklistBlock}${memoBlock}
 `;
   return template;
 }
