@@ -12,6 +12,11 @@ function getBranch() { return localStorage.getItem(BRANCH_KEY) || 'main'; }
 // =====================
 // 日付初期化（JST）
 // =====================
+function getJstTodayISO() {
+  const jst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+  return `${jst.getFullYear()}-${String(jst.getMonth() + 1).padStart(2, '0')}-${String(jst.getDate()).padStart(2, '0')}`;
+}
+
 const jstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
 const dateStr = jstNow.toLocaleDateString('ja-JP', {
   year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', timeZone: 'Asia/Tokyo'
@@ -19,9 +24,9 @@ const dateStr = jstNow.toLocaleDateString('ja-JP', {
 document.getElementById('today').textContent = dateStr;
 
 // --- localStorage キー（JST日付ベース） ---
-const todayISO   = jstNow.toISOString().slice(0, 10);
-const todayKey   = 'checklist_' + todayISO;
-const PILLARS_KEY = 'pillars_' + todayISO;
+let todayISO    = getJstTodayISO();
+let todayKey    = 'checklist_' + todayISO;
+let PILLARS_KEY = 'pillars_' + todayISO;
 
 // 古いキーを削除
 Object.keys(localStorage)

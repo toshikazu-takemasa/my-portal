@@ -5,8 +5,8 @@ var pillarsOpen = false;
 
 const checkboxes = document.querySelectorAll('.task-check');
 
-const taskStorageKey = (typeof todayKey !== 'undefined' && todayKey) ? todayKey : null;
-const saved = taskStorageKey ? JSON.parse(localStorage.getItem(taskStorageKey) || '{}') : {};
+const initialTaskStorageKey = (typeof todayKey !== 'undefined' && todayKey) ? todayKey : null;
+const saved = initialTaskStorageKey ? JSON.parse(localStorage.getItem(initialTaskStorageKey) || '{}') : {};
 
 checkboxes.forEach(cb => {
   cb.checked = !!saved[cb.dataset.id];
@@ -14,6 +14,7 @@ checkboxes.forEach(cb => {
 });
 
 function save() {
+  const taskStorageKey = (typeof todayKey !== 'undefined' && todayKey) ? todayKey : null;
   if (!taskStorageKey) return;
   const state = {};
   checkboxes.forEach(cb => { state[cb.dataset.id] = cb.checked; });
@@ -173,4 +174,32 @@ function togglePillars() {
   document.getElementById('pillars-header').classList.toggle('open', pillarsOpen);
 }
 
+function resetChecklistsForNewDay() {
+  if (typeof getJstTodayISO !== 'function') return;
+  const currentISO = getJstTodayISO();
+  if (currentISO === todayISO) return;
+
+  // 旧日付キーを削除してから当日キーへ差し替える
+  localStorage.removeItem(todayKey);
+  localStorage.removeItem(PILLARS_KEY);
+
+  todayISO = currentISO;
+  todayKey = 'checklist_' + todayISO;
+  PILLARS_KEY = 'pillars_' + todayISO;
+
+  checkboxes.forEach(cb => {
+    cb.checked = false;
+    cb.closest('.check-item')?.classList.remove('done');
+  });
+  updateProgress();
+
+  const pillarChecks = getPillarChecks();
+  pillarChecks.forEach(cb => {
+    cb.checked = false;
+    cb.closest('.check-item')?.classList.remove('done');
+  });
+  updatePillarsChip();
+}
+
 loadPillarsConfig();
+setInterval(resetChecklistsForNewDay, 60 * 1000);
