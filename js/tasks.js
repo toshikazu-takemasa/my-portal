@@ -133,6 +133,49 @@ async function closeTaskIssue(issueNumber) {
   }
 }
 
+async function closeTaskIssueFromRow(issueNumber, rowEl) {
+  const statusEl = document.getElementById('task-widget-status');
+  if (!statusEl) return;
+  if (!confirm(`Issue #${issueNumber} をクローズしますか？`)) return;
+
+  try {
+    await patchTaskIssue(issueNumber, { state: 'closed' });
+    const checkedState = getTaskWidgetCheckedState();
+    delete checkedState[String(issueNumber)];
+    saveTaskWidgetCheckedState(checkedState);
+
+    rowEl?.remove();
+    const remaining = document.querySelectorAll('#task-widget-list .issue-item').length;
+    statusEl.textContent = remaining ? `${remaining}件` : 'オープンな Issue はありません';
+    window.dispatchEvent(new Event('progress-data-changed'));
+
+    if (typeof fetchIssueBoard === 'function') fetchIssueBoard();
+  } catch (e) {
+    statusEl.textContent = `更新失敗: ${e.message}`;
+  }
+}
+
+async function openIssueEditorFromTask(issueNumber) {
+  if (!issueNumber) return;
+
+  // スマホでは右カラム表示中でも、編集フォームがあるメイン列に戻す。
+  if (window.innerWidth <= 768 && typeof switchBottomNav === 'function') {
+    switchBottomNav('report');
+  }
+
+  if (typeof switchMainTab === 'function') {
+    switchMainTab('issues');
+  }
+
+  if (typeof fetchIssueBoard === 'function') {
+    await fetchIssueBoard();
+  }
+
+  if (typeof startIssueEdit === 'function') {
+    startIssueEdit(issueNumber);
+  }
+}
+
 async function closeCheckedTaskIssues() {
   const statusEl = document.getElementById('task-widget-status');
   if (!statusEl) return;
@@ -263,27 +306,30 @@ async function fetchTaskWidget() {
           content.appendChild(labels);
         }
 
-        const actions = document.createElement('div');
-        actions.style.cssText = 'display:flex;gap:5px;flex-wrap:wrap;width:100%;';
-
-        const doneBtn = document.createElement('button');
-        doneBtn.className = 'quick-memo-btn';
-        doneBtn.style.cssText = 'padding:4px 8px;font-size:0.7rem;';
-        doneBtn.textContent = '完了';
-        doneBtn.addEventListener('click', () => closeTaskIssue(issue.number));
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'issue-close-btn';
+        closeBtn.textContent = '×';
+        closeBtn.title = 'クローズ';
+        closeBtn.addEventListener('click', e => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeTaskIssueFromRow(issue.number, row);
+        });
 
         const editBtn = document.createElement('button');
         editBtn.className = 'quick-memo-btn';
-        editBtn.style.cssText = 'padding:4px 8px;font-size:0.7rem;background:#fff;color:#111;border:2px solid #111;';
+        editBtn.style.cssText = 'padding:4px 8px;font-size:0.7rem;background:#fff;color:#111;border:2px solid #111;min-height:auto;';
         editBtn.textContent = '編集';
-        editBtn.addEventListener('click', () => {
-          if (typeof switchMainTab === 'function') switchMainTab('issues');
-          if (typeof startIssueEdit === 'function') startIssueEdit(issue.number);
+        editBtn.addEventListener('click', async e => {
+          e.preventDefault();
+          e.stopPropagation();
+          await openIssueEditorFromTask(issue.number);
         });
 
-        actions.appendChild(doneBtn);
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display:flex;align-items:center;gap:5px;flex-shrink:0;';
         actions.appendChild(editBtn);
-        content.appendChild(actions);
+        actions.appendChild(closeBtn);
 
         check.addEventListener('change', () => {
           const nextState = getTaskWidgetCheckedState();
@@ -294,6 +340,7 @@ async function fetchTaskWidget() {
 
         row.appendChild(check);
         row.appendChild(content);
+        row.appendChild(actions);
         listEl.appendChild(row);
       });
 

@@ -10,6 +10,40 @@ function parseIssueLabels(text) {
     .filter(Boolean);
 }
 
+async function closeIssueFromPanel(issueNumber, rowEl) {
+  const token = getToken();
+  const repo = getRepo();
+  const statusEl = document.getElementById('issue-board-status');
+  if (!token || !repo || !statusEl) return;
+  if (!confirm(`Issue #${issueNumber} をクローズしますか？`)) return;
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ state: 'closed' }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      statusEl.textContent = `更新失敗: ${err.message || res.status}`;
+      return;
+    }
+
+    rowEl?.remove();
+    const remaining = document.querySelectorAll('#issue-board-list .issue-item').length;
+    statusEl.textContent = remaining ? `${remaining}件` : 'オープンな Issue はありません';
+
+    if (typeof fetchTaskWidget === 'function') fetchTaskWidget();
+  } catch {
+    statusEl.textContent = '更新時にネットワークエラー';
+  }
+}
+
 async function fetchIssueBoard() {
   const token = getToken();
   const repo = getRepo();
@@ -116,7 +150,18 @@ async function fetchIssueBoard() {
       editBtn.textContent = '編集';
       editBtn.addEventListener('click', () => startIssueEdit(issue.number));
 
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'issue-close-btn';
+      closeBtn.textContent = '×';
+      closeBtn.title = 'クローズ';
+      closeBtn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeIssueFromPanel(issue.number, row);
+      });
+
       actions.appendChild(editBtn);
+      actions.appendChild(closeBtn);
       row.appendChild(content);
       row.appendChild(actions);
       listEl.appendChild(row);

@@ -263,6 +263,29 @@
 
 .issues-status { font-size: 0.73rem; color: var(--text-sub); margin-top: 8px; text-align: right; }
 
+.issue-close-btn {
+  flex-shrink: 0;
+  opacity: 0;
+  border: none;
+  background: none;
+  color: var(--text-sub);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 1px 4px;
+  border-radius: 4px;
+  transition: opacity 0.15s, color 0.15s, background 0.15s;
+  align-self: flex-start;
+  margin-top: 1px;
+}
+
+.issue-item:hover .issue-close-btn { opacity: 1; }
+
+.issue-close-btn:hover {
+  color: #cf222e;
+  background: rgba(207, 34, 46, 0.08);
+}
+
 .issues-btn {
   display: inline-flex;
   align-items: center;
