@@ -2,15 +2,25 @@
 // タスクウィジェット（GitHub Issues ベース）
 // =====================
 let currentTaskFilter = 'all';
-const taskDateKey = (typeof todayISO !== 'undefined' && todayISO)
-  ? todayISO
-  : new Date().toISOString().slice(0, 10);
-const TASK_WIDGET_STATE_KEY = `task-widget-checked_${taskDateKey}`;
-const TASK_WIDGET_SNAPSHOT_KEY = `task-widget-snapshot_${taskDateKey}`;
+let taskWidgetIssuesCache = [];
+
+function getTaskWidgetDateKey() {
+  return (typeof todayISO !== 'undefined' && todayISO)
+    ? todayISO
+    : new Date().toISOString().slice(0, 10);
+}
+
+function getTaskWidgetStateKey() {
+  return `task-widget-checked_${getTaskWidgetDateKey()}`;
+}
+
+function getTaskWidgetSnapshotKey() {
+  return `task-widget-snapshot_${getTaskWidgetDateKey()}`;
+}
 
 function getTaskWidgetCheckedState() {
   try {
-    const parsed = JSON.parse(localStorage.getItem(TASK_WIDGET_STATE_KEY) || '{}');
+    const parsed = JSON.parse(localStorage.getItem(getTaskWidgetStateKey()) || '{}');
     return parsed && typeof parsed === 'object' ? parsed : {};
   } catch {
     return {};
@@ -18,7 +28,7 @@ function getTaskWidgetCheckedState() {
 }
 
 function saveTaskWidgetCheckedState(state) {
-  localStorage.setItem(TASK_WIDGET_STATE_KEY, JSON.stringify(state || {}));
+  localStorage.setItem(getTaskWidgetStateKey(), JSON.stringify(state || {}));
 }
 
 function saveTaskWidgetSnapshot(issues) {
@@ -29,7 +39,130 @@ function saveTaskWidgetSnapshot(issues) {
         url: issue.html_url,
       }))
     : [];
-  localStorage.setItem(TASK_WIDGET_SNAPSHOT_KEY, JSON.stringify(snapshot));
+  localStorage.setItem(getTaskWidgetSnapshotKey(), JSON.stringify(snapshot));
+}
+
+async function patchTaskIssue(issueNumber, payload) {
+  const token = getToken();
+  const repo = getRepo();
+  if (!token || !repo) throw new Error('PAT/リポジトリ未設定');
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github+json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload || {}),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || String(res.status));
+  }
+
+  return res.json();
+}
+
+async function createTaskIssue() {
+  const token = getToken();
+  const repo = getRepo();
+  const titleEl = document.getElementById('task-quick-title');
+  const labelEl = document.getElementById('task-quick-label');
+  const statusEl = document.getElementById('task-widget-status');
+  if (!titleEl || !labelEl || !statusEl) return;
+
+  const title = (titleEl.value || '').trim();
+  const label = (labelEl.value || '').trim();
+  if (!title) {
+    statusEl.textContent = 'タイトルを入力してください';
+    return;
+  }
+  if (!token || !repo) {
+    statusEl.textContent = 'PAT/リポジトリ未設定';
+    return;
+  }
+
+  statusEl.textContent = '作成中...';
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/issues`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title,
+        ...(label ? { labels: [label] } : {}),
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      statusEl.textContent = `作成失敗: ${err.message || res.status}`;
+      return;
+    }
+
+    titleEl.value = '';
+    statusEl.textContent = '✅ 追加しました';
+    await fetchTaskWidget();
+    if (typeof fetchIssueBoard === 'function') fetchIssueBoard();
+  } catch {
+    statusEl.textContent = '作成時にネットワークエラー';
+  }
+}
+
+async function closeTaskIssue(issueNumber) {
+  const statusEl = document.getElementById('task-widget-status');
+  if (!statusEl) return;
+  statusEl.textContent = `#${issueNumber} を完了中...`;
+
+  try {
+    await patchTaskIssue(issueNumber, { state: 'closed' });
+    const checkedState = getTaskWidgetCheckedState();
+    delete checkedState[String(issueNumber)];
+    saveTaskWidgetCheckedState(checkedState);
+    statusEl.textContent = `✅ #${issueNumber} を完了`; 
+    await fetchTaskWidget();
+    if (typeof fetchIssueBoard === 'function') fetchIssueBoard();
+  } catch (e) {
+    statusEl.textContent = `更新失敗: ${e.message}`;
+  }
+}
+
+async function closeCheckedTaskIssues() {
+  const statusEl = document.getElementById('task-widget-status');
+  if (!statusEl) return;
+
+  const checkedState = getTaskWidgetCheckedState();
+  const targets = taskWidgetIssuesCache
+    .map(issue => issue.number)
+    .filter(num => checkedState[String(num)] === true);
+
+  if (targets.length === 0) {
+    statusEl.textContent = 'チェック済みタスクがありません';
+    return;
+  }
+
+  statusEl.textContent = `${targets.length}件を完了中...`;
+
+  let done = 0;
+  for (const issueNumber of targets) {
+    try {
+      await patchTaskIssue(issueNumber, { state: 'closed' });
+      done += 1;
+    } catch {
+      // 続行
+    }
+  }
+
+  saveTaskWidgetCheckedState({});
+  statusEl.textContent = `✅ ${done}/${targets.length}件を完了`; 
+  await fetchTaskWidget();
+  if (typeof fetchIssueBoard === 'function') fetchIssueBoard();
 }
 
 function switchTaskFilter(filter) {
@@ -76,6 +209,7 @@ async function fetchTaskWidget() {
     if (!res.ok) { statusEl.textContent = `エラー: ${res.status}`; return; }
 
     const issues = (await res.json()).filter(i => !i.pull_request);
+    taskWidgetIssuesCache = issues;
 
     saveTaskWidgetSnapshot(issues);
 
@@ -129,6 +263,28 @@ async function fetchTaskWidget() {
           content.appendChild(labels);
         }
 
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display:flex;gap:5px;flex-wrap:wrap;width:100%;';
+
+        const doneBtn = document.createElement('button');
+        doneBtn.className = 'quick-memo-btn';
+        doneBtn.style.cssText = 'padding:4px 8px;font-size:0.7rem;';
+        doneBtn.textContent = '完了';
+        doneBtn.addEventListener('click', () => closeTaskIssue(issue.number));
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'quick-memo-btn';
+        editBtn.style.cssText = 'padding:4px 8px;font-size:0.7rem;background:#fff;color:#111;border:2px solid #111;';
+        editBtn.textContent = '編集';
+        editBtn.addEventListener('click', () => {
+          if (typeof switchMainTab === 'function') switchMainTab('issues');
+          if (typeof startIssueEdit === 'function') startIssueEdit(issue.number);
+        });
+
+        actions.appendChild(doneBtn);
+        actions.appendChild(editBtn);
+        content.appendChild(actions);
+
         check.addEventListener('change', () => {
           const nextState = getTaskWidgetCheckedState();
           nextState[String(issue.number)] = check.checked;
@@ -149,3 +305,6 @@ async function fetchTaskWidget() {
     statusEl.textContent = 'ネットワークエラー';
   }
 }
+
+window.createTaskIssue = createTaskIssue;
+window.closeCheckedTaskIssues = closeCheckedTaskIssues;

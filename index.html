@@ -363,6 +363,20 @@
     <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="task-widget-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <h2 style="margin-bottom:0;">📌 タスク</h2>
+        <div style="display:flex;gap:6px;">
+          <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;" onclick="fetchTaskWidget()">↻ 更新</button>
+          <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;background:#111;" onclick="closeCheckedTaskIssues()">チェック済み完了</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
+        <input id="task-quick-title" type="text" class="quick-memo-input" placeholder="新規タスクタイトル" style="flex:1;min-width:120px;padding:7px 9px;font-size:0.8rem;" onkeydown="if(event.key==='Enter'){createTaskIssue();}">
+        <select id="task-quick-label" class="quick-memo-select" style="min-width:86px;flex:0 0 auto;">
+          <option value="">ラベルなし</option>
+          <option value="P1">P1</option>
+          <option value="P2">P2</option>
+          <option value="P3">P3</option>
+        </select>
+        <button class="quick-memo-btn" style="padding:7px 11px;font-size:0.76rem;" onclick="createTaskIssue()">追加</button>
       </div>
       <div class="task-widget-list" id="task-widget-list"></div>
       <div id="task-widget-status" class="issues-status"></div>
