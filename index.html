@@ -509,6 +509,8 @@ function syncResponsiveLayout() {
   const colCalendar = document.getElementById('col-calendar');
   const colMain = document.getElementById('col-main');
   const colRight = document.getElementById('col-right');
+  const quickMemoCard = document.getElementById('quick-memo-card');
+  const financeCard = document.getElementById('finance-card');
   const setHidden = (element, hidden) => {
     if (!element) return;
     element.classList.toggle('is-hidden', hidden);
@@ -526,6 +528,8 @@ function syncResponsiveLayout() {
   closeMobileSideMenu();
   setHidden(colMain, false);
   setHidden(colRight, false);
+  setHidden(quickMemoCard, false);
+  setHidden(financeCard, false);
   setHidden(gcalTitle, false);
   applyCalendarVisibility();
 }
