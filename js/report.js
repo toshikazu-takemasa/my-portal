@@ -232,7 +232,7 @@ async function fetchDailyReport() {
 }
 
 function switchMainTab(name) {
-  const tabs = ['report', 'links', 'ai'];
+  const tabs = ['report', 'issues', 'links', 'ai'];
   const enabledTabs = tabs.filter(t => {
     const tabEl = document.getElementById('mtab-' + t);
     const panelEl = document.getElementById('main-panel-' + t);
@@ -255,6 +255,10 @@ function switchMainTab(name) {
     panelEl.classList.toggle('is-hidden', !isActive);
     if (isActive) panelEl.style.removeProperty('display');
   });
+
+  if (target === 'issues' && typeof fetchIssueBoard === 'function') {
+    fetchIssueBoard();
+  }
 }
 
 function switchTab(tab) {

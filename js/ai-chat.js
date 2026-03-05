@@ -400,6 +400,7 @@ document.getElementById('chat-input').addEventListener('keydown', e => {
 if (getToken() && getRepo()) {
   fetchDailyReport();
   fetchTaskWidget();
+  if (typeof fetchIssueBoard === 'function') fetchIssueBoard();
   loadPortalConfig().then(() => {
     renderAllLinks();
     const kintaiLink = document.getElementById('kintai-sheet-link');

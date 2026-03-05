@@ -48,6 +48,7 @@ function saveRepoConfig() {
   if (getToken()) {
     fetchDailyReport();
     fetchTaskWidget();
+    if (typeof fetchIssueBoard === 'function') fetchIssueBoard();
     loadPortalConfig().then(() => renderAllLinks());
   }
 }
@@ -102,6 +103,7 @@ function saveToken() {
   statusEl.textContent = '✅ 保存しました。データを取得中…';
   fetchDailyReport();
   fetchTaskWidget();
+  if (typeof fetchIssueBoard === 'function') fetchIssueBoard();
   setTimeout(() => { statusEl.textContent = ''; }, 3000);
 }
 

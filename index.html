@@ -190,6 +190,7 @@
     <!-- メインタブ -->
     <div class="main-tabs !flex !gap-0.5 !mb-[18px] !border-b-[1.5px] !border-b-[var(--border)] !pb-0">
       <button class="main-tab active !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-report" onclick="switchMainTab('report')">📄 日記</button>
+      <button class="main-tab !px-4 !py-2 !border-0 !border-b-2 !border-b-transparent !mb-[-1.5px] !bg-transparent !text-[var(--text-sub)] !text-[0.84rem] !font-semibold !cursor-pointer !transition-colors [&.active]:!text-[var(--accent)] [&.active]:!border-b-[var(--accent)]" id="mtab-issues" onclick="switchMainTab('issues')">🐙 Issue</button>
     </div>
 
     <!-- 日記パネル -->
@@ -260,6 +261,55 @@
           <button class="btn-form-save" onclick="addCustomLink()">追加</button>
           <button class="btn-form-cancel" onclick="toggleAddForm()">キャンセル</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Issue パネル -->
+    <div id="main-panel-issues" class="is-hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <select id="issue-filter-state" class="quick-memo-select" style="min-width:130px;" onchange="fetchIssueBoard()">
+            <option value="open">open</option>
+            <option value="closed">closed</option>
+            <option value="all">all</option>
+          </select>
+          <input id="issue-search-input" type="text" class="quick-memo-input" placeholder="#番号 / タイトル検索" style="width:220px;padding:7px 9px;font-size:0.8rem;" onkeydown="if(event.key==='Enter'){fetchIssueBoard();}">
+          <button class="regen-btn" onclick="fetchIssueBoard()">↻ 更新</button>
+        </div>
+        <div id="issue-board-status" class="issues-status" style="margin-top:0;text-align:left;"></div>
+      </div>
+
+      <div class="issue-manager-grid">
+        <section class="issue-manager-card">
+          <h3 class="issue-manager-title">新規作成</h3>
+          <input id="issue-create-title" type="text" class="quick-memo-input" placeholder="Issue タイトル" style="margin-bottom:6px;">
+          <textarea id="issue-create-body" class="quick-memo-input" rows="6" placeholder="本文（任意）" style="resize:vertical;margin-bottom:6px;"></textarea>
+          <input id="issue-create-labels" type="text" class="quick-memo-input" placeholder="ラベル（カンマ区切り） 例: P1, bug" style="margin-bottom:8px;">
+          <div style="display:flex;gap:6px;">
+            <button class="quick-memo-btn" onclick="createIssueFromPanel()">作成</button>
+            <button class="quick-memo-btn" style="background:#fff;color:#111;border:2px solid #111;" onclick="clearIssueCreateForm()">クリア</button>
+          </div>
+        </section>
+
+        <section class="issue-manager-card is-hidden" id="issue-update-box">
+          <h3 class="issue-manager-title">更新</h3>
+          <input id="issue-update-number" type="text" class="quick-memo-input" readonly style="margin-bottom:6px;background:#f2f2f2;">
+          <input id="issue-update-title" type="text" class="quick-memo-input" placeholder="Issue タイトル" style="margin-bottom:6px;">
+          <textarea id="issue-update-body" class="quick-memo-input" rows="6" placeholder="本文" style="resize:vertical;margin-bottom:6px;"></textarea>
+          <input id="issue-update-labels" type="text" class="quick-memo-input" placeholder="ラベル（カンマ区切り）" style="margin-bottom:6px;">
+          <select id="issue-update-state" class="quick-memo-select" style="margin-bottom:8px;">
+            <option value="open">open</option>
+            <option value="closed">closed</option>
+          </select>
+          <div style="display:flex;gap:6px;">
+            <button class="quick-memo-btn" onclick="updateIssueFromPanel()">更新</button>
+            <button class="quick-memo-btn" style="background:#fff;color:#111;border:2px solid #111;" onclick="cancelIssueEdit()">キャンセル</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="issues-list" id="issue-board-list" style="margin-top:10px;max-height:360px;">
+        <p style="font-size:0.8rem;color:#8e8e8e;">Issue を取得してください。</p>
       </div>
     </div>
 
@@ -385,6 +435,7 @@
 <script src="js/github.js"></script>
 <script src="js/report.js"></script>
 <script src="js/tasks.js"></script>
+<script src="js/issues.js"></script>
 <script src="js/daily-checklist.js"></script>
 <script src="js/analytics.js"></script>
 <script src="js/quick-memo.js"></script>
