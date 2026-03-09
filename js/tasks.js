@@ -68,13 +68,13 @@ async function patchTaskIssue(issueNumber, payload) {
 async function createTaskIssue() {
   const token = getToken();
   const repo = getRepo();
-  const titleEl = document.getElementById('task-quick-title');
+  const titleEl = document.getElementById('task-quick-title') || document.getElementById('issue-widget-create-title');
   const labelEl = document.getElementById('task-quick-label');
-  const statusEl = document.getElementById('task-widget-status');
-  if (!titleEl || !labelEl || !statusEl) return;
+  const statusEl = document.getElementById('task-widget-status') || document.getElementById('issue-widget-status');
+  if (!titleEl || !statusEl) return;
 
   const title = (titleEl.value || '').trim();
-  const label = (labelEl.value || '').trim();
+  const label = (labelEl?.value || '').trim();
   if (!title) {
     statusEl.textContent = 'タイトルを入力してください';
     return;
@@ -116,7 +116,7 @@ async function createTaskIssue() {
 }
 
 async function closeTaskIssue(issueNumber) {
-  const statusEl = document.getElementById('task-widget-status');
+  const statusEl = document.getElementById('task-widget-status') || document.getElementById('issue-widget-status');
   if (!statusEl) return;
   statusEl.textContent = `#${issueNumber} を完了中...`;
 
@@ -134,7 +134,7 @@ async function closeTaskIssue(issueNumber) {
 }
 
 async function closeTaskIssueFromRow(issueNumber, rowEl) {
-  const statusEl = document.getElementById('task-widget-status');
+  const statusEl = document.getElementById('task-widget-status') || document.getElementById('issue-widget-status');
   if (!statusEl) return;
   if (!confirm(`Issue #${issueNumber} をクローズしますか？`)) return;
 
@@ -145,7 +145,7 @@ async function closeTaskIssueFromRow(issueNumber, rowEl) {
     saveTaskWidgetCheckedState(checkedState);
 
     rowEl?.remove();
-    const remaining = document.querySelectorAll('#task-widget-list .issue-item').length;
+    const remaining = document.querySelectorAll('#task-widget-list .issue-item, #issue-widget-list .issue-item').length;
     statusEl.textContent = remaining ? `${remaining}件` : 'オープンな Issue はありません';
     window.dispatchEvent(new Event('progress-data-changed'));
 
@@ -177,7 +177,7 @@ async function openIssueEditorFromTask(issueNumber) {
 }
 
 async function closeCheckedTaskIssues() {
-  const statusEl = document.getElementById('task-widget-status');
+  const statusEl = document.getElementById('task-widget-status') || document.getElementById('issue-widget-status');
   if (!statusEl) return;
 
   const checkedState = getTaskWidgetCheckedState();
@@ -221,28 +221,35 @@ async function fetchTaskWidget() {
   const repo  = getRepo();
   if (!token || !repo) return;
 
-  const listEl   = document.getElementById('task-widget-list');
-  const statusEl = document.getElementById('task-widget-status');
+  const listEl = document.getElementById('task-widget-list') || document.getElementById('issue-widget-list');
+  const statusEl = document.getElementById('task-widget-status') || document.getElementById('issue-widget-status');
+  const stateEl = document.getElementById('issue-widget-filter-state');
+  const searchEl = document.getElementById('issue-widget-search-input');
   if (!listEl) return;
+  if (!statusEl) return;
 
   statusEl.textContent = '取得中…';
   listEl.innerHTML = '';
 
   // フィルタリング方針:
-  //   'today' → P1 ラベル（今日やるべき高優先度）
-  //   'week'  → P1 + P2 ラベル
-  //   'all'   → すべてのオープン Issue
+  //   issue-widget-* がある場合は state/search を優先
+  //   それ以外は従来の task filter（today/week/all）を適用
   const labelMap = {
     today: 'P1',
     week:  'P1,P2',
     all:   ''
   };
   const label = labelMap[currentTaskFilter] || '';
+  const selectedState = stateEl?.value || 'open';
+  const searchQuery = (searchEl?.value || '').trim().toLowerCase();
 
   try {
-    const url = label
-      ? `https://api.github.com/repos/${repo}/issues?state=open&labels=${encodeURIComponent(label)}&per_page=30`
-      : `https://api.github.com/repos/${repo}/issues?state=open&per_page=30`;
+    const baseUrl = `https://api.github.com/repos/${repo}/issues`;
+    const url = stateEl
+      ? `${baseUrl}?state=${encodeURIComponent(selectedState)}&sort=updated&direction=desc&per_page=50`
+      : (label
+          ? `${baseUrl}?state=open&labels=${encodeURIComponent(label)}&per_page=30`
+          : `${baseUrl}?state=open&per_page=30`);
 
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
@@ -251,7 +258,14 @@ async function fetchTaskWidget() {
     if (res.status === 401) { statusEl.textContent = '認証エラー'; return; }
     if (!res.ok) { statusEl.textContent = `エラー: ${res.status}`; return; }
 
-    const issues = (await res.json()).filter(i => !i.pull_request);
+    const fetchedIssues = (await res.json()).filter(i => !i.pull_request);
+    const issues = searchQuery
+      ? fetchedIssues.filter(issue => {
+          const title = (issue.title || '').toLowerCase();
+          const labels = (issue.labels || []).map(labelItem => (labelItem.name || '').toLowerCase()).join(' ');
+          return (`#${issue.number}`.includes(searchQuery) || title.includes(searchQuery) || labels.includes(searchQuery));
+        })
+      : fetchedIssues;
     taskWidgetIssuesCache = issues;
 
     saveTaskWidgetSnapshot(issues);
@@ -355,3 +369,5 @@ async function fetchTaskWidget() {
 
 window.createTaskIssue = createTaskIssue;
 window.closeCheckedTaskIssues = closeCheckedTaskIssues;
+window.fetchIssueWidget = fetchTaskWidget;
+window.createIssueFromWidget = createTaskIssue;
