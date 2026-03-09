@@ -22,6 +22,8 @@ function renderDailyChecklist() {
 
   const activeLabelColor = 'var(--text)';
   const doneLabelColor = 'var(--text-sub)';
+  const itemHoverBg = 'var(--accent-light)';
+  const itemBaseBg = 'transparent';
   
   listEls.forEach(listEl => {
     if (!listEl || dailyTasks.length === 0) return;
@@ -34,12 +36,12 @@ function renderDailyChecklist() {
 
       const div = document.createElement('div');
       div.className = 'daily-task-item';
-      div.style.cssText = 'display:flex;align-items:center;padding:8px;border-radius:6px;cursor:pointer;transition:background 0.15s;';
+      div.style.cssText = `display:flex;align-items:center;padding:8px;border-radius:6px;cursor:pointer;transition:background 0.15s;background:${itemBaseBg};`;
 
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.checked = isChecked;
-      checkbox.style.cssText = 'width:16px;height:16px;margin-right:10px;cursor:pointer;';
+      checkbox.style.cssText = 'width:16px;height:16px;margin-right:10px;cursor:pointer;accent-color:var(--accent);';
 
       const label = document.createElement('span');
       label.style.cssText = `flex:1;font-size:0.85rem;color:${isChecked ? doneLabelColor : activeLabelColor};${isChecked ? 'text-decoration:line-through;' : ''}`;
@@ -66,10 +68,10 @@ function renderDailyChecklist() {
       div.appendChild(label);
 
       div.addEventListener('mouseenter', () => {
-        div.style.background = '#f5f5f5';
+        div.style.background = itemHoverBg;
       });
       div.addEventListener('mouseleave', () => {
-        div.style.background = 'transparent';
+        div.style.background = itemBaseBg;
       });
 
       listEl.appendChild(div);
