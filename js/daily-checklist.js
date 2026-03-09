@@ -19,62 +19,50 @@ function renderDailyChecklist() {
   const listEls = [
     document.getElementById('daily-checklist-list-right')
   ];
-
-  const activeLabelColor = 'var(--text)';
-  const doneLabelColor = 'var(--text-sub)';
-  const itemHoverBg = 'var(--accent-light)';
-  const itemBaseBg = 'transparent';
   
   listEls.forEach(listEl => {
     if (!listEl || dailyTasks.length === 0) return;
 
     listEl.innerHTML = '';
 
-    dailyTasks.forEach((task, idx) => {
+    dailyTasks.forEach(task => {
       const key = `daily-task-${task.id}`;
       const isChecked = localStorage.getItem(key) === 'true';
 
-      const div = document.createElement('div');
-      div.className = 'daily-task-item';
-      div.style.cssText = `display:flex;align-items:center;padding:8px;border-radius:6px;cursor:pointer;transition:background 0.15s;background:${itemBaseBg};`;
+      const row = document.createElement('label');
+      row.className = 'check-item';
+      row.classList.toggle('done', isChecked);
 
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.checked = isChecked;
-      checkbox.style.cssText = 'width:16px;height:16px;margin-right:10px;cursor:pointer;accent-color:var(--accent);';
+      checkbox.className = 'daily-task-check';
 
-      const label = document.createElement('span');
-      label.style.cssText = `flex:1;font-size:0.85rem;color:${isChecked ? doneLabelColor : activeLabelColor};${isChecked ? 'text-decoration:line-through;' : ''}`;
+      const text = document.createElement('span');
+      text.className = 'check-label';
 
       if (task.url) {
         const link = document.createElement('a');
         link.href = task.url;
         link.target = '_blank';
+        link.rel = 'noopener noreferrer';
         link.style.cssText = 'color:inherit;text-decoration:inherit;';
         link.textContent = task.title;
-        label.appendChild(link);
+        text.appendChild(link);
       } else {
-        label.textContent = task.title;
+        text.textContent = task.title;
       }
 
       checkbox.addEventListener('change', (e) => {
         localStorage.setItem(key, e.target.checked.toString());
-        label.style.color = e.target.checked ? doneLabelColor : activeLabelColor;
-        label.style.textDecoration = e.target.checked ? 'line-through' : 'none';
+        row.classList.toggle('done', e.target.checked);
         window.dispatchEvent(new Event('progress-data-changed'));
       });
 
-      div.appendChild(checkbox);
-      div.appendChild(label);
+      row.appendChild(checkbox);
+      row.appendChild(text);
 
-      div.addEventListener('mouseenter', () => {
-        div.style.background = itemHoverBg;
-      });
-      div.addEventListener('mouseleave', () => {
-        div.style.background = itemBaseBg;
-      });
-
-      listEl.appendChild(div);
+      listEl.appendChild(row);
     });
 
     window.dispatchEvent(new Event('progress-data-changed'));
