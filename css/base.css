@@ -299,12 +299,6 @@ header h1 {
   gap: 16px;
 }
 
-@media (min-width: 769px) {
-  #issue-widget-card {
-    display: none !important;
-  }
-}
-
 .side-panel-head {
   display: none;
 }
