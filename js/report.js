@@ -139,7 +139,9 @@ async function generateDailyReportTemplate() {
   
   const template = `# ${headerDate}
 
-${checklistBlock}${memoBlock}
+${checklistBlock}${memoBlock}残予算：　日   
+次回クレカ：
+
 `;
   return template;
 }
