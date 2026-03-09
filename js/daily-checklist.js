@@ -19,6 +19,9 @@ function renderDailyChecklist() {
   const listEls = [
     document.getElementById('daily-checklist-list-right')
   ];
+
+  const activeLabelColor = 'var(--text)';
+  const doneLabelColor = 'var(--text-sub)';
   
   listEls.forEach(listEl => {
     if (!listEl || dailyTasks.length === 0) return;
@@ -39,7 +42,7 @@ function renderDailyChecklist() {
       checkbox.style.cssText = 'width:16px;height:16px;margin-right:10px;cursor:pointer;';
 
       const label = document.createElement('span');
-      label.style.cssText = `flex:1;font-size:0.85rem;color:${isChecked ? '#aaa' : '#333'};${isChecked ? 'text-decoration:line-through;' : ''}`;
+      label.style.cssText = `flex:1;font-size:0.85rem;color:${isChecked ? doneLabelColor : activeLabelColor};${isChecked ? 'text-decoration:line-through;' : ''}`;
 
       if (task.url) {
         const link = document.createElement('a');
@@ -54,7 +57,7 @@ function renderDailyChecklist() {
 
       checkbox.addEventListener('change', (e) => {
         localStorage.setItem(key, e.target.checked.toString());
-        label.style.color = e.target.checked ? '#aaa' : '#333';
+        label.style.color = e.target.checked ? doneLabelColor : activeLabelColor;
         label.style.textDecoration = e.target.checked ? 'line-through' : 'none';
         window.dispatchEvent(new Event('progress-data-changed'));
       });
