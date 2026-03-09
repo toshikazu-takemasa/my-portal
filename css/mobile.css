@@ -127,11 +127,15 @@
 }
 
 .label-chip {
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 1px 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 7px;
   border-radius: 0;
-  border: 1px solid;
+  border: 2px solid #111 !important;
+  background: #fff !important;
+  color: #111 !important;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
   white-space: nowrap;
 }
 
