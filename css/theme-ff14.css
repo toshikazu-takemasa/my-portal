@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
 
 body.theme-ff14 {
-  --bg: #0a1220;
+  --bg: #0f1930;
   --card-bg: #18253a;
   --section-bg: #21314b;
   --section-bg2: #152238;
@@ -24,12 +24,37 @@ body.theme-ff14 {
   background:
     radial-gradient(circle at 12% 10%, rgba(216, 181, 111, 0.14) 0 2px, transparent 2px 100%),
     radial-gradient(circle at 80% 18%, rgba(187, 214, 255, 0.14) 0 1px, transparent 1px 100%),
-    linear-gradient(160deg, #0b1424 0%, #13213a 35%, #0d1728 100%);
+    linear-gradient(160deg, #15223c 0%, #1d2f50 35%, #162641 100%);
   background-size: 18px 18px, 14px 14px, 100% 100%;
   color: var(--text);
   font-family: 'Noto Sans JP', sans-serif;
   min-height: 100vh;
   position: relative;
+}
+
+/* Force readable foreground color inside FF14 theme, including inline black text. */
+.theme-ff14,
+.theme-ff14 p,
+.theme-ff14 span,
+.theme-ff14 div,
+.theme-ff14 label,
+.theme-ff14 li,
+.theme-ff14 td,
+.theme-ff14 th,
+.theme-ff14 strong,
+.theme-ff14 small {
+  color: var(--text);
+}
+
+.theme-ff14 [style*='color:#111'],
+.theme-ff14 [style*='color: #111'],
+.theme-ff14 [style*='color:#111111'],
+.theme-ff14 [style*='color: #111111'],
+.theme-ff14 [style*='color:#5c5c5c'],
+.theme-ff14 [style*='color: #5c5c5c'],
+.theme-ff14 [style*='color:#8e8e8e'],
+.theme-ff14 [style*='color: #8e8e8e'] {
+  color: #e8efff !important;
 }
 
 body.theme-ff14::before {
