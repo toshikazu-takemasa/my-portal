@@ -359,27 +359,29 @@
       <div id="daily-checklist-list-right" class="daily-checklist"></div>
     </div>
 
-    <!-- タスクウィジェット -->
-    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="task-widget-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <h2 style="margin-bottom:0;">📌 タスク</h2>
+    <!-- Issueウィジェット -->
+    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="issue-widget-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;">
+        <h2 style="margin-bottom:0;">🐙 Issue</h2>
         <div style="display:flex;gap:6px;">
-          <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;" onclick="fetchTaskWidget()">↻ 更新</button>
-          <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;background:#111;" onclick="closeCheckedTaskIssues()">チェック済み完了</button>
+          <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;" onclick="fetchIssueWidget()">↻ 更新</button>
+          <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;background:#111;" onclick="switchMainTab('issues')">Issueタブ</button>
         </div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
-        <input id="task-quick-title" type="text" class="quick-memo-input" placeholder="新規タスクタイトル" style="flex:1;min-width:120px;padding:7px 9px;font-size:0.8rem;" onkeydown="if(event.key==='Enter'){createTaskIssue();}">
-        <select id="task-quick-label" class="quick-memo-select" style="min-width:86px;flex:0 0 auto;">
-          <option value="">ラベルなし</option>
-          <option value="P1">P1</option>
-          <option value="P2">P2</option>
-          <option value="P3">P3</option>
+        <select id="issue-widget-filter-state" class="quick-memo-select" style="min-width:90px;flex:0 0 auto;" onchange="fetchIssueWidget()">
+          <option value="open">open</option>
+          <option value="closed">closed</option>
+          <option value="all">all</option>
         </select>
-        <button class="quick-memo-btn" style="padding:7px 11px;font-size:0.76rem;" onclick="createTaskIssue()">追加</button>
+        <input id="issue-widget-search-input" type="text" class="quick-memo-input" placeholder="#番号 / タイトル検索" style="flex:1;min-width:140px;padding:7px 9px;font-size:0.8rem;" onkeydown="if(event.key==='Enter'){fetchIssueWidget();}">
       </div>
-      <div class="task-widget-list" id="task-widget-list"></div>
-      <div id="task-widget-status" class="issues-status"></div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
+        <input id="issue-widget-create-title" type="text" class="quick-memo-input" placeholder="新規Issueタイトル" style="flex:1;min-width:140px;padding:7px 9px;font-size:0.8rem;" onkeydown="if(event.key==='Enter'){createIssueFromWidget();}">
+        <button class="quick-memo-btn" style="padding:7px 11px;font-size:0.76rem;" onclick="createIssueFromWidget()">追加</button>
+      </div>
+      <div class="task-widget-list" id="issue-widget-list"></div>
+      <div id="issue-widget-status" class="issues-status"></div>
     </div>
 
     <!-- 確認事項（アコーディオン） -->
@@ -413,7 +415,7 @@
   </button>
   <button class="bottom-nav-item" data-section="checklist" onclick="switchBottomNav('checklist')">
     <span class="bottom-nav-icon">📋</span>
-    <span class="bottom-nav-label">チェック/タスク</span>
+    <span class="bottom-nav-label">チェック/Issue</span>
   </button>
   <button class="bottom-nav-item" data-section="pillars" onclick="switchBottomNav('pillars')">
     <span class="bottom-nav-icon">✅</span>
@@ -478,7 +480,7 @@ function switchBottomNav(section) {
   const gcalIframe = document.getElementById('gcal-iframe');
   const gcalTitle = document.getElementById('gcal-title');
   const dailyChecklistCard = document.getElementById('daily-checklist-card');
-  const taskWidgetCard = document.getElementById('task-widget-card');
+  const issueWidgetCard = document.getElementById('issue-widget-card');
   const pillarsCard = document.getElementById('pillars-card');
   const financeCard = document.getElementById('finance-card');
   const pillarsBody = document.getElementById('pillars-body');
@@ -492,7 +494,7 @@ function switchBottomNav(section) {
   setHidden(colRight, true);
 
   setHidden(dailyChecklistCard, false);
-  setHidden(taskWidgetCard, false);
+  setHidden(issueWidgetCard, false);
   setHidden(pillarsCard, false);
   setHidden(quickMemoCard, true);
   setHidden(financeCard, true);
@@ -510,14 +512,14 @@ function switchBottomNav(section) {
   } else if (section === 'pillars') {
     setHidden(colRight, false);
     setHidden(dailyChecklistCard, true);
-    setHidden(taskWidgetCard, true);
+    setHidden(issueWidgetCard, true);
     if (pillarsBody) pillarsBody.classList.add('open');
     if (pillarsHeader) pillarsHeader.classList.add('open');
     if (typeof pillarsOpen !== 'undefined') pillarsOpen = true;
   } else if (section === 'memo') {
     setHidden(colCalendar, false);
     setHidden(dailyChecklistCard, true);
-    setHidden(taskWidgetCard, true);
+    setHidden(issueWidgetCard, true);
     setHidden(pillarsCard, true);
     if (quickMemoCard) {
       setHidden(quickMemoCard, false);
@@ -528,7 +530,7 @@ function switchBottomNav(section) {
   } else if (section === 'finance') {
     setHidden(colCalendar, false);
     setHidden(dailyChecklistCard, true);
-    setHidden(taskWidgetCard, true);
+    setHidden(issueWidgetCard, true);
     setHidden(pillarsCard, true);
     setHidden(quickMemoCard, true);
     setHidden(financeCard, false);
@@ -574,6 +576,7 @@ function syncResponsiveLayout() {
   const colCalendar = document.getElementById('col-calendar');
   const colMain = document.getElementById('col-main');
   const colRight = document.getElementById('col-right');
+  const issueWidgetCard = document.getElementById('issue-widget-card');
   const quickMemoCard = document.getElementById('quick-memo-card');
   const financeCard = document.getElementById('finance-card');
   const setHidden = (element, hidden) => {
@@ -593,6 +596,7 @@ function syncResponsiveLayout() {
   closeMobileSideMenu();
   setHidden(colMain, false);
   setHidden(colRight, false);
+  setHidden(issueWidgetCard, false);
   setHidden(quickMemoCard, false);
   setHidden(financeCard, false);
   setHidden(gcalTitle, false);
