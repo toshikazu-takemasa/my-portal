@@ -3,6 +3,76 @@
 // =====================
 let issuePanelCache = [];
 
+async function fetchIssueProjectStatusBatch({ token, repo, issues }) {
+  if (!token || !repo || !Array.isArray(issues) || issues.length === 0) return new Map();
+
+  const nodeIds = issues
+    .map(issue => issue?.node_id)
+    .filter(Boolean);
+
+  if (nodeIds.length === 0) return new Map();
+
+  const query = `
+    query($ids: [ID!]!) {
+      nodes(ids: $ids) {
+        ... on Issue {
+          number
+          projectItems(first: 20) {
+            nodes {
+              project {
+                title
+              }
+              fieldValueByName(name: "Status") {
+                __typename
+                ... on ProjectV2ItemFieldSingleSelectValue {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const res = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query, variables: { ids: nodeIds } }),
+    });
+
+    if (!res.ok) return new Map();
+
+    const payload = await res.json();
+    if (payload?.errors?.length) return new Map();
+
+    const statusMap = new Map();
+    (payload?.data?.nodes || []).forEach(node => {
+      if (!node || typeof node.number !== 'number') return;
+
+      const projectStatuses = (node.projectItems?.nodes || [])
+        .map(item => {
+          const projectTitle = item?.project?.title || '';
+          const statusName = item?.fieldValueByName?.name || '';
+          if (!projectTitle || !statusName) return null;
+          return { projectTitle, statusName };
+        })
+        .filter(Boolean);
+
+      statusMap.set(node.number, projectStatuses);
+    });
+
+    return statusMap;
+  } catch {
+    return new Map();
+  }
+}
+
 function parseIssueLabels(text) {
   return (text || '')
     .split(',')
@@ -95,6 +165,8 @@ async function fetchIssueBoard() {
         })
       : rawIssues;
 
+    const projectStatusMap = await fetchIssueProjectStatusBatch({ token, repo, issues });
+
     issuePanelCache = issues;
 
     if (issues.length === 0) {
@@ -129,6 +201,16 @@ async function fetchIssueBoard() {
       const meta = document.createElement('div');
       meta.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;';
       meta.innerHTML = `<span class="label-chip" style="border-color:#888;background:#f4f4f4;color:#555;">${escapeHtml(issue.state)}</span>`;
+
+      const projectStatuses = projectStatusMap.get(issue.number) || [];
+      projectStatuses.forEach(item => {
+        const chip = document.createElement('span');
+        chip.className = 'label-chip';
+        chip.style.cssText = 'border-color:#1f6feb66;background:#1f6feb14;color:#1f6feb;';
+        chip.textContent = `${item.projectTitle}: ${item.statusName}`;
+        meta.appendChild(chip);
+      });
+
       (issue.labels || []).forEach(label => {
         const color = label.color || '999999';
         const chip = document.createElement('span');
