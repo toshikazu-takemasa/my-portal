@@ -215,9 +215,9 @@ async function fetchIssueBoard() {
         const color = label.color || '999999';
         const chip = document.createElement('span');
         chip.className = 'label-chip';
-        chip.style.background = `#${color}22`;
-        chip.style.color = `#${color}`;
-        chip.style.borderColor = `#${color}66`;
+        chip.style.background = `#${color}2a`;
+        chip.style.color = '#111';
+        chip.style.borderColor = `#${color}aa`;
         chip.textContent = label.name || '';
         meta.appendChild(chip);
       });

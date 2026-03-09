@@ -42,6 +42,74 @@ function saveTaskWidgetSnapshot(issues) {
   localStorage.setItem(getTaskWidgetSnapshotKey(), JSON.stringify(snapshot));
 }
 
+async function fetchTaskProjectStatusBatch({ token, repo, issues }) {
+  if (!token || !repo || !Array.isArray(issues) || issues.length === 0) return new Map();
+
+  // Reuse the issue panel implementation when available.
+  if (typeof fetchIssueProjectStatusBatch === 'function') {
+    return fetchIssueProjectStatusBatch({ token, repo, issues });
+  }
+
+  const nodeIds = issues.map(issue => issue?.node_id).filter(Boolean);
+  if (nodeIds.length === 0) return new Map();
+
+  const query = `
+    query($ids: [ID!]!) {
+      nodes(ids: $ids) {
+        ... on Issue {
+          number
+          projectItems(first: 20) {
+            nodes {
+              project {
+                title
+              }
+              fieldValueByName(name: "Status") {
+                __typename
+                ... on ProjectV2ItemFieldSingleSelectValue {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const res = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query, variables: { ids: nodeIds } }),
+    });
+    if (!res.ok) return new Map();
+
+    const payload = await res.json();
+    if (payload?.errors?.length) return new Map();
+
+    const statusMap = new Map();
+    (payload?.data?.nodes || []).forEach(node => {
+      if (!node || typeof node.number !== 'number') return;
+      const projectStatuses = (node.projectItems?.nodes || [])
+        .map(item => {
+          const projectTitle = item?.project?.title || '';
+          const statusName = item?.fieldValueByName?.name || '';
+          if (!projectTitle || !statusName) return null;
+          return { projectTitle, statusName };
+        })
+        .filter(Boolean);
+      statusMap.set(node.number, projectStatuses);
+    });
+    return statusMap;
+  } catch {
+    return new Map();
+  }
+}
+
 async function patchTaskIssue(issueNumber, payload) {
   const token = getToken();
   const repo = getRepo();
@@ -266,6 +334,8 @@ async function fetchTaskWidget() {
           return (`#${issue.number}`.includes(searchQuery) || title.includes(searchQuery) || labels.includes(searchQuery));
         })
       : fetchedIssues;
+
+    const projectStatusMap = await fetchTaskProjectStatusBatch({ token, repo, issues });
     taskWidgetIssuesCache = issues;
 
     saveTaskWidgetSnapshot(issues);
@@ -307,16 +377,22 @@ async function fetchTaskWidget() {
         link.appendChild(title);
         content.appendChild(link);
 
-        // ラベルチップ（色付き）
+        // ラベルチップ（色分けは残しつつ可読性優先で濃色文字に統一）
         const labelsHtml = issue.labels.map(l => {
           const color = l.color ? l.color : 'aaa';
-          return `<span class="label-chip" style="background:#${color}22;color:#${color};border-color:#${color}55">${escapeHtml(l.name)}</span>`;
+          return `<span class="label-chip" style="background:#${color}2a;color:#111;border-color:#${color}aa">${escapeHtml(l.name)}</span>`;
         }).join('');
 
-        if (labelsHtml) {
+        const projectStatuses = projectStatusMap.get(issue.number) || [];
+        const projectHtml = projectStatuses.map(item => {
+          const text = `${item.projectTitle}: ${item.statusName}`;
+          return `<span class="label-chip" style="background:#1f6feb22;color:#111;border-color:#1f6feb99">${escapeHtml(text)}</span>`;
+        }).join('');
+
+        if (projectHtml || labelsHtml) {
           const labels = document.createElement('span');
           labels.className = 'issue-labels';
-          labels.innerHTML = labelsHtml;
+          labels.innerHTML = projectHtml + labelsHtml;
           content.appendChild(labels);
         }
 
