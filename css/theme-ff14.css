@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
 
 body.theme-ff14 {
-  --bg: #060a12;
-  --card-bg: #0f1724;
-  --section-bg: #141f31;
-  --section-bg2: #0b1320;
-  --text: #e8ecf6;
-  --text-sub: #9fa9bf;
-  --border: #3f4f6b;
+  --bg: #0a1220;
+  --card-bg: #18253a;
+  --section-bg: #21314b;
+  --section-bg2: #152238;
+  --text: #edf2ff;
+  --text-sub: #b2bfd8;
+  --border: #5b7195;
   --accent: #d8b56f;
   --accent-light: #283652;
   --accent-dim: #8f7445;
@@ -22,9 +22,9 @@ body.theme-ff14 {
   --radius-sm: 6px;
 
   background:
-    radial-gradient(circle at 12% 10%, rgba(216, 181, 111, 0.12) 0 2px, transparent 2px 100%),
-    radial-gradient(circle at 80% 18%, rgba(187, 214, 255, 0.1) 0 1px, transparent 1px 100%),
-    linear-gradient(160deg, #04070d 0%, #091120 35%, #050913 100%);
+    radial-gradient(circle at 12% 10%, rgba(216, 181, 111, 0.14) 0 2px, transparent 2px 100%),
+    radial-gradient(circle at 80% 18%, rgba(187, 214, 255, 0.14) 0 1px, transparent 1px 100%),
+    linear-gradient(160deg, #0b1424 0%, #13213a 35%, #0d1728 100%);
   background-size: 18px 18px, 14px 14px, 100% 100%;
   color: var(--text);
   font-family: 'Noto Sans JP', sans-serif;
@@ -69,8 +69,8 @@ body.theme-ff14::before {
 .theme-ff14 .gcal-placeholder,
 .theme-ff14 .task-widget-item,
 .theme-ff14 .issue-item {
-  background: linear-gradient(180deg, #131d2d 0%, #0d1523 100%) !important;
-  border: 1px solid #526687 !important;
+  background: linear-gradient(180deg, #22324c 0%, #17263d 100%) !important;
+  border: 1px solid #6c84ab !important;
   border-radius: 10px !important;
   box-shadow:
     inset 0 0 0 1px rgba(216, 181, 111, 0.2),
@@ -90,15 +90,15 @@ body.theme-ff14::before {
 .theme-ff14 .main-tabs,
 .theme-ff14 .report-tabs,
 .theme-ff14 .task-filter-tabs {
-  border-color: #455a7f !important;
-  background: #111a2a !important;
+  border-color: #6079a2 !important;
+  background: #1a2941 !important;
   border-radius: 10px !important;
 }
 
 .theme-ff14 .main-tab,
 .theme-ff14 .report-tab,
 .theme-ff14 .task-filter-tab {
-  color: #98a7c3 !important;
+  color: #b5c1d8 !important;
 }
 
 .theme-ff14 .main-tab.active,
@@ -106,7 +106,7 @@ body.theme-ff14::before {
 .theme-ff14 .task-filter-tab.active {
   color: #f5dba2 !important;
   border-color: #d8b56f !important;
-  background: linear-gradient(180deg, #253550 0%, #1a283f 100%) !important;
+  background: linear-gradient(180deg, #344d74 0%, #273d5f 100%) !important;
   box-shadow: inset 0 0 10px rgba(216, 181, 111, 0.2);
 }
 
@@ -117,9 +117,9 @@ body.theme-ff14::before {
 .theme-ff14 textarea,
 .theme-ff14 input,
 .theme-ff14 select {
-  background: #0b1320 !important;
+  background: #17263d !important;
   color: #e6ebf8 !important;
-  border: 1px solid #4c607f !important;
+  border: 1px solid #6882a8 !important;
   border-radius: 8px !important;
 }
 
@@ -149,7 +149,7 @@ body.theme-ff14::before {
   border: 1px solid #c7a86a !important;
   border-radius: 8px !important;
   color: #f0e4c7 !important;
-  background: linear-gradient(180deg, #2d3f5d 0%, #1f2d44 100%) !important;
+  background: linear-gradient(180deg, #405c86 0%, #304a70 100%) !important;
   box-shadow:
     inset 0 0 0 1px rgba(255, 234, 191, 0.16),
     0 4px 10px rgba(0, 0, 0, 0.3) !important;
@@ -173,8 +173,8 @@ body.theme-ff14::before {
 
 .theme-ff14 .progress-bar,
 .theme-ff14 .analytics-progress-track {
-  border-color: #516688 !important;
-  background: repeating-linear-gradient(-45deg, #0d1628 0 8px, #101b2f 8px 16px) !important;
+  border-color: #6c84aa !important;
+  background: repeating-linear-gradient(-45deg, #1a2a43 0 8px, #1f314d 8px 16px) !important;
 }
 
 .theme-ff14 .progress-fill,
@@ -183,7 +183,7 @@ body.theme-ff14::before {
 }
 
 .theme-ff14 .modal-overlay {
-  background: rgba(1, 4, 10, 0.72);
+  background: rgba(6, 13, 24, 0.6);
   backdrop-filter: blur(4px);
 }
 
@@ -209,22 +209,22 @@ body.theme-ff14::before {
 .theme-ff14 .md-code,
 .theme-ff14 .label-chip,
 .theme-ff14 .acc-progress-chip {
-  background: #1b2a43 !important;
+  background: #2a3d5d !important;
   color: #f0e3c4 !important;
-  border: 1px solid #6f875f !important;
+  border: 1px solid #8aa56f !important;
   border-radius: 6px !important;
 }
 
 .theme-ff14 .bottom-nav {
-  background: linear-gradient(180deg, #101a2a 0%, #0b121d 100%) !important;
-  border-top: 1px solid #526687 !important;
+  background: linear-gradient(180deg, #1c2b43 0%, #172338 100%) !important;
+  border-top: 1px solid #6f88ad !important;
   box-shadow:
     inset 0 1px 0 rgba(216, 181, 111, 0.22),
     0 -4px 18px rgba(0, 0, 0, 0.4) !important;
 }
 
 .theme-ff14 .bottom-nav-item {
-  color: #9eacc8 !important;
+  color: #b5c2da !important;
 }
 
 .theme-ff14 .bottom-nav-item.active {
