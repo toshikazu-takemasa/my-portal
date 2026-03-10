@@ -95,6 +95,33 @@ function getDailyMemoForReport() {
   return memo.trim();
 }
 
+function getFinanceRecordsForReport() {
+  const jst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+  const todayStr = `${jst.getFullYear()}-${String(jst.getMonth() + 1).padStart(2, '0')}-${String(jst.getDate()).padStart(2, '0')}`;
+  const ym = `${jst.getFullYear()}-${String(jst.getMonth() + 1).padStart(2, '0')}`;
+  let records = [];
+  try {
+    const parsed = JSON.parse(localStorage.getItem(`finance-records_${ym}`) || '[]');
+    records = Array.isArray(parsed) ? parsed : [];
+  } catch { records = []; }
+
+  const todayRecords = records.filter(r => r.date === todayStr);
+  if (todayRecords.length === 0) return '';
+
+  const lines = todayRecords.map(r => {
+    const typeLabel = r.type === 'income' ? '収入' : '支出';
+    const note = r.note ? ` (${r.note})` : '';
+    return `- ${typeLabel} / ${r.category} / ${Number(r.amount).toLocaleString('ja-JP')}円${note}`;
+  });
+
+  const income  = todayRecords.filter(r => r.type === 'income').reduce((s, r) => s + Number(r.amount || 0), 0);
+  const expense = todayRecords.filter(r => r.type === 'expense').reduce((s, r) => s + Number(r.amount || 0), 0);
+  const balance = income - expense;
+  lines.push(`- 合計: 収入 ${income.toLocaleString('ja-JP')}円 / 支出 ${expense.toLocaleString('ja-JP')}円 / 収支 ${balance.toLocaleString('ja-JP')}円`);
+
+  return `## 💴 家計記録\n${lines.join('\n')}\n`;
+}
+
 async function applyCheckedChecklistToReportContent(content) {
   const checkedLines = await getCheckedLinesForReport();
   const memo = getDailyMemoForReport();
@@ -110,12 +137,17 @@ async function applyCheckedChecklistToReportContent(content) {
   const before = lines.slice(0, headerIdx + 1);
   const after = lines.slice(splitIdx);
 
+  const financeBlock = getFinanceRecordsForReport();
+  // 既に家計記録セクションが存在する場合は重複挿入しない
+  const alreadyHasFinance = lines.some(line => line.trim().startsWith('## 💴 家計記録'));
+
   const merged = [
     ...before,
     '',
     ...checkedLines,
     ...(checkedLines.length > 0 ? [''] : []),
     ...(memo ? ['## 📝 メモ', memo, ''] : []),
+    ...(!alreadyHasFinance && financeBlock ? [financeBlock] : []),
     ...after,
   ];
 
@@ -137,9 +169,10 @@ async function generateDailyReportTemplate() {
     ? `## 📝 メモ\n${memo}\n\n`
     : '';
   
+  const financeBlock = getFinanceRecordsForReport();
   const template = `# ${headerDate}
 
-${checklistBlock}${memoBlock}残予算：　日   
+${checklistBlock}${memoBlock}${financeBlock}残予算：　日   
 次回クレカ：
 
 `;

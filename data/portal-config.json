@@ -1,30 +1,116 @@
 {
   "links": [
-    { "id": "b1", "emoji": "📅", "name": "Google Calendar", "url": "https://calendar.google.com", "category": "今日の予定" },
-    { "id": "b2", "emoji": "📧", "name": "Gmail",           "url": "https://mail.google.com",    "category": "今日の予定" },
-    { "id": "b3", "emoji": "⚡", "name": "GitHub Issues",  "url": "https://github.com",          "category": "今日の予定" },
-    { "id": "b4", "emoji": "🤖", "name": "Claude",         "url": "https://claude.ai",           "category": "AI" },
-    { "id": "b5", "emoji": "💎", "name": "Gemini",         "url": "https://gemini.google.com",   "category": "AI" },
-    { "id": "b6", "emoji": "🐙", "name": "GitHub",         "url": "https://github.com",          "category": "開発" }
+    {
+      "id": "b1",
+      "emoji": "📅",
+      "name": "Google Calendar",
+      "url": "https://calendar.google.com",
+      "category": "今日の予定"
+    },
+    {
+      "id": "b2",
+      "emoji": "📧",
+      "name": "Gmail",
+      "url": "https://mail.google.com",
+      "category": "今日の予定"
+    },
+    {
+      "id": "b3",
+      "emoji": "⚡",
+      "name": "GitHub Issues",
+      "url": "https://github.com",
+      "category": "今日の予定"
+    },
+    {
+      "id": "b4",
+      "emoji": "🤖",
+      "name": "Claude",
+      "url": "https://claude.ai",
+      "category": "AI"
+    },
+    {
+      "id": "b5",
+      "emoji": "💎",
+      "name": "Gemini",
+      "url": "https://gemini.google.com",
+      "category": "AI"
+    },
+    {
+      "id": "b6",
+      "emoji": "🐙",
+      "name": "GitHub",
+      "url": "https://github.com",
+      "category": "開発"
+    }
   ],
   "dailyTasks": [
-    { "id": "dt1", "title": "朝メールチェック", "type": "daily" },
-    { "id": "dt2", "title": "夜マネーフォワード", "type": "daily" },
-    { "id": "dt3", "title": "タスクチェック", "type": "daily" },
-    { "id": "dt4", "title": "エクササイズ：5分", "type": "daily", "url": "https://youtu.be/GxDRXrpJjpI?si=kQMTI3Ps8Eo2bE4k" },
-    { "id": "dt5", "title": "読書または勉強", "type": "daily" }
+    {
+      "id": "dt1",
+      "title": "朝メールチェック",
+      "type": "daily"
+    },
+    {
+      "id": "dt2",
+      "title": "夜マネーフォワード",
+      "type": "daily"
+    },
+    {
+      "id": "dt3",
+      "title": "タスクチェック",
+      "type": "daily"
+    },
+    {
+      "id": "dt4",
+      "title": "エクササイズ",
+      "type": "daily"
+    },
+    {
+      "id": "dt5",
+      "title": "読書または勉強",
+      "type": "daily"
+    }
   ],
   "pillars": [
-    { "id": "p1", "title": "扉は常に気をつける" },
-    { "id": "p2", "title": "すり足注意" },
-    { "id": "p3", "title": "こたつの電気" },
-    { "id": "p4", "title": "昨日の食器" },
-    { "id": "p5", "title": "弁当" },
-    { "id": "p6", "title": "パン" },
-    { "id": "p7", "title": "着替え" },
-    { "id": "p8", "title": "明日の服" },
-    { "id": "p9", "title": "エアコン" },
-    { "id": "p10", "title": "スマホしまう" }
+    {
+      "id": "p1",
+      "title": "扉は常に気をつける"
+    },
+    {
+      "id": "p2",
+      "title": "すり足注意"
+    },
+    {
+      "id": "p3",
+      "title": "こたつの電気"
+    },
+    {
+      "id": "p4",
+      "title": "昨日の食器"
+    },
+    {
+      "id": "p5",
+      "title": "弁当"
+    },
+    {
+      "id": "p6",
+      "title": "パン"
+    },
+    {
+      "id": "p7",
+      "title": "着替え"
+    },
+    {
+      "id": "p8",
+      "title": "明日の服"
+    },
+    {
+      "id": "p9",
+      "title": "エアコン"
+    },
+    {
+      "id": "p10",
+      "title": "スマホしまう"
+    }
   ],
   "kintaiUrl": ""
 }
