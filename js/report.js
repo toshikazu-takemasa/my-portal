@@ -409,6 +409,115 @@ async function pushReportToGitHub(message) {
   }
 }
 
+// =====================
+// 今日の記録を日記に反映
+// =====================
+
+/**
+ * チェックリスト・タスク・メモ・家計記録を収集し、
+ * #reflect-output にプレビュー表示する。
+ */
+async function startAutoReflect() {
+  const btn      = document.getElementById('reflect-start-btn');
+  const statusEl = document.getElementById('reflect-status');
+  const outputEl = document.getElementById('reflect-output');
+  const resultEl = document.getElementById('reflect-ai-result');
+  if (!btn || !statusEl || !outputEl || !resultEl) return;
+
+  btn.disabled = true;
+  statusEl.textContent = '収集中…';
+  outputEl.classList.add('is-hidden');
+
+  try {
+    const checkedLines = await getCheckedLinesForReport();
+    const memo         = getDailyMemoForReport();
+    const financeBlock = getFinanceRecordsForReport();
+
+    const parts = [];
+
+    if (checkedLines.length > 0) {
+      parts.push('## ✅ 完了タスク\n' + checkedLines.join('\n'));
+    }
+    if (memo) {
+      parts.push('## 📝 メモ\n' + memo);
+    }
+    if (financeBlock) {
+      parts.push(financeBlock.trimEnd());
+    }
+
+    if (parts.length === 0) {
+      statusEl.textContent = '反映する記録がありません';
+      btn.disabled = false;
+      return;
+    }
+
+    // プレビュー表示
+    const previewMd = parts.join('\n\n');
+    resultEl.innerHTML = renderMarkdown(previewMd);
+
+    outputEl.classList.remove('is-hidden');
+    statusEl.textContent = '内容を確認して「日記に追記して保存」を押してください';
+
+    // 生成した内容を後で appendAutoReflection が参照できるよう保持
+    outputEl.dataset.reflectMd = previewMd;
+  } catch (e) {
+    statusEl.textContent = '収集エラー: ' + (e.message || String(e));
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/**
+ * startAutoReflect で生成したプレビューと追加コメントを
+ * 現在の日記に追記して GitHub へ保存する。
+ */
+async function appendAutoReflection() {
+  const outputEl  = document.getElementById('reflect-output');
+  const commentEl = document.getElementById('reflect-comment');
+  const statusEl  = document.getElementById('reflect-status');
+  const appendBtn = document.getElementById('reflect-append-btn');
+  if (!outputEl || !statusEl) return;
+
+  const previewMd = (outputEl.dataset.reflectMd || '').trim();
+  const comment   = ((commentEl?.value) || '').trim();
+
+  if (!previewMd) {
+    statusEl.textContent = '先に「今日の記録を日記に反映」を押してください';
+    return;
+  }
+
+  if (appendBtn) appendBtn.disabled = true;
+  statusEl.textContent = '保存中…';
+
+  try {
+    // 日記がまだ読み込まれていない場合はテンプレートを準備
+    if (!reportContent) {
+      reportContent = await generateDailyReportTemplate();
+    }
+
+    // 追記内容を構築
+    const commentBlock = comment ? '\n\n## 💬 コメント\n' + comment : '';
+    const appendText   = '\n\n---\n\n' + previewMd + commentBlock;
+
+    // 既存のコンテンツに追記
+    reportContent = reportContent.trimEnd() + appendText + '\n';
+
+    await pushReportToGitHub('📝 今日の記録を日記に反映');
+
+    statusEl.textContent = '✅ 保存しました';
+    outputEl.classList.add('is-hidden');
+    if (commentEl) commentEl.value = '';
+    delete outputEl.dataset.reflectMd;
+  } catch (e) {
+    statusEl.textContent = '保存エラー: ' + (e.message || String(e));
+  } finally {
+    if (appendBtn) appendBtn.disabled = false;
+  }
+}
+
+window.startAutoReflect   = startAutoReflect;
+window.appendAutoReflection = appendAutoReflection;
+
 async function regenReport() {
   const token = getToken();
   const repo = getRepo();
