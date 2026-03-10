@@ -2,16 +2,16 @@
 // 日記 Viewer
 // =====================
 let reportContent = '';
-let reportSha     = '';
-let reportTab     = 'preview';
-let reportPath    = '';
+let reportSha = '';
+let reportTab = 'preview';
+let reportPath = '';
 
 function getDailyReportPaths() {
-  const jst  = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
-  const y    = jst.getFullYear();
-  const m    = String(jst.getMonth() + 1).padStart(2, '0');
-  const d    = String(jst.getDate()).padStart(2, '0');
-  const days = ['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
+  const jst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+  const y = jst.getFullYear();
+  const m = String(jst.getMonth() + 1).padStart(2, '0');
+  const d = String(jst.getDate()).padStart(2, '0');
+  const days = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
   const base = `日記/${y}-${m}-${d}_${days[jst.getDay()]}`;
   return [`${base}_日記.md`, `${base}_日報.md`];
 }
@@ -114,7 +114,7 @@ function getFinanceRecordsForReport() {
     return `- ${typeLabel} / ${r.category} / ${Number(r.amount).toLocaleString('ja-JP')}円${note}`;
   });
 
-  const income  = todayRecords.filter(r => r.type === 'income').reduce((s, r) => s + Number(r.amount || 0), 0);
+  const income = todayRecords.filter(r => r.type === 'income').reduce((s, r) => s + Number(r.amount || 0), 0);
   const expense = todayRecords.filter(r => r.type === 'expense').reduce((s, r) => s + Number(r.amount || 0), 0);
   const balance = income - expense;
   lines.push(`- 合計: 収入 ${income.toLocaleString('ja-JP')}円 / 支出 ${expense.toLocaleString('ja-JP')}円 / 収支 ${balance.toLocaleString('ja-JP')}円`);
@@ -124,10 +124,10 @@ function getFinanceRecordsForReport() {
 
 
 async function generateDailyReportTemplate() {
-  const jst  = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
-  const y    = jst.getFullYear();
-  const m    = String(jst.getMonth() + 1).padStart(2, '0');
-  const d    = String(jst.getDate()).padStart(2, '0');
+  const jst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+  const y = jst.getFullYear();
+  const m = String(jst.getMonth() + 1).padStart(2, '0');
+  const d = String(jst.getDate()).padStart(2, '0');
   const headerDate = `${y}-${m}-${d}`;
   const checkedLines = await getCheckedLinesForReport();
   const memo = getDailyMemoForReport();
@@ -137,21 +137,20 @@ async function generateDailyReportTemplate() {
   const memoBlock = memo
     ? `## 📝 メモ\n${memo}\n\n`
     : '';
-  
+
   const financeBlock = getFinanceRecordsForReport();
   const template = `# ${headerDate}
 
-${checklistBlock}${memoBlock}${financeBlock}残予算：　日   
-次回クレカ：
+${checklistBlock}${memoBlock}${financeBlock}
 
 `;
   return template;
 }
 
 async function getCurrentDailyReportSha(token, repo) {
-  const path        = getDailyReportPath();
+  const path = getDailyReportPath();
   const encodedPath = path.split('/').map(encodeURIComponent).join('/');
-  const apiUrl      = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
 
   const res = await fetch(apiUrl, {
     headers: {
@@ -181,7 +180,7 @@ async function fetchDailyReport() {
     return;
   }
 
-  const metaEl    = document.getElementById('report-meta');
+  const metaEl = document.getElementById('report-meta');
   const previewEl = document.getElementById('report-preview');
   metaEl.textContent = '取得中…';
 
@@ -189,7 +188,7 @@ async function fetchDailyReport() {
     let found = false;
     for (const path of getDailyReportPaths()) {
       const encodedPath = path.split('/').map(encodeURIComponent).join('/');
-      const apiUrl      = `https://api.github.com/repos/${getRepo()}/contents/${encodedPath}`;
+      const apiUrl = `https://api.github.com/repos/${getRepo()}/contents/${encodedPath}`;
       const res = await fetch(apiUrl, {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
       });
@@ -199,7 +198,7 @@ async function fetchDailyReport() {
       }
       if (res.status === 401) {
         previewEl.innerHTML = '<p class="md-empty">認証エラー。トークンを確認してください。</p>';
-        metaEl.textContent  = '';
+        metaEl.textContent = '';
         return;
       }
       if (!res.ok) {
@@ -207,23 +206,23 @@ async function fetchDailyReport() {
         return;
       }
 
-      const data  = await res.json();
-      const raw   = atob(data.content.replace(/\n/g, ''));
+      const data = await res.json();
+      const raw = atob(data.content.replace(/\n/g, ''));
       const bytes = Uint8Array.from(raw, c => c.charCodeAt(0));
       reportContent = new TextDecoder('utf-8').decode(bytes);
-      reportSha     = data.sha;
-      reportPath    = path;
+      reportSha = data.sha;
+      reportPath = path;
       found = true;
       break;
     }
 
     if (!found) {
       previewEl.innerHTML = '<p class="md-empty">日記がまだ作成されていません。<br>「↻ 日記を再生成」で生成してください。</p>';
-      metaEl.textContent  = '日記ファイルなし';
+      metaEl.textContent = '日記ファイルなし';
       // 新規作成用にテンプレートを用意
       reportContent = await generateDailyReportTemplate();
-      reportSha     = '';
-      reportPath    = getDailyReportPaths()[0];
+      reportSha = '';
+      reportPath = getDailyReportPaths()[0];
       return;
     }
 
@@ -292,7 +291,7 @@ function attachMdCheckboxListeners() {
   document.querySelectorAll('.md-cb').forEach(cb => {
     cb.addEventListener('change', () => {
       const lineIdx = parseInt(cb.dataset.line);
-      const lines   = reportContent.split('\n');
+      const lines = reportContent.split('\n');
       if (!lines[lineIdx]) return;
 
       lines[lineIdx] = cb.checked
@@ -330,11 +329,11 @@ async function pushReportToGitHub(message) {
   const repo = getRepo();
   if (!token || !repo) return;
 
-  const saveEl  = document.getElementById('save-status');
-  const metaEl  = document.getElementById('report-meta');
-  const path        = getDailyReportPath();
+  const saveEl = document.getElementById('save-status');
+  const metaEl = document.getElementById('report-meta');
+  const path = getDailyReportPath();
   const encodedPath = path.split('/').map(encodeURIComponent).join('/');
-  const apiUrl      = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
 
   if (!reportSha) {
     try {
@@ -387,7 +386,7 @@ async function pushReportToGitHub(message) {
  * #reflect-output にプレビュー表示する。
  */
 async function startAutoReflect() {
-  const btn      = document.getElementById('reflect-start-btn');
+  const btn = document.getElementById('reflect-start-btn');
   const statusEl = document.getElementById('reflect-status');
   const outputEl = document.getElementById('reflect-output');
   const resultEl = document.getElementById('reflect-ai-result');
@@ -399,7 +398,7 @@ async function startAutoReflect() {
 
   try {
     const checkedLines = await getCheckedLinesForReport();
-    const memo         = getDailyMemoForReport();
+    const memo = getDailyMemoForReport();
     const financeBlock = getFinanceRecordsForReport();
 
     const parts = [];
@@ -441,14 +440,14 @@ async function startAutoReflect() {
  * 現在の日記に追記して GitHub へ保存する。
  */
 async function appendAutoReflection() {
-  const outputEl  = document.getElementById('reflect-output');
+  const outputEl = document.getElementById('reflect-output');
   const commentEl = document.getElementById('reflect-comment');
-  const statusEl  = document.getElementById('reflect-status');
+  const statusEl = document.getElementById('reflect-status');
   const appendBtn = document.getElementById('reflect-append-btn');
   if (!outputEl || !statusEl) return;
 
   const previewMd = (outputEl.dataset.reflectMd || '').trim();
-  const comment   = ((commentEl?.value) || '').trim();
+  const comment = ((commentEl?.value) || '').trim();
 
   if (!previewMd) {
     statusEl.textContent = '先に「今日の記録を日記に反映」を押してください';
@@ -466,7 +465,7 @@ async function appendAutoReflection() {
 
     // 追記内容を構築
     const commentBlock = comment ? '\n\n## 💬 コメント\n' + comment : '';
-    const appendText   = '\n\n---\n\n' + previewMd + commentBlock;
+    const appendText = '\n\n---\n\n' + previewMd + commentBlock;
 
     // 既存のコンテンツに追記
     reportContent = reportContent.trimEnd() + appendText + '\n';
@@ -484,7 +483,7 @@ async function appendAutoReflection() {
   }
 }
 
-window.startAutoReflect   = startAutoReflect;
+window.startAutoReflect = startAutoReflect;
 window.appendAutoReflection = appendAutoReflection;
 
 async function regenReport() {
@@ -499,9 +498,9 @@ async function regenReport() {
   statusEl.classList.remove('is-hidden');
   statusEl.textContent = '生成中…';
 
-  const path        = getDailyReportPath();
+  const path = getDailyReportPath();
   const encodedPath = path.split('/').map(encodeURIComponent).join('/');
-  const apiUrl      = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
 
   try {
     const template = await generateDailyReportTemplate();
