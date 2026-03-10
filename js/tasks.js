@@ -42,73 +42,19 @@ function saveTaskWidgetSnapshot(issues) {
   localStorage.setItem(getTaskWidgetSnapshotKey(), JSON.stringify(snapshot));
 }
 
+/**
+ * Issue の Project Status を一括取得する。
+ * issues.js の fetchIssueProjectStatusBatch が利用可能な場合は委譲し、
+ * 読み込み順の都合で未定義の場合は空 Map を返す（issues.js 必須）。
+ */
 async function fetchTaskProjectStatusBatch({ token, repo, issues }) {
   if (!token || !repo || !Array.isArray(issues) || issues.length === 0) return new Map();
-
-  // Reuse the issue panel implementation when available.
   if (typeof fetchIssueProjectStatusBatch === 'function') {
     return fetchIssueProjectStatusBatch({ token, repo, issues });
   }
-
-  const nodeIds = issues.map(issue => issue?.node_id).filter(Boolean);
-  if (nodeIds.length === 0) return new Map();
-
-  const query = `
-    query($ids: [ID!]!) {
-      nodes(ids: $ids) {
-        ... on Issue {
-          number
-          projectItems(first: 20) {
-            nodes {
-              project {
-                title
-              }
-              fieldValueByName(name: "Status") {
-                __typename
-                ... on ProjectV2ItemFieldSingleSelectValue {
-                  name
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
-
-  try {
-    const res = await fetch('https://api.github.com/graphql', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query, variables: { ids: nodeIds } }),
-    });
-    if (!res.ok) return new Map();
-
-    const payload = await res.json();
-    if (payload?.errors?.length) return new Map();
-
-    const statusMap = new Map();
-    (payload?.data?.nodes || []).forEach(node => {
-      if (!node || typeof node.number !== 'number') return;
-      const projectStatuses = (node.projectItems?.nodes || [])
-        .map(item => {
-          const projectTitle = item?.project?.title || '';
-          const statusName = item?.fieldValueByName?.name || '';
-          if (!projectTitle || !statusName) return null;
-          return { projectTitle, statusName };
-        })
-        .filter(Boolean);
-      statusMap.set(node.number, projectStatuses);
-    });
-    return statusMap;
-  } catch {
-    return new Map();
-  }
+  return new Map();
 }
+
 
 async function patchTaskIssue(issueNumber, payload) {
   const token = getToken();
