@@ -207,7 +207,7 @@ async function fetchIssueBoard() {
         const chip = document.createElement('span');
         chip.className = 'label-chip';
         chip.style.cssText = 'border-color:#1f6feb66;background:#1f6feb14;color:#1f6feb;';
-        chip.textContent = `${item.projectTitle}: ${item.statusName}`;
+        chip.textContent = item.statusName;
         meta.appendChild(chip);
       });
 
