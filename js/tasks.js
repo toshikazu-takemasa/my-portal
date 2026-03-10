@@ -385,7 +385,7 @@ async function fetchTaskWidget() {
 
         const projectStatuses = projectStatusMap.get(issue.number) || [];
         const projectHtml = projectStatuses.map(item => {
-          const text = `${item.projectTitle}: ${item.statusName}`;
+          const text = item.statusName;
           return `<span class="label-chip" style="background:#1f6feb22;color:#111;border-color:#1f6feb99">${escapeHtml(text)}</span>`;
         }).join('');
 
