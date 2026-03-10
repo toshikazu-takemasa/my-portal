@@ -1,49 +1,5 @@
-// =====================
-// 本日のタスク チェックリスト
-// =====================
+
 var pillarsOpen = false;
-
-const checkboxes = document.querySelectorAll('.task-check');
-
-const initialTaskStorageKey = (typeof todayKey !== 'undefined' && todayKey) ? todayKey : null;
-const saved = initialTaskStorageKey ? JSON.parse(localStorage.getItem(initialTaskStorageKey) || '{}') : {};
-
-checkboxes.forEach(cb => {
-  cb.checked = !!saved[cb.dataset.id];
-  cb.closest('.check-item').classList.toggle('done', cb.checked);
-});
-
-function save() {
-  const taskStorageKey = (typeof todayKey !== 'undefined' && todayKey) ? todayKey : null;
-  if (!taskStorageKey) return;
-  const state = {};
-  checkboxes.forEach(cb => { state[cb.dataset.id] = cb.checked; });
-  localStorage.setItem(taskStorageKey, JSON.stringify(state));
-  updateProgress();
-}
-
-function updateProgress() {
-  const total = checkboxes.length;
-  const done  = Array.from(checkboxes).filter(c => c.checked).length;
-  const progressFill = document.getElementById('progress-fill');
-  const progressText = document.getElementById('progress-text');
-  const resetBadge = document.getElementById('reset-badge');
-  if (progressFill) {
-    const ratio = total === 0 ? 0 : (done / total * 100);
-    progressFill.style.width = ratio + '%';
-  }
-  if (progressText) progressText.textContent = done + ' / ' + total;
-  if (resetBadge) resetBadge.textContent = total > 0 && done === total ? '✅ 完了' : '';
-}
-
-checkboxes.forEach(cb => {
-  cb.addEventListener('change', () => {
-    cb.closest('.check-item').classList.toggle('done', cb.checked);
-    save();
-  });
-});
-
-updateProgress();
 
 // =====================
 // 確認事項（アコーディオン）
@@ -187,11 +143,6 @@ function resetChecklistsForNewDay() {
   todayKey = 'checklist_' + todayISO;
   PILLARS_KEY = 'pillars_' + todayISO;
 
-  checkboxes.forEach(cb => {
-    cb.checked = false;
-    cb.closest('.check-item')?.classList.remove('done');
-  });
-  updateProgress();
 
   const pillarChecks = getPillarChecks();
   pillarChecks.forEach(cb => {

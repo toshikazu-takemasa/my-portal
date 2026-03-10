@@ -4,15 +4,40 @@
 let dailyTasks = [];
 
 async function loadDailyTasks() {
+  const listEl = document.getElementById('daily-checklist-list-right');
   try {
+    // まずローカルの構成ファイルを試す
     const res = await fetch('./data/portal-config.json');
-    const config = await res.json();
-    dailyTasks = config.dailyTasks || [];
-    renderDailyChecklist();
+    if (res.ok) {
+      const config = await res.json();
+      dailyTasks = config.dailyTasks || [];
+    } else {
+      // 失敗した場合は portalConfig (GitHub同期) から取得を試みる
+      if (typeof portalConfig !== 'undefined' && portalConfig?.dailyTasks) {
+        dailyTasks = portalConfig.dailyTasks;
+      }
+    }
+    
+    if (dailyTasks.length === 0 && listEl) {
+      listEl.innerHTML = '<p style="font-size:0.75rem;color:#888;">タスクが設定されていません</p>';
+    } else {
+      renderDailyChecklist();
+    }
   } catch (e) {
     console.warn('Failed to load daily tasks:', e);
+    if (listEl) {
+      listEl.innerHTML = '<p style="font-size:0.75rem;color:#cf222e;">読み込み失敗</p>';
+    }
   }
 }
+
+// 共通の構成読み込みイベントに同期
+window.addEventListener('portal-config-loaded', () => {
+  if (typeof portalConfig !== 'undefined' && portalConfig?.dailyTasks) {
+    dailyTasks = portalConfig.dailyTasks;
+    renderDailyChecklist();
+  }
+});
 
 function renderDailyChecklist() {
   // 右側のみに表示（左側は削除）

@@ -122,37 +122,6 @@ function getFinanceRecordsForReport() {
   return `## 💴 家計記録\n${lines.join('\n')}\n`;
 }
 
-async function applyCheckedChecklistToReportContent(content) {
-  const checkedLines = await getCheckedLinesForReport();
-  const memo = getDailyMemoForReport();
-  const lines = (content || '').split('\n');
-  const headerIdx = lines.findIndex(line => line.startsWith('# '));
-  const budgetIdx = lines.findIndex(line => line.trim().startsWith('残予算'));
-  const cardIdx = lines.findIndex(line => line.trim().startsWith('次回クレカ'));
-  const splitIdxCandidates = [budgetIdx, cardIdx].filter(idx => idx >= 0);
-  const splitIdx = splitIdxCandidates.length > 0 ? Math.min(...splitIdxCandidates) : lines.length;
-
-  if (headerIdx < 0 || splitIdx <= headerIdx) return content;
-
-  const before = lines.slice(0, headerIdx + 1);
-  const after = lines.slice(splitIdx);
-
-  const financeBlock = getFinanceRecordsForReport();
-  // 既に家計記録セクションが存在する場合は重複挿入しない
-  const alreadyHasFinance = lines.some(line => line.trim().startsWith('## 💴 家計記録'));
-
-  const merged = [
-    ...before,
-    '',
-    ...checkedLines,
-    ...(checkedLines.length > 0 ? [''] : []),
-    ...(memo ? ['## 📝 メモ', memo, ''] : []),
-    ...(!alreadyHasFinance && financeBlock ? [financeBlock] : []),
-    ...after,
-  ];
-
-  return merged.join('\n');
-}
 
 async function generateDailyReportTemplate() {
   const jst  = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));

@@ -316,23 +316,3 @@ function clearChat() {
 })();
 
 
-// =====================
-// 初期化
-// =====================
-document.getElementById('chat-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
-});
-
-if (getToken() && getRepo()) {
-  fetchDailyReport();
-  fetchTaskWidget();
-  if (typeof fetchIssueBoard === 'function') fetchIssueBoard();
-  loadPortalConfig().then(() => {
-    renderAllLinks();
-    const kintaiLink = document.getElementById('kintai-sheet-link');
-    if (kintaiLink && getKintaiUrl()) kintaiLink.href = getKintaiUrl();
-  });
-} else if (!getRepo()) {
-  // リポジトリ未設定の場合は設定を促す
-  setTimeout(() => openSettings(), 500);
-}

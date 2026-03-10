@@ -2,7 +2,7 @@
 // portal-config.json 同期レイヤー
 // クイックリンク・勤怠URL・日の3つの柱 を GitHub JSON で永続化
 // =====================
-const CONFIG_PATH = 'docs/data/portal-config.json';
+const CONFIG_PATH = 'data/portal-config.json';
 const PILLARS_CONFIG_KEY = 'pillars_config_v1';
 
 let portalConfig    = null;  // { links: [...], kintaiUrl: '...' }

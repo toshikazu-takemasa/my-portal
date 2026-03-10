@@ -661,6 +661,31 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.warn('Service Worker 登録エラー:', err));
   });
 }
+
+// AIチャットの Enter キー送信
+document.getElementById('chat-input')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+});
+
+// アプリ全体の初期化
+if (getToken() && getRepo()) {
+  // データの初回取得
+  if (typeof fetchDailyReport === 'function') fetchDailyReport();
+  if (typeof fetchTaskWidget === 'function') fetchTaskWidget();
+  if (typeof fetchIssueBoard === 'function') fetchIssueBoard();
+  
+  // ポータル設定の読み込みと連動
+  if (typeof loadPortalConfig === 'function') {
+    loadPortalConfig().then(() => {
+      if (typeof renderAllLinks === 'function') renderAllLinks();
+      const kintaiLink = document.getElementById('kintai-sheet-link');
+      if (kintaiLink && getKintaiUrl()) kintaiLink.href = getKintaiUrl();
+    });
+  }
+} else if (!getRepo()) {
+  // リポジトリ未設定の場合は設定を促す
+  setTimeout(() => { if (typeof openSettings === 'function') openSettings(); }, 500);
+}
 </script>
 
 </body>
