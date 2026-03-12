@@ -147,7 +147,7 @@ const AI_PROMPT_KEY  = 'ai_persona_prompt';
 const AI_AVATAR_KEY  = 'ai_persona_avatar';
 
 const DEFAULT_AI_NAME   = '八神はやて';
-const DEFAULT_AI_PROMPT = 'あなたは「魔法少女リリカルなのは」の八神はやてです。関西弁（京都弁寄り）で話し、おだやかで面倒見が良く、ユーザーを「主（あるじ）くん」または「主さん」と呼びます。優しく、時に厳しくユーザーの目標達成をサポートしてください。ポジティブで包容力のある言葉をかけます。';
+const DEFAULT_AI_PROMPT = 'あなたは「魔法少女リリカルなのは」の八神はやてです。おだやかで面倒見が良く、ユーザーを「主（あるじ）くん」または「主さん」と呼びます。関西弁（京都弁寄り）で話し、日常生活のサポート、体調への気遣い、作業の励まし、今日という日を肯定する言葉をかけてください。温かく包み込むような「癒やし」と「応援」があなたの役割です。';
 const DEFAULT_AI_AVATAR = 'docs/images/avatar.png';
 
 function getAiName()   { return localStorage.getItem(AI_NAME_KEY)   || DEFAULT_AI_NAME; }
@@ -155,15 +155,20 @@ function getAiPrompt() { return localStorage.getItem(AI_PROMPT_KEY) || DEFAULT_A
 function getAiAvatar() { return localStorage.getItem(AI_AVATAR_KEY) || DEFAULT_AI_AVATAR; }
 
 function saveAiPersona() {
-  localStorage.setItem(AI_NAME_KEY,   document.getElementById('ai-name-input').value.trim());
-  localStorage.setItem(AI_PROMPT_KEY, document.getElementById('ai-persona-input').value.trim());
-  localStorage.setItem(AI_AVATAR_KEY, document.getElementById('ai-avatar-input').value.trim());
+  const name = document.getElementById('ai-name-input').value.trim();
+  const prompt = document.getElementById('ai-persona-input').value.trim();
+  const avatar = document.getElementById('ai-avatar-input').value.trim();
+
+  if (!name)   localStorage.removeItem(AI_NAME_KEY);   else localStorage.setItem(AI_NAME_KEY, name);
+  if (!prompt) localStorage.removeItem(AI_PROMPT_KEY); else localStorage.setItem(AI_PROMPT_KEY, prompt);
+  if (!avatar) localStorage.removeItem(AI_AVATAR_KEY); else localStorage.setItem(AI_AVATAR_KEY, avatar);
 
   const st = document.getElementById('ai-persona-status');
-  st.style.color = '#1a7f37'; st.textContent = '✅ 人格設定を保存しました';
-  setTimeout(() => { st.textContent = ''; }, 2000);
+  st.style.color = '#1a7f37'; st.textContent = '✅ 人格設定を更新しました（空欄はデフォルトに戻ります）';
+  setTimeout(() => { st.textContent = ''; }, 3000);
   
   // 反映
+  initAiPersonaUI();
   if (typeof initAiTicker === 'function') initAiTicker();
 }
 

@@ -22,7 +22,7 @@
 .chat-bubble.ai {
   align-self: flex-start;
   background: #fff;
-  color: var(--text);
+  color: #111;
   clip-path: polygon(4% 0, 100% 0, 100% 100%, 0 100%, 0 24%);
 }
 .chat-bubble.thinking { color: var(--text-sub); font-style: italic; }

@@ -2,7 +2,7 @@
 // AI アシスタント
 // =====================
 const SESSIONS_KEY = 'chat_sessions';
-const WELCOME_MSG  = 'あなた専用のコーチ兼秘書です。本日はどのようなご相談でしょうか？\n\n📝 文章校正・コミュニケーション改善\n🤔 業務相談・意思決定サポート\n🔧 技術タスク・実装支援\n📋 情報整理・作業記録管理\n📅 日記管理・振り返り・工数集計支援';
+const WELCOME_MSG  = '主くん、お疲れさま。今日はどんな一日になりそうかな？\n\n日常生活のちょっとした相談から、作業の応援、日記の振り返りまで、うちで力になれることがあったら何でも言うてな。一緒に頑張ろ！\n\n📝 文章のお手伝い・相談\n📅 日記の管理・振り返り\n📋 予定や記録の整理\n☕ ちょっとした雑談・癒やし';
 
 let chatHistory   = [];
 let reflectResult = '';
@@ -217,6 +217,7 @@ function appendChatBubble(role, text) {
       div.appendChild(img);
     }
     const contentSpan = document.createElement('span');
+    contentSpan.style.color = '#111';
     contentSpan.appendChild(renderAIMessage(text));
     div.appendChild(contentSpan);
   } else {

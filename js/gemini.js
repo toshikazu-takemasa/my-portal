@@ -43,6 +43,9 @@ async function callGemini(prompt, systemInstruction = "") {
   });
 
   if (!res.ok) {
+    if (res.status === 429) {
+      throw new Error('Gemini API の無料枠制限（クォータ）を超えました。しばらく待ってから再度お試しください。');
+    }
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error?.message || `Gemini API エラー: ${res.status}`);
   }
