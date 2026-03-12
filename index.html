@@ -434,7 +434,11 @@
         <img id="ai-popup-avatar" src="docs/images/avatar.png" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,0.3);">
         <h3 id="ai-popup-title" class="ai-popup-title">AI Assistant</h3>
       </div>
-      <button class="ai-popup-close" onclick="toggleAiPopup()">×</button>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="ai-popup-close" onclick="newChatSession(); toggleAiPopup(); toggleAiPopup();" title="新しい会話を始める" style="font-size:1rem; margin-top:1px;">✨</button>
+        <button class="ai-popup-close" onclick="clearChat()" title="会話をリセット" style="font-size:1.1rem; margin-top:1px;">🗑</button>
+        <button class="ai-popup-close" onclick="toggleAiPopup()">×</button>
+      </div>
     </div>
     <div class="ai-popup-body">
       <div id="ai-popup-history" class="ai-popup-history"></div>

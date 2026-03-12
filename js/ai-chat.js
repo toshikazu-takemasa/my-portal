@@ -29,6 +29,7 @@ function newChatSession() {
   currentSession = { id: Date.now().toString(), title: '新しい会話', messages: [] };
   chatHistory = []; attachedFiles = [];
   renderChatPanel(); closeSessionDropdown();
+  if (isPopupOpen) syncPopupHistory();
 }
 
 function loadSession(id) {
@@ -386,6 +387,7 @@ function clearChat() {
   histEl.innerHTML = '';
   appendChatBubble('ai', WELCOME_MSG);
   attachedFiles = []; renderFileChips();
+  if (isPopupOpen) syncPopupHistory();
 }
 
 // ---- Session init ----
