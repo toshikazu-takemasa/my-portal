@@ -2,10 +2,13 @@
 // AI Ticker Logic
 // =====================
 
+const TICKER_CACHE_KEY = 'ai_ticker_cache';
+const TICKER_DATE_KEY  = 'ai_ticker_date';
+
 /**
  * AIティッカーを初期化し、メッセージを表示する
  */
-async function initAiTicker() {
+async function initAiTicker(force = false) {
   const tickerTextEl = document.getElementById('ai-ticker-text');
   const avatarEl = document.getElementById('ai-ticker-avatar');
   if (!tickerTextEl) return;
@@ -16,6 +19,20 @@ async function initAiTicker() {
     avatarEl.src = avatarUrl;
     avatarEl.style.display = 'block';
   }
+
+  // キャッシュの確認
+  const today = new Date().toISOString().split('T')[0];
+  const cachedDate = localStorage.getItem(TICKER_DATE_KEY);
+  const cachedMsg  = localStorage.getItem(TICKER_CACHE_KEY);
+
+  if (!force && cachedDate === today && cachedMsg) {
+    tickerTextEl.textContent = cachedMsg;
+    tickerTextEl.classList.add('visible');
+    return;
+  }
+
+  tickerTextEl.textContent = "考え中...";
+  tickerTextEl.classList.remove('visible');
 
   try {
     const context = await fetchLatestContext();
@@ -40,16 +57,31 @@ async function initAiTicker() {
 ${context}
 `;
     // AIにリクエスト
-    const message = await callGemini(prompt, `あなたは${aiName}です。${persona}`);
+    const message = (await callGemini(prompt, `あなたは${aiName}です。${persona}`)).trim();
     
+    // キャッシュ保存
+    localStorage.setItem(TICKER_CACHE_KEY, message);
+    localStorage.setItem(TICKER_DATE_KEY, today);
+
     // 表示
-    tickerTextEl.textContent = message.trim();
+    tickerTextEl.textContent = message;
     tickerTextEl.classList.add('visible');
   } catch (e) {
     console.error('AI Ticker Error:', e);
-    tickerTextEl.textContent = "今日も素晴らしい一日になりますように！✨";
+    const fallback = "今日も素晴らしい一日になりますように！✨";
+    tickerTextEl.textContent = cachedMsg || fallback;
     tickerTextEl.classList.add('visible');
   }
+}
+
+/**
+ * メッセージを強制的に再生成する
+ */
+async function refreshAiTicker() {
+  const btn = document.getElementById('ai-ticker-refresh');
+  if (btn) btn.disabled = true;
+  await initAiTicker(true);
+  if (btn) btn.disabled = false;
 }
 
 /**
