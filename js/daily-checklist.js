@@ -94,6 +94,13 @@ function renderDailyChecklist() {
   });
 }
 
+function resetDailyChecklist() {
+  dailyTasks.forEach(task => {
+    localStorage.removeItem(`daily-task-${task.id}`);
+  });
+  renderDailyChecklist();
+}
+
 // ページ読み込み時に実行
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {

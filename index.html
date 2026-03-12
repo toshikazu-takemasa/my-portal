@@ -416,7 +416,11 @@
   </button>
   <button class="bottom-nav-item" data-section="checklist" onclick="switchBottomNav('checklist')">
     <span class="bottom-nav-icon">📋</span>
-    <span class="bottom-nav-label">チェック/Issue</span>
+    <span class="bottom-nav-label">チェック</span>
+  </button>
+  <button class="bottom-nav-item" data-section="issues" onclick="switchBottomNav('issues')">
+    <span class="bottom-nav-icon">🐙</span>
+    <span class="bottom-nav-label">Issue</span>
   </button>
   <button class="bottom-nav-item" data-section="pillars" onclick="switchBottomNav('pillars')">
     <span class="bottom-nav-icon">✅</span>
@@ -509,6 +513,11 @@ function switchBottomNav(section) {
     switchMainTab('report');
   } else if (section === 'checklist') {
     setHidden(colRight, false);
+    setHidden(issueWidgetCard, true);
+    setHidden(pillarsCard, true);
+  } else if (section === 'issues') {
+    setHidden(colRight, false);
+    setHidden(dailyChecklistCard, true);
     setHidden(pillarsCard, true);
   } else if (section === 'pillars') {
     setHidden(colRight, false);

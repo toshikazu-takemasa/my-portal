@@ -368,6 +368,9 @@ async function pushReportToGitHub(message) {
       if (saveEl) { saveEl.style.color = '#1a7f37'; saveEl.textContent = '✅ 保存しました'; }
       const now = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
       metaEl.textContent = `保存完了 ${now}（git pull で同期）`;
+      
+      // 保存成功時にチェックボックスをリセット
+      resetAllCheckboxes();
     } else {
       const err = await res.json().catch(() => ({}));
       if (saveEl) { saveEl.style.color = '#cf222e'; saveEl.textContent = `保存失敗: ${err.message || res.status}`; }
@@ -375,6 +378,12 @@ async function pushReportToGitHub(message) {
   } catch (e) {
     if (saveEl) { saveEl.style.color = '#cf222e'; saveEl.textContent = '保存エラー'; }
   }
+}
+
+function resetAllCheckboxes() {
+  if (typeof resetDailyChecklist === 'function') resetDailyChecklist();
+  if (typeof resetPillars === 'function') resetPillars();
+  if (typeof resetTaskWidgetChecks === 'function') resetTaskWidgetChecks();
 }
 
 // =====================

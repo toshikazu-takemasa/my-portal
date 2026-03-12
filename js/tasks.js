@@ -222,6 +222,11 @@ async function closeCheckedTaskIssues() {
   if (typeof fetchIssueBoard === 'function') fetchIssueBoard();
 }
 
+function resetTaskWidgetChecks() {
+  saveTaskWidgetCheckedState({});
+  fetchTaskWidget();
+}
+
 function switchTaskFilter(filter) {
   currentTaskFilter = filter;
   document.querySelectorAll('.task-filter-tab').forEach(t => {

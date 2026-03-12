@@ -130,6 +130,12 @@ function togglePillars() {
   document.getElementById('pillars-header').classList.toggle('open', pillarsOpen);
 }
 
+function resetPillars() {
+  localStorage.removeItem(PILLARS_KEY);
+  applySavedPillarsState();
+  updatePillarsChip();
+}
+
 function resetChecklistsForNewDay() {
   if (typeof getJstTodayISO !== 'function') return;
   const currentISO = getJstTodayISO();
