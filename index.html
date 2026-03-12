@@ -427,7 +427,28 @@
 <script src="js/portal-config.js"></script>
 <script src="js/checklist.js"></script>
 <script src="js/quicklinks.js"></script>
-<script src="js/github.js"></script>
+  <!-- Chat Popup -->
+  <button id="ai-popup-btn" class="ai-popup-btn" onclick="toggleAiPopup()">💬</button>
+  <div id="ai-popup-container" class="ai-popup-container">
+    <div class="ai-popup-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <img id="ai-popup-avatar" src="docs/images/avatar.png" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
+        <h3 id="ai-popup-title" class="ai-popup-title">AI Assistant</h3>
+      </div>
+      <button class="ai-popup-close" onclick="toggleAiPopup()">×</button>
+    </div>
+    <div class="ai-popup-body">
+      <div id="ai-popup-history" class="ai-popup-history"></div>
+      <div class="ai-popup-footer">
+        <div class="ai-popup-input-row">
+          <textarea id="ai-popup-input" class="ai-popup-textarea" placeholder="質問を入力..."></textarea>
+          <button id="ai-popup-send-btn" class="ai-popup-send-btn" onclick="sendPopupChat()">送信</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/github.js"></script>
 <script src="js/report.js"></script>
 <script src="js/tasks.js"></script>
 <script src="js/issues.js"></script>

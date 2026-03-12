@@ -130,3 +130,57 @@
   margin-top: 10px; font-size: 0.82rem; line-height: 1.65;
   max-height: 220px; overflow-y: auto;
 }
+
+/* ========== Chat Popup (Overlay) ========== */
+.ai-popup-btn {
+  position: fixed; bottom: 20px; right: 20px;
+  width: 60px; height: 60px; border-radius: 50%;
+  border: 2px solid #111; background: var(--accent);
+  color: #fff; font-size: 1.5rem; display: flex;
+  align-items: center; justify-content: center;
+  cursor: pointer; z-index: 1000;
+  box-shadow: 4px 4px 0 #111;
+  transition: transform 0.2s, background 0.2s;
+}
+.ai-popup-btn:hover { transform: scale(1.1); background: #b00026; }
+
+.ai-popup-container {
+  position: fixed; bottom: 90px; right: 20px;
+  width: 360px; height: 500px;
+  background: var(--card-bg); border: 2px solid #111;
+  display: none; flex-direction: column;
+  z-index: 1000; box-shadow: 8px 8px 0 rgba(17, 17, 17, 0.2);
+  clip-path: polygon(0 0, 100% 0, 100% 96%, 94% 100%, 0 100%);
+}
+.ai-popup-container.open { display: flex; animation: popupSlideUp 0.3s ease-out; }
+
+@keyframes popupSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-popup-header {
+  padding: 10px 15px; background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 2px solid #111;
+}
+.ai-popup-title { font-size: 0.9rem; font-weight: 700; margin: 0; }
+.ai-popup-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 1.2rem; }
+
+.ai-popup-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 12px; }
+.ai-popup-history { flex: 1; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+
+.ai-popup-footer { padding: 8px 12px 14px; border-top: 1px solid var(--border); }
+.ai-popup-input-row { display: flex; gap: 6px; }
+.ai-popup-textarea {
+  flex: 1; height: 40px; padding: 8px 10px; border: 2px solid #111;
+  font-size: 0.78rem; resize: none; outline: none; background: var(--section-bg);
+}
+.ai-popup-send-btn {
+  padding: 0 12px; background: var(--accent); color: #fff; border: 2px solid #111;
+  font-size: 0.8rem; font-weight: 700; cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .ai-popup-container { width: calc(100% - 40px); height: calc(100% - 140px); right: 20px; bottom: 80px; }
+}

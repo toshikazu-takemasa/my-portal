@@ -381,4 +381,116 @@ function clearChat() {
   renderChatPanel();
 })();
 
+// ---- Popup Chat Logic ----
+let isPopupOpen = false;
+
+function toggleAiPopup() {
+  const container = document.getElementById('ai-popup-container');
+  isPopupOpen = !isPopupOpen;
+  container.classList.toggle('open', isPopupOpen);
+  
+  if (isPopupOpen) {
+    // 最新の情報を反映
+    document.getElementById('ai-popup-title').textContent = getAiName();
+    const avatar = getAiAvatar();
+    if (avatar) document.getElementById('ai-popup-avatar').src = avatar;
+    
+    syncPopupHistory();
+    document.getElementById('ai-popup-input').focus();
+  }
+}
+
+function syncPopupHistory() {
+  const histEl = document.getElementById('ai-popup-history');
+  histEl.innerHTML = '';
+  
+  if (chatHistory.length === 0) {
+    appendPopupBubble('ai', WELCOME_MSG);
+  } else {
+    chatHistory.forEach(msg => {
+      appendPopupBubble(msg.role === 'user' ? 'user' : 'ai', msg.content);
+    });
+  }
+}
+
+function appendPopupBubble(role, text) {
+  const histEl = document.getElementById('ai-popup-history');
+  const div = document.createElement('div');
+  div.className = `chat-bubble ${role}`;
+  div.style.fontSize = '0.75rem';
+  div.style.padding = '6px 10px';
+  
+  if (role === 'ai') {
+    const avatarUrl = getAiAvatar();
+    if (avatarUrl) {
+      const img = document.createElement('img');
+      img.src = avatarUrl;
+      img.style = "width:20px; height:20px; border-radius:50%; margin-right:6px; object-fit:cover; vertical-align:middle;";
+      div.appendChild(img);
+    }
+    const contentSpan = document.createElement('span');
+    contentSpan.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+    div.appendChild(contentSpan);
+  } else {
+    div.textContent = text;
+  }
+  
+  histEl.appendChild(div);
+  histEl.scrollTop = histEl.scrollHeight;
+}
+
+async function sendPopupChat() {
+  const input = document.getElementById('ai-popup-input');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  const geminiKey = getGeminiKey();
+  if (!geminiKey) {
+    alert('⚙️ 設定から Gemini API キー を先に設定してください。');
+    return;
+  }
+
+  input.value = '';
+  appendPopupBubble('user', text);
+  chatHistory.push({ role: 'user', content: text });
+  saveCurrentSession();
+  
+  // メイン画面のヒストリも更新（もし開いていれば）
+  if (document.getElementById('chat-history')) {
+    appendChatBubble('user', text);
+  }
+
+  const thinking = document.createElement('div');
+  thinking.className = 'chat-bubble ai thinking';
+  thinking.style.fontSize = '0.75rem';
+  thinking.textContent = '...';
+  document.getElementById('ai-popup-history').appendChild(thinking);
+
+  const aiName = getAiName();
+  const persona = getAiPrompt();
+  let sys = `あなたは「${aiName}」として振る舞ってください。人格・口調設定：${persona}\n日本語で簡潔に回答してください。`;
+
+  try {
+    const reply = await callGemini(text, sys);
+    thinking.remove();
+    appendPopupBubble('ai', reply);
+    chatHistory.push({ role: 'assistant', content: reply });
+    saveCurrentSession();
+    
+    if (document.getElementById('chat-history')) {
+      appendChatBubble('ai', reply);
+    }
+  } catch (e) {
+    thinking.textContent = `Error: ${e.message}`;
+  }
+}
+
+// Enterで送信
+document.addEventListener('keydown', (e) => {
+  if (e.target.id === 'ai-popup-input' && e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendPopupChat();
+  }
+});
+
 
