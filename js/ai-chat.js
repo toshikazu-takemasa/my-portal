@@ -207,21 +207,22 @@ function appendChatBubble(role, text) {
   const div = document.createElement('div');
   div.className = `chat-bubble ${role}`;
   
-  if (role === 'ai') {
+  if (role.includes('ai')) {
     const avatarUrl = getAiAvatar();
     if (avatarUrl) {
       const img = document.createElement('img');
       img.src = avatarUrl;
       img.className = 'chat-avatar';
-      img.style = "width:32px; height:32px; border-radius:50%; margin-right:8px; object-fit:cover; vertical-align:middle;";
+      img.style = "width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #fff; flex-shrink:0;";
       div.appendChild(img);
     }
     const contentSpan = document.createElement('span');
-    contentSpan.style.color = '#111';
+    contentSpan.style.color = '#fff';
     contentSpan.appendChild(renderAIMessage(text));
     div.appendChild(contentSpan);
   } else {
     div.textContent = text;
+    div.style.color = '#fff';
   }
   histEl.appendChild(div);
   histEl.scrollTop = histEl.scrollHeight;
@@ -309,12 +310,30 @@ async function sendChat() {
     const reply = await callGemini(text, sys);
     
     thinking.className = 'chat-bubble ai';
-    thinking.innerHTML = ''; thinking.appendChild(renderAIMessage(reply));
+    // アバターを残すため、最後の span だけを更新
+    const contentSpan = thinking.querySelector('span');
+    if (contentSpan) {
+      contentSpan.innerHTML = '';
+      contentSpan.appendChild(renderAIMessage(reply));
+    } else {
+      thinking.innerHTML = '';
+      thinking.appendChild(renderAIMessage(reply));
+    }
     chatHistory.push({ role: 'assistant', content: reply });
     saveCurrentSession();
   } catch (e) {
-    thinking.className = 'chat-bubble ai'; thinking.style.color = '#cf222e';
-    thinking.textContent = `エラー: ${e.message}`; chatHistory.pop();
+    thinking.className = 'chat-bubble ai';
+    let errMsg = `エラー: ${e.message}`;
+    if (e.message.includes('無料枠')) {
+      errMsg = 'ごめんね主くん、今はちょっと魔法の力が足りひんみたいやわ。しばらく待ってから、また声かけてくれるかな？';
+    }
+    const contentSpan = thinking.querySelector('span');
+    if (contentSpan) {
+      contentSpan.textContent = errMsg;
+    } else {
+      thinking.textContent = errMsg;
+    }
+    chatHistory.pop();
   } finally { btn.disabled = false; input.focus(); }
 }
 
@@ -418,22 +437,24 @@ function appendPopupBubble(role, text) {
   const histEl = document.getElementById('ai-popup-history');
   const div = document.createElement('div');
   div.className = `chat-bubble ${role}`;
-  div.style.fontSize = '0.75rem';
-  div.style.padding = '6px 10px';
+  div.style.fontSize = '0.78rem';
+  div.style.padding = '8px 12px';
   
   if (role === 'ai') {
     const avatarUrl = getAiAvatar();
     if (avatarUrl) {
       const img = document.createElement('img');
       img.src = avatarUrl;
-      img.style = "width:20px; height:20px; border-radius:50%; margin-right:6px; object-fit:cover; vertical-align:middle;";
+      img.style = "width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid #fff; flex-shrink:0;";
       div.appendChild(img);
     }
     const contentSpan = document.createElement('span');
+    contentSpan.style.color = '#fff';
     contentSpan.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
     div.appendChild(contentSpan);
   } else {
     div.textContent = text;
+    div.style.color = '#fff';
   }
   
   histEl.appendChild(div);
@@ -463,13 +484,13 @@ async function sendPopupChat() {
 
   const thinking = document.createElement('div');
   thinking.className = 'chat-bubble ai thinking';
-  thinking.style.fontSize = '0.75rem';
+  thinking.style.fontSize = '0.78rem';
   thinking.textContent = '...';
   document.getElementById('ai-popup-history').appendChild(thinking);
 
   const aiName = getAiName();
   const persona = getAiPrompt();
-  let sys = `あなたは「${aiName}」として振る舞ってください。人格・口調設定：${persona}\n日本語で簡潔に回答してください。`;
+  let sys = `あなたは「${aiName}」として振る舞ってください。人格・口調設定：${persona}\n日本語で回答してください。`;
 
   try {
     const reply = await callGemini(text, sys);
@@ -482,7 +503,12 @@ async function sendPopupChat() {
       appendChatBubble('ai', reply);
     }
   } catch (e) {
-    thinking.textContent = `Error: ${e.message}`;
+    thinking.remove();
+    let errMsg = `Error: ${e.message}`;
+    if (e.message.includes('無料枠')) {
+      errMsg = 'ごめんね主くん、今はちょっと魔法の力が足りひんみたいやわ。しばらく待ってから、また声かけてくれるかな？';
+    }
+    appendPopupBubble('ai', errMsg);
   }
 }
 

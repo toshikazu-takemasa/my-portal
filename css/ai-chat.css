@@ -8,24 +8,28 @@
 }
 
 .chat-bubble {
-  max-width: 86%; padding: 9px 13px; border-radius: 0;
-  font-size: 0.82rem; line-height: 1.6;
+  max-width: 86%; padding: 10px 14px; border-radius: 8px;
+  font-size: 0.85rem; line-height: 1.6;
   white-space: pre-wrap; word-break: break-word;
   border: 2px solid #111;
+  position: relative; margin-bottom: 4px;
 }
 .chat-bubble.user {
   align-self: flex-end;
   background: #c6002b;
   color: #fff;
-  clip-path: polygon(0 0, 96% 0, 100% 24%, 100% 100%, 0 100%);
+  border-bottom-right-radius: 2px;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
 }
 .chat-bubble.ai {
   align-self: flex-start;
-  background: #fff;
-  color: #111;
-  clip-path: polygon(4% 0, 100% 0, 100% 100%, 0 100%, 0 24%);
+  background: #3d2b1f; /* はやてをイメージした濃い茶 */
+  color: #fff;
+  border-bottom-left-radius: 2px;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+  display: flex; gap: 12px; align-items: flex-start;
 }
-.chat-bubble.thinking { color: var(--text-sub); font-style: italic; }
+.chat-bubble.thinking { color: #fff; opacity: 0.7; font-style: italic; }
 
 .chat-input-row { display: flex; gap: 6px; }
 
@@ -181,6 +185,12 @@
   font-size: 0.8rem; font-weight: 700; cursor: pointer;
 }
 
-@media (max-width: 480px) {
-  .ai-popup-container { width: calc(100% - 40px); height: calc(100% - 140px); right: 20px; bottom: 80px; }
+@media (max-width: 768px) {
+  .ai-popup-btn { bottom: 85px; right: 15px; width: 50px; height: 50px; font-size: 1.2rem; }
+  .ai-popup-container { 
+    width: calc(100% - 30px); 
+    height: calc(100% - 160px); 
+    right: 15px; 
+    bottom: 145px; 
+  }
 }
