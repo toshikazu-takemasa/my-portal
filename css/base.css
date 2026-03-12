@@ -292,6 +292,32 @@ header h1 {
   z-index: 1;
 }
 
+.side-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--section-bg);
+  padding: 4px;
+  border: 2px solid #111;
+  margin-bottom: 8px;
+}
+
+.side-tab {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.side-tab.active {
+  background: #111;
+  color: #fff;
+}
+
 /* ========== Right column ========== */
 .right-col {
   display: flex;
