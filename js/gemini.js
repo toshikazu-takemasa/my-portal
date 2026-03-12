@@ -4,11 +4,11 @@
 
 /**
  * Gemini API を呼び出す
- * @param {string} prompt - 送信するプロンプト
+ * @param {string|Array} promptOrHistory - 送信するプロンプト、または会話履歴（[{role, content}]）
  * @param {string} systemInstruction - システム指示（オプション）
  * @returns {Promise<string>} AI の回答
  */
-async function callGemini(prompt, systemInstruction = "") {
+async function callGemini(promptOrHistory, systemInstruction = "") {
   const key = getGeminiKey();
   if (!key) {
     throw new Error('Gemini APIキーが設定されていません。設定画面から登録してください。');
@@ -16,14 +16,24 @@ async function callGemini(prompt, systemInstruction = "") {
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
 
-  const requestBody = {
-    contents: [
+  let contents = [];
+  if (Array.isArray(promptOrHistory)) {
+    // role 'assistant' を Gemini用の 'model' に変換
+    contents = promptOrHistory.map(msg => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }]
+    }));
+  } else {
+    contents = [
       {
-        parts: [
-          { text: prompt }
-        ]
+        role: 'user',
+        parts: [{ text: promptOrHistory }]
       }
-    ]
+    ];
+  }
+
+  const requestBody = {
+    contents: contents
   };
 
   if (systemInstruction) {

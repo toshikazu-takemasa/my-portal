@@ -135,6 +135,40 @@ function showModalGeminiUI() {
   document.getElementById('modal-gemini-unset').classList.toggle('is-hidden', has);
 }
 
+async function testGeminiKey() {
+  const btn = document.getElementById('gemini-test-btn');
+  const statusEl = document.getElementById('gemini-test-status');
+  if (!btn || !statusEl) return;
+
+  const key = getGeminiKey();
+  if (!key) {
+    statusEl.style.color = '#cf222e';
+    statusEl.textContent = '❌ APIキーが設定されていません';
+    return;
+  }
+
+  btn.disabled = true;
+  statusEl.style.color = '#888';
+  statusEl.textContent = '接続テスト中...';
+
+  try {
+    const prompt = "「接続テスト成功です！」と短く返事してください。";
+    const res = await callGemini(prompt);
+    statusEl.style.color = '#1a7f37';
+    statusEl.textContent = `✅ 成功: ${res}`;
+    
+    // キーが正しいことが確認されたので、ティッカーのキャッシュをクリアして再取得を促す
+    localStorage.removeItem('ai_ticker_cache');
+    localStorage.removeItem('ai_ticker_date');
+    if (typeof initAiTicker === 'function') initAiTicker(true);
+  } catch (e) {
+    statusEl.style.color = '#cf222e';
+    statusEl.textContent = `❌ 失敗: ${e.message}`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 // ---- AI Persona Settings ----
 const AI_NAME_KEY    = 'ai_persona_name';
 const AI_PROMPT_KEY  = 'ai_persona_prompt';

@@ -41,7 +41,7 @@
 <header class="!flex !items-center !gap-4 !mb-6 !max-w-[1400px] !mx-auto max-[768px]:!mb-[14px]">
   <h1 class="!text-[1.25rem] !font-bold !text-[var(--text)] !tracking-[-0.01em] max-[768px]:!text-[1rem]">My Portal</h1>
   <span id="today" class="!text-[0.88rem] !text-[var(--text-sub)] !flex-1"></span>
-  <button class="settings-btn" onclick="if(window.innerWidth <= MOBILE_BREAKPOINT) switchBottomNav('settings'); else switchMainTab('settings');" title="設定">⚙️</button>
+
 
 
 </header>
@@ -283,6 +283,10 @@
             <button class="btn-token" onclick="saveGeminiKey()">保存</button>
           </div>
           <p class="modal-note">aistudio.google.com で発行できます</p>
+        </div>
+        <div id="gemini-test-row" class="token-row" style="margin-top:8px;">
+          <button class="btn-token" style="background:#5c5c5c;color:#fff;border-color:#5c5c5c;" onclick="testGeminiKey()" id="gemini-test-btn">接続テスト</button>
+          <span id="gemini-test-status" style="font-size:0.75rem;margin-left:8px;"></span>
         </div>
       </div>
 

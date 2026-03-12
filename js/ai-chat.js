@@ -307,7 +307,7 @@ async function sendChat() {
 
   try {
     // Gemini を使用
-    const reply = await callGemini(text, sys);
+    const reply = await callGemini(chatHistory, sys);
     
     thinking.className = 'chat-bubble ai';
     // アバターを残すため、最後の span だけを更新
@@ -493,7 +493,7 @@ async function sendPopupChat() {
   let sys = `あなたは「${aiName}」として振る舞ってください。人格・口調設定：${persona}\n日本語で回答してください。`;
 
   try {
-    const reply = await callGemini(text, sys);
+    const reply = await callGemini(chatHistory, sys);
     thinking.remove();
     appendPopupBubble('ai', reply);
     chatHistory.push({ role: 'assistant', content: reply });
