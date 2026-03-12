@@ -306,8 +306,8 @@
       <button class="side-close-btn" onclick="closeMobileSideMenu()">✕ 閉じる</button>
     </div>
 
-    <!-- スマホ用サブタブ -->
-    <div class="side-tabs is-hidden" id="side-tabs">
+    <!-- チェック/Issue/確認 サブタブ (PC/スマホ共通) -->
+    <div class="side-tabs" id="side-tabs">
       <button class="side-tab active" id="stab-checklist" onclick="switchSideTab('checklist')">チェック</button>
       <button class="side-tab" id="stab-issues" onclick="switchSideTab('issues')">Issue</button>
       <button class="side-tab" id="stab-pillars" onclick="switchSideTab('pillars')">確認</button>
@@ -578,6 +578,8 @@ function syncResponsiveLayout() {
   closeMobileSideMenu();
   setHidden(colMain, false);
   setHidden(colRight, false);
+  setHidden(document.getElementById('side-tabs'), false);
+  switchSideTab('checklist');
   setHidden(issueWidgetCard, false);
   setHidden(quickMemoCard, false);
   setHidden(financeCard, false);
