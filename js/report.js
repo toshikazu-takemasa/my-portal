@@ -235,7 +235,7 @@ async function fetchDailyReport() {
 }
 
 function switchMainTab(name) {
-  const tabs = ['report', 'issues', 'links', 'ai'];
+  const tabs = ['report', 'issues', 'links', 'ai', 'settings'];
   const enabledTabs = tabs.filter(t => {
     const tabEl = document.getElementById('mtab-' + t);
     const panelEl = document.getElementById('main-panel-' + t);
@@ -261,6 +261,9 @@ function switchMainTab(name) {
 
   if (target === 'issues' && typeof fetchIssueBoard === 'function') {
     fetchIssueBoard();
+  }
+  if (target === 'settings' && typeof initSettingsTab === 'function') {
+    initSettingsTab();
   }
 }
 

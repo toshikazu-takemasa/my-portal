@@ -69,22 +69,16 @@ const TOKEN_KEY = 'gh_pat';
 
 function getToken() { return localStorage.getItem(TOKEN_KEY); }
 
-function openSettings() {
-  document.getElementById('settings-modal').classList.add('open');
+function initSettingsTab() {
   showModalTokenUI();
   showModalGeminiUI();
   showRepoConfig();
   initCalendarDisplay();
-  document.getElementById('modal-status').textContent = '';
+  const statusEl = document.getElementById('modal-status');
+  if (statusEl) statusEl.textContent = '';
 }
 
-function closeSettings() {
-  document.getElementById('settings-modal').classList.remove('open');
-}
-
-function closeSettingsOnOverlay(e) {
-  if (e.target === document.getElementById('settings-modal')) closeSettings();
-}
+// closeSettings function removed as it's now a tab
 
 function showModalTokenUI() {
   const hasToken = !!getToken();
