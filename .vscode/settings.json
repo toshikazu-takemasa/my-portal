@@ -1,0 +1,29 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        // ✅ 自動実行する（true）
+        "git status": true,
+        "git branch": true,
+        "git diff": true,
+        "git log": true,
+        "ls": true,
+        "pwd": true,
+        "npm test": true,
+        "npm run dev": true,
+        "npm run build": true,
+        "pnpm test": true,
+        "pnpm lint": true,
+        "pnpm build": true,
+        "pnpm run build": true,
+        "pnpm dev": true,
+        "tsc": true,
+
+        // ❌ 自動実行しない（false / ブロック）
+        "git push": false,
+        "git merge": false,
+        "git reset": false,
+        "npm install": false,
+        "pnpm install": false,
+        "pnpm i": false,
+        "rm": false
+    }
+}
