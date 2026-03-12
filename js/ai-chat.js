@@ -239,8 +239,14 @@ function appendChatBubble(role, text) {
 }
 
 async function sendChat() {
-  const key = getClaudeKey();
-  if (!key) { alert('⚙️ 設定から Anthropic API キーを先に設定してください。'); return; }
+  const geminiKey = getGeminiKey();
+  const claudeKey = getClaudeKey();
+  
+  if (!geminiKey && !claudeKey) {
+    alert('⚙️ 設定から Gemini API キー または Anthropic API キーを先に設定してください。');
+    return;
+  }
+  
   const input = document.getElementById('chat-input');
   const text  = input.value.trim();
   if (!text) return;
@@ -259,6 +265,8 @@ async function sendChat() {
   const thinking = appendChatBubble('ai thinking', '考え中…');
 
   const includeReport = document.getElementById('include-report').checked;
+  const includeKnowledge = document.getElementById('include-knowledge')?.checked;
+
   let sys = `あなたは利用者専用のコーチ兼秘書です。
 
 利用可能な機能：
@@ -275,14 +283,43 @@ async function sendChat() {
 - ユーザー主導: ユーザーの判断を尊重
 
 日本語で丁寧かつ簡潔に回答してください。`;
-  if (includeReport && reportContent) sys += `\n\n今日の日記:\n${reportContent}`;
+
+  // コンテキストの収集
+  let contextStr = "";
+  if (includeReport) {
+    // グローバルな reportContent (report.jsで定義されている想定) があれば使用
+    if (typeof reportContent !== 'undefined' && reportContent) {
+      contextStr += `\n\n### 今日の日記:\n${reportContent}`;
+    } else {
+      // なければ最新の日記をフェッチ
+      const latest = await fetchLatestContextForChat('日記', 1);
+      contextStr += `\n\n### 直近の日記:\n${latest}`;
+    }
+  }
+  if (includeKnowledge) {
+    const latest = await fetchLatestContextForChat('ナレッジ', 2);
+    contextStr += `\n\n### ナレッジ記録:\n${latest}`;
+  }
+
+  if (contextStr) {
+    sys += `\n\n## 参照情報\n以下の情報をコンテキストとして考慮してください:\n${contextStr}`;
+  }
+
   if (attachedFiles.length > 0) {
     sys += '\n\n## 添付ファイル\nファイルの編集依頼があった場合、完全な新しいファイル内容を以下の形式で出力してください（省略不可）:\n===APPLY: ファイルパス===\n[完全なファイル内容]\n===END===\n\n添付ファイル:';
     attachedFiles.forEach(f => { sys += `\n\n### ${f.path}\n\`\`\`\n${f.content}\n\`\`\``; });
   }
 
   try {
-    const reply = await callClaude(chatHistory, sys);
+    let reply = "";
+    if (geminiKey) {
+      // Gemini を優先使用
+      reply = await callGemini(text, sys);
+    } else {
+      // Gemini キーがなければ Claude を使用
+      reply = await callClaude(chatHistory, sys);
+    }
+    
     thinking.className = 'chat-bubble ai';
     thinking.innerHTML = ''; thinking.appendChild(renderAIMessage(reply));
     chatHistory.push({ role: 'assistant', content: reply });
@@ -291,6 +328,48 @@ async function sendChat() {
     thinking.className = 'chat-bubble ai'; thinking.style.color = '#cf222e';
     thinking.textContent = `エラー: ${e.message}`; chatHistory.pop();
   } finally { btn.disabled = false; input.focus(); }
+}
+
+/**
+ * チャット用コンテキストのフェッチ (ai-ticker.js のロジックを流用)
+ */
+async function fetchLatestContextForChat(folder, count) {
+  const token = getToken();
+  const repo  = getRepo();
+  if (!token || !repo) return "";
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${folder}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) return "";
+    const files = await res.json();
+    const targets = files
+      .filter(f => f.name.endsWith('.md'))
+      .sort((a, b) => b.name.localeCompare(a.name))
+      .slice(0, count);
+
+    let parts = [];
+    for (const file of targets) {
+      const content = await fetchFileContentForChat(file.path);
+      parts.push(`[${file.name}]\n${content.slice(0, 500)}`);
+    }
+    return parts.join('\n\n');
+  } catch (e) {
+    return "";
+  }
+}
+
+async function fetchFileContentForChat(path) {
+  const token = getToken();
+  const repo  = getRepo();
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return "";
+  const data = await res.json();
+  const raw  = atob(data.content.replace(/\n/g, ''));
+  return new TextDecoder('utf-8').decode(Uint8Array.from(raw, c => c.charCodeAt(0)));
 }
 
 function clearChat() {

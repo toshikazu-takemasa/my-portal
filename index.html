@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/ai-chat.css">
+  <link rel="stylesheet" href="css/ai-ticker.css">
   <link rel="stylesheet" href="css/mobile.css">
   <link rel="stylesheet" href="css/theme-ff14.css">
 </head>
@@ -86,6 +87,22 @@
       </div>
     </div>
 
+    <!-- Gemini API Key -->
+    <div class="modal-section">
+      <div class="modal-label">💎 Gemini API キー（ポジティブティッカー用）</div>
+      <div id="modal-gemini-set" class="is-hidden">
+        <div style="font-size:0.82rem;color:#c6002b;margin-bottom:8px;font-weight:700;">✅ APIキーが設定済みです</div>
+        <button class="btn-token danger" onclick="clearGeminiKey()">削除</button>
+      </div>
+      <div id="modal-gemini-unset">
+        <div class="token-row">
+          <input id="gemini-key-input" class="token-input" type="password" placeholder="AIzaSy...">
+          <button class="btn-token" onclick="saveGeminiKey()">保存</button>
+        </div>
+        <p class="modal-note">aistudio.google.com で発行できます</p>
+      </div>
+    </div>
+
     <!-- 勤怠シート URL -->
     <div class="modal-section">
       <div class="modal-label">📊 勤怠シート URL（任意）</div>
@@ -126,6 +143,9 @@
     <p class="analytics-label">PROGRESS CHART</p>
     <div class="analytics-progress-track">
       <div class="analytics-progress-fill" id="analytics-progress-fill"></div>
+    </div>
+    <div id="ai-ticker-container" class="ai-ticker-container">
+      <span id="ai-ticker-text" class="ai-ticker-text">... Loading AI Message ...</span>
     </div>
     <p class="analytics-footnote" id="analytics-progress-text">0 / 0 DONE</p>
   </article>
@@ -288,7 +308,11 @@
         <div class="chat-options">
           <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
             <input type="checkbox" id="include-report" style="accent-color:#c6002b;">
-            日記をコンテキストに含める
+            日記を含める
+          </label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+            <input type="checkbox" id="include-knowledge" style="accent-color:#c6002b;">
+            ナレッジを含める
           </label>
           <div style="display:flex;align-items:center;gap:6px;">
             <button class="chat-clear-btn" title="ファイルを添付" onclick="promptFileAttach()">📎</button>
@@ -412,6 +436,8 @@
 <script src="js/analytics.js"></script>
 <script src="js/quick-memo.js"></script>
 <script src="js/finance.js"></script>
+<script src="js/gemini.js"></script>
+<script src="js/ai-ticker.js"></script>
 <script src="js/ai-chat.js"></script>
 
 <script>

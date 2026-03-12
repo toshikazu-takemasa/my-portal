@@ -73,6 +73,7 @@ function openSettings() {
   document.getElementById('settings-modal').classList.add('open');
   showModalTokenUI();
   showModalClaudeUI();
+  showModalGeminiUI();
   showRepoConfig();
   initCalendarDisplay();
   document.getElementById('modal-status').textContent = '';
@@ -139,6 +140,30 @@ function showModalClaudeUI() {
   const has = !!getClaudeKey();
   document.getElementById('modal-claude-set').classList.toggle('is-hidden', !has);
   document.getElementById('modal-claude-unset').classList.toggle('is-hidden', has);
+}
+
+// ---- Gemini API Key UI ----
+const GEMINI_KEY = 'gemini_api_key';
+
+function getGeminiKey() { return localStorage.getItem(GEMINI_KEY); }
+
+function saveGeminiKey() {
+  const val = document.getElementById('gemini-key-input').value.trim();
+  if (!val) return;
+  localStorage.setItem(GEMINI_KEY, val);
+  document.getElementById('gemini-key-input').value = '';
+  showModalGeminiUI();
+  const st = document.getElementById('modal-status');
+  st.style.color = '#1a7f37'; st.textContent = '✅ Gemini APIキーを保存しました';
+  setTimeout(() => { st.textContent = ''; }, 2000);
+}
+
+function clearGeminiKey() { localStorage.removeItem(GEMINI_KEY); showModalGeminiUI(); }
+
+function showModalGeminiUI() {
+  const has = !!getGeminiKey();
+  document.getElementById('modal-gemini-set').classList.toggle('is-hidden', !has);
+  document.getElementById('modal-gemini-unset').classList.toggle('is-hidden', has);
 }
 
 // =====================
