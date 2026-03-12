@@ -1,8 +1,6 @@
 // =====================
 // AI アシスタント
 // =====================
-const CLAUDE_API   = 'https://api.anthropic.com/v1/messages';
-const CLAUDE_MODEL = 'claude-sonnet-4-6';
 const SESSIONS_KEY = 'chat_sessions';
 const WELCOME_MSG  = 'あなた専用のコーチ兼秘書です。本日はどのようなご相談でしょうか？\n\n📝 文章校正・コミュニケーション改善\n🤔 業務相談・意思決定サポート\n🔧 技術タスク・実装支援\n📋 情報整理・作業記録管理\n📅 日記管理・振り返り・工数集計支援';
 
@@ -171,26 +169,6 @@ async function applyFileEdit(blockId, btn) {
   } catch(e) { btn.textContent = 'エラー: ' + e.message; btn.disabled = false; }
 }
 
-// ---- Claude API ----
-async function callClaude(messages, systemPrompt) {
-  const key = getClaudeKey();
-  if (!key) throw new Error('APIキーが設定されていません（⚙️ 設定から登録してください）');
-  const res = await fetch(CLAUDE_API, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 2000, system: systemPrompt, messages }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || `API エラー: ${res.status}`);
-  }
-  return (await res.json()).content?.[0]?.text || '';
-}
 
 // ---- Message rendering ----
 function renderAIMessage(text) {
@@ -240,10 +218,9 @@ function appendChatBubble(role, text) {
 
 async function sendChat() {
   const geminiKey = getGeminiKey();
-  const claudeKey = getClaudeKey();
   
-  if (!geminiKey && !claudeKey) {
-    alert('⚙️ 設定から Gemini API キー または Anthropic API キーを先に設定してください。');
+  if (!geminiKey) {
+    alert('⚙️ 設定から Gemini API キー を先に設定してください。');
     return;
   }
   
@@ -311,14 +288,8 @@ async function sendChat() {
   }
 
   try {
-    let reply = "";
-    if (geminiKey) {
-      // Gemini を優先使用
-      reply = await callGemini(text, sys);
-    } else {
-      // Gemini キーがなければ Claude を使用
-      reply = await callClaude(chatHistory, sys);
-    }
+    // Gemini を使用
+    const reply = await callGemini(text, sys);
     
     thinking.className = 'chat-bubble ai';
     thinking.innerHTML = ''; thinking.appendChild(renderAIMessage(reply));

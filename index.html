@@ -71,22 +71,6 @@
       <div id="modal-status" class="modal-status"></div>
     </div>
 
-    <!-- Anthropic API Key -->
-    <div class="modal-section">
-      <div class="modal-label">🤖 Anthropic API キー（AI機能）</div>
-      <div id="modal-claude-set" class="is-hidden">
-        <div style="font-size:0.82rem;color:#c6002b;margin-bottom:8px;font-weight:700;">✅ APIキーが設定済みです</div>
-        <button class="btn-token danger" onclick="clearClaudeKey()">削除</button>
-      </div>
-      <div id="modal-claude-unset">
-        <div class="token-row">
-          <input id="claude-key-input" class="token-input" type="password" placeholder="sk-ant-api03-…">
-          <button class="btn-token" onclick="saveClaudeKey()">保存</button>
-        </div>
-        <p class="modal-note">console.anthropic.com で発行できます</p>
-      </div>
-    </div>
-
     <!-- Gemini API Key -->
     <div class="modal-section">
       <div class="modal-label">💎 Gemini API キー（ポジティブティッカー用）</div>

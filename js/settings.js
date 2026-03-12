@@ -72,7 +72,6 @@ function getToken() { return localStorage.getItem(TOKEN_KEY); }
 function openSettings() {
   document.getElementById('settings-modal').classList.add('open');
   showModalTokenUI();
-  showModalClaudeUI();
   showModalGeminiUI();
   showRepoConfig();
   initCalendarDisplay();
@@ -116,30 +115,6 @@ function clearToken() {
   statusEl.style.color = '#cf222e';
   statusEl.textContent = 'トークンを削除しました';
   setTimeout(() => { statusEl.textContent = ''; }, 3000);
-}
-
-// ---- Claude API Key UI ----
-const CLAUDE_KEY = 'claude_api_key';
-
-function getClaudeKey() { return localStorage.getItem(CLAUDE_KEY); }
-
-function saveClaudeKey() {
-  const val = document.getElementById('claude-key-input').value.trim();
-  if (!val) return;
-  localStorage.setItem(CLAUDE_KEY, val);
-  document.getElementById('claude-key-input').value = '';
-  showModalClaudeUI();
-  const st = document.getElementById('modal-status');
-  st.style.color = '#1a7f37'; st.textContent = '✅ APIキーを保存しました';
-  setTimeout(() => { st.textContent = ''; }, 2000);
-}
-
-function clearClaudeKey() { localStorage.removeItem(CLAUDE_KEY); showModalClaudeUI(); }
-
-function showModalClaudeUI() {
-  const has = !!getClaudeKey();
-  document.getElementById('modal-claude-set').classList.toggle('is-hidden', !has);
-  document.getElementById('modal-claude-unset').classList.toggle('is-hidden', has);
 }
 
 // ---- Gemini API Key UI ----
