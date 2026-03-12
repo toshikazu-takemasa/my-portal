@@ -141,6 +141,38 @@ function showModalGeminiUI() {
   document.getElementById('modal-gemini-unset').classList.toggle('is-hidden', has);
 }
 
+// ---- AI Persona Settings ----
+const AI_NAME_KEY    = 'ai_persona_name';
+const AI_PROMPT_KEY  = 'ai_persona_prompt';
+const AI_AVATAR_KEY  = 'ai_persona_avatar';
+
+const DEFAULT_AI_NAME   = '八神はやて';
+const DEFAULT_AI_PROMPT = 'あなたは「魔法少女リリカルなのは」の八神はやてです。関西弁（京都弁寄り）で話し、おだやかで面倒見が良く、ユーザーを「主（あるじ）くん」または「主さん」と呼びます。優しく、時に厳しくユーザーの目標達成をサポートしてください。ポジティブで包容力のある言葉をかけます。';
+const DEFAULT_AI_AVATAR = 'docs/images/avatar.png';
+
+function getAiName()   { return localStorage.getItem(AI_NAME_KEY)   || DEFAULT_AI_NAME; }
+function getAiPrompt() { return localStorage.getItem(AI_PROMPT_KEY) || DEFAULT_AI_PROMPT; }
+function getAiAvatar() { return localStorage.getItem(AI_AVATAR_KEY) || DEFAULT_AI_AVATAR; }
+
+function saveAiPersona() {
+  localStorage.setItem(AI_NAME_KEY,   document.getElementById('ai-name-input').value.trim());
+  localStorage.setItem(AI_PROMPT_KEY, document.getElementById('ai-persona-input').value.trim());
+  localStorage.setItem(AI_AVATAR_KEY, document.getElementById('ai-avatar-input').value.trim());
+
+  const st = document.getElementById('ai-persona-status');
+  st.style.color = '#1a7f37'; st.textContent = '✅ 人格設定を保存しました';
+  setTimeout(() => { st.textContent = ''; }, 2000);
+  
+  // 反映
+  if (typeof initAiTicker === 'function') initAiTicker();
+}
+
+function initAiPersonaUI() {
+  document.getElementById('ai-name-input').value    = getAiName();
+  document.getElementById('ai-persona-input').value = getAiPrompt();
+  document.getElementById('ai-avatar-input').value  = getAiAvatar();
+}
+
 // =====================
 // カレンダー表示設定
 // =====================

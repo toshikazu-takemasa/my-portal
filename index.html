@@ -87,6 +87,20 @@
       </div>
     </div>
 
+    <!-- AI Persona Settings -->
+    <div class="modal-section">
+      <div class="modal-label">🎭 AI人格設定</div>
+      <div class="token-row" style="margin-bottom:8px;">
+        <input id="ai-name-input" class="token-input" type="text" placeholder="AIの名前（例：八神はやて）">
+      </div>
+      <textarea id="ai-persona-input" class="quick-memo-input" rows="3" placeholder="AIの性格・口調設定" style="font-size:0.8rem; margin-bottom:8px;"></textarea>
+      <div class="token-row">
+        <input id="ai-avatar-input" class="token-input" type="text" placeholder="アバター画像URL (docs/images/avatar.png)">
+      </div>
+      <button class="btn-token" onclick="saveAiPersona()" style="margin-top:8px; width:100%;">人格設定を保存</button>
+      <div id="ai-persona-status" class="modal-status"></div>
+    </div>
+
     <!-- 勤怠シート URL -->
     <div class="modal-section">
       <div class="modal-label">📊 勤怠シート URL（任意）</div>
@@ -128,8 +142,9 @@
     <div class="analytics-progress-track">
       <div class="analytics-progress-fill" id="analytics-progress-fill"></div>
     </div>
-    <div id="ai-ticker-container" class="ai-ticker-container">
-      <span id="ai-ticker-text" class="ai-ticker-text">... Loading AI Message ...</span>
+    <div id="ai-ticker-container" class="ai-ticker-container" style="display:flex; align-items:center; gap:12px;">
+      <img id="ai-ticker-avatar" src="docs/images/avatar.png" alt="AI Avatar" style="width:40px; height:40px; border-radius:50%; border:2px solid var(--accent); object-fit:cover; display:none;">
+      <span id="ai-ticker-text" class="ai-ticker-text" style="flex:1;">... Loading AI Message ...</span>
     </div>
     <p class="analytics-footnote" id="analytics-progress-text">0 / 0 DONE</p>
   </article>

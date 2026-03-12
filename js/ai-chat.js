@@ -206,8 +206,19 @@ function appendChatBubble(role, text) {
   const histEl = document.getElementById('chat-history');
   const div = document.createElement('div');
   div.className = `chat-bubble ${role}`;
+  
   if (role === 'ai') {
-    div.appendChild(renderAIMessage(text));
+    const avatarUrl = getAiAvatar();
+    if (avatarUrl) {
+      const img = document.createElement('img');
+      img.src = avatarUrl;
+      img.className = 'chat-avatar';
+      img.style = "width:32px; height:32px; border-radius:50%; margin-right:8px; object-fit:cover; vertical-align:middle;";
+      div.appendChild(img);
+    }
+    const contentSpan = document.createElement('span');
+    contentSpan.appendChild(renderAIMessage(text));
+    div.appendChild(contentSpan);
   } else {
     div.textContent = text;
   }
@@ -244,9 +255,13 @@ async function sendChat() {
   const includeReport = document.getElementById('include-report').checked;
   const includeKnowledge = document.getElementById('include-knowledge')?.checked;
 
-  let sys = `あなたは利用者専用のコーチ兼秘書です。
+  const aiName = getAiName();
+  const persona = getAiPrompt();
 
-利用可能な機能：
+  let sys = `あなたは「${aiName}」として振る舞ってください。
+人格・口調設定：${persona}
+
+利用可能なポータル機能：
 📝 文章校正・コミュニケーション改善
 🤔 業務相談・意思決定サポート
 🔧 技術タスク・実装支援
@@ -254,12 +269,13 @@ async function sendChat() {
 📅 日記管理・振り返り・工数集計支援
 
 ## 応答スタイル
+- 設定された口調を忠実に守ってください。
 - 簡潔: 必要な情報のみ提供
 - 問いかけ型: ユーザーの思考を引き出す
 - 段階的: 一度に多くを求めない
 - ユーザー主導: ユーザーの判断を尊重
 
-日本語で丁寧かつ簡潔に回答してください。`;
+設定された人格に基づき、日本語で丁寧かつ簡潔に回答してください。`;
 
   // コンテキストの収集
   let contextStr = "";

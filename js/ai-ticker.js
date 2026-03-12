@@ -7,26 +7,40 @@
  */
 async function initAiTicker() {
   const tickerTextEl = document.getElementById('ai-ticker-text');
+  const avatarEl = document.getElementById('ai-ticker-avatar');
   if (!tickerTextEl) return;
+
+  // アバターの反映
+  const avatarUrl = getAiAvatar();
+  if (avatarEl && avatarUrl) {
+    avatarEl.src = avatarUrl;
+    avatarEl.style.display = 'block';
+  }
 
   try {
     const context = await fetchLatestContext();
+    const persona = getAiPrompt();
+    const aiName = getAiName();
+    
     const prompt = `
 以下の日記やナレッジの記録を参考に、今日の始まりにふさわしい、ポジティブでやる気が出るような一言を生成してください。
 ユーザーはこのポータルを「朝一番」に見ることが多いです。
-これまでの活動を肯定し、今日という日を前向きに捉えられるような言葉を選んでください。
+
+## あなたの設定
+名前: ${aiName}
+性格・口調: ${persona}
 
 ## 制約
 - 60文字以内で簡潔に。
 - 余計な説明（「生成しました」など）は省き、メッセージのみを出力してください。
-- 日本語で。
+- 日本語で。設定された口調（例：関西弁）を忠実に守ってください。
 - 絵文字を1つ使ってください。
 
 ## 情報（日記・ナレッジの一部）
 ${context}
 `;
     // AIにリクエスト
-    const message = await callGemini(prompt, "あなたは利用者を励まし、モチベーションを高めるコーチです。");
+    const message = await callGemini(prompt, `あなたは${aiName}です。${persona}`);
     
     // 表示
     tickerTextEl.textContent = message.trim();
