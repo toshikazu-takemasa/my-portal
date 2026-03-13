@@ -52,12 +52,27 @@ function deleteSession(id, e) {
 function renderChatPanel() {
   document.getElementById('session-title-display').textContent =
     currentSession ? currentSession.title : '新しい会話';
-  const histEl = document.getElementById('chat-history');
-  histEl.innerHTML = '';
+
+  // VN: ポートレートと名前を更新
+  const portrait = document.getElementById('vn-portrait-img');
+  const nameTag  = document.getElementById('vn-ai-name');
+  if (portrait) portrait.src = getAiAvatar() || '';
+  if (nameTag)  nameTag.textContent = getAiName();
+
+  // VN: ユーザーログをクリア
+  const logEl = document.getElementById('vn-user-log');
+  if (logEl) logEl.innerHTML = '';
+
   if (chatHistory.length === 0) {
     appendChatBubble('ai', WELCOME_MSG);
   } else {
-    chatHistory.forEach(msg => appendChatBubble(msg.role === 'user' ? 'user' : 'ai', msg.content));
+    // ユーザー発言はログに、AIは最後の1件だけ表示
+    let lastAi = null;
+    chatHistory.forEach(msg => {
+      if (msg.role === 'user') appendChatBubble('user', msg.content);
+      else lastAi = msg.content;
+    });
+    appendChatBubble('ai', lastAi || WELCOME_MSG);
   }
   renderFileChips();
 }
@@ -204,42 +219,34 @@ function renderAIMessage(text) {
 }
 
 function appendChatBubble(role, text) {
-  const histEl = document.getElementById('chat-history');
-  const div = document.createElement('div');
-  div.className = `chat-bubble ${role}`;
-
   if (role.includes('ai')) {
-    const avatarUrl = getAiAvatar();
-    const aiName = getAiName();
+    // VN: ダイアログボックスを更新
+    const box    = document.getElementById('vn-dialogue-box');
+    const textEl = document.getElementById('vn-dialogue-text');
+    if (!box || !textEl) return null;
 
-    if (avatarUrl) {
-      const img = document.createElement('img');
-      img.src = avatarUrl;
-      img.className = 'chat-avatar';
-      div.appendChild(img);
+    const isThinking = role.includes('thinking');
+    box.classList.toggle('thinking', isThinking);
+    textEl.innerHTML = '';
+    if (isThinking) {
+      const s = document.createElement('span');
+      s.textContent = '考え中…';
+      textEl.appendChild(s);
+    } else {
+      textEl.appendChild(renderAIMessage(text));
     }
-
-    const dialogue = document.createElement('div');
-    dialogue.className = 'chat-ai-dialogue';
-
-    const nameTag = document.createElement('div');
-    nameTag.className = 'chat-ai-name';
-    nameTag.textContent = aiName;
-    dialogue.appendChild(nameTag);
-
-    const contentSpan = document.createElement('span');
-    contentSpan.className = 'chat-ai-text';
-    contentSpan.appendChild(renderAIMessage(text));
-    dialogue.appendChild(contentSpan);
-
-    div.appendChild(dialogue);
+    return box;
   } else {
-    div.textContent = text;
-    div.style.color = '#fff';
+    // VN: ユーザー発言をコンパクトログに追加
+    const logEl = document.getElementById('vn-user-log');
+    if (!logEl) return null;
+    const entry = document.createElement('div');
+    entry.className = 'vn-user-entry';
+    entry.textContent = text;
+    logEl.appendChild(entry);
+    logEl.scrollTop = logEl.scrollHeight;
+    return entry;
   }
-  histEl.appendChild(div);
-  histEl.scrollTop = histEl.scrollHeight;
-  return div;
 }
 
 async function sendChat() {
@@ -322,15 +329,9 @@ async function sendChat() {
     // Gemini を使用
     const reply = await callGemini(chatHistory, sys);
     
-    thinking.className = 'chat-bubble ai';
-    const contentSpan = thinking.querySelector('.chat-ai-text');
-    if (contentSpan) {
-      contentSpan.innerHTML = '';
-      contentSpan.appendChild(renderAIMessage(reply));
-    } else {
-      thinking.innerHTML = '';
-      thinking.appendChild(renderAIMessage(reply));
-    }
+    thinking.classList.remove('thinking');
+    const textEl = document.getElementById('vn-dialogue-text');
+    if (textEl) { textEl.innerHTML = ''; textEl.appendChild(renderAIMessage(reply)); }
     chatHistory.push({ role: 'assistant', content: reply });
     saveCurrentSession();
   } catch (e) {
@@ -339,12 +340,9 @@ async function sendChat() {
     if (e.message.includes('無料枠')) {
       errMsg = 'ごめんね主くん、今はちょっと魔法の力が足りひんみたいやわ。しばらく待ってから、また声かけてくれるかな？';
     }
-    const contentSpan = thinking.querySelector('.chat-ai-text');
-    if (contentSpan) {
-      contentSpan.textContent = errMsg;
-    } else {
-      thinking.textContent = errMsg;
-    }
+    thinking.classList.remove('thinking');
+    const textEl = document.getElementById('vn-dialogue-text');
+    if (textEl) textEl.textContent = errMsg;
     chatHistory.pop();
   } finally { btn.disabled = false; input.focus(); }
 }
@@ -394,8 +392,8 @@ async function fetchFileContentForChat(path) {
 function clearChat() {
   chatHistory = [];
   if (currentSession) { currentSession.messages = []; saveCurrentSession(); }
-  const histEl = document.getElementById('chat-history');
-  histEl.innerHTML = '';
+  const logEl = document.getElementById('vn-user-log');
+  if (logEl) logEl.innerHTML = '';
   appendChatBubble('ai', WELCOME_MSG);
   attachedFiles = []; renderFileChips();
   if (isPopupOpen) syncPopupHistory();

@@ -28,11 +28,11 @@
   <!-- Styles -->
   <link rel="stylesheet" href="css/base.css?v=20260313">
   <link rel="stylesheet" href="css/components.css?v=20260313">
-  <link rel="stylesheet" href="css/ai-chat.css?v=20260313c">
+  <link rel="stylesheet" href="css/ai-chat.css?v=20260313e">
   <link rel="stylesheet" href="css/ai-ticker.css?v=20260313">
   <link rel="stylesheet" href="css/mobile.css?v=20260313">
   <link rel="stylesheet" href="css/theme-ff14.css?v=20260313">
-  <link rel="stylesheet" href="css/theme-hayate.css?v=20260313c">
+  <link rel="stylesheet" href="css/theme-hayate.css?v=20260313e">
   <link rel="stylesheet" href="css/theme-hayate-gentle.css?v=20260313">
 </head>
 <body class="persona-dashboard">
@@ -227,9 +227,20 @@
         <button class="btn-new-session" onclick="newChatSession()">＋ New</button>
       </div>
 
-      <div class="chat-wrap">
-        <div class="chat-history" id="chat-history"></div>
+      <div class="chat-wrap vn-mode">
+        <!-- キャラクター立ち絵エリア -->
+        <div class="vn-portrait-area">
+          <img class="vn-portrait-img" id="vn-portrait-img" src="" alt="">
+        </div>
+        <!-- ユーザー発言ログ（コンパクト） -->
+        <div class="vn-user-log" id="vn-user-log"></div>
         <div class="file-chips is-hidden" id="file-chips"></div>
+        <!-- AIダイアログボックス（更新式） -->
+        <div class="vn-dialogue-box" id="vn-dialogue-box">
+          <div class="chat-ai-name" id="vn-ai-name">AI</div>
+          <div class="vn-dialogue-text" id="vn-dialogue-text"></div>
+        </div>
+        <!-- 入力エリア -->
         <div class="chat-input-row">
           <textarea class="chat-textarea" id="chat-input" rows="2" placeholder="質問を入力… (Enter で送信 / Shift+Enter で改行)"></textarea>
           <button class="chat-send-btn" id="chat-send-btn" onclick="sendChat()">送信</button>
@@ -490,7 +501,7 @@
 <script src="js/finance.js?v=20260313"></script>
 <script src="js/gemini.js?v=20260313"></script>
 <script src="js/ai-ticker.js?v=20260313"></script>
-<script src="js/ai-chat.js?v=20260313"></script>
+<script src="js/ai-chat.js?v=20260313e"></script>
 
 <script>
 const MOBILE_BREAKPOINT = 768;

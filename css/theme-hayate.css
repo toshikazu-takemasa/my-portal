@@ -124,10 +124,17 @@ body.theme-hayate::before {
 }
 
 .theme-hayate .chat-ai-dialogue {
-  background: rgba(20, 10, 35, 0.90) !important;
-  border-left-color: rgba(160, 120, 200, 0.25) !important;
+  background: rgba(15, 8, 28, 0.93) !important;
+  border-top-color: rgba(140, 100, 180, 0.3) !important;
 }
 .theme-hayate .chat-ai-name {
+  background: #5a3080 !important;
+}
+.theme-hayate .vn-dialogue-box {
+  background: rgba(12, 6, 24, 0.95) !important;
+  border-top-color: rgba(140, 100, 180, 0.3) !important;
+}
+.theme-hayate #vn-ai-name {
   background: #5a3080 !important;
 }
 
