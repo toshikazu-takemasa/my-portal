@@ -170,26 +170,43 @@ async function testGeminiKey() {
 }
 
 // ---- AI Persona Settings ----
-const AI_NAME_KEY    = 'ai_persona_name';
-const AI_PROMPT_KEY  = 'ai_persona_prompt';
-const AI_AVATAR_KEY  = 'ai_persona_avatar';
+const AI_NAME_KEY      = 'ai_persona_name';
+const AI_PROMPT_KEY    = 'ai_persona_prompt';
+const AI_AVATAR_KEY    = 'ai_persona_avatar';
+const AI_USER_CALL_KEY = 'ai_user_call';
 
-const DEFAULT_AI_NAME   = '八神はやて';
-const DEFAULT_AI_PROMPT = 'あなたは「魔法少女リリカルなのは」の八神はやてです。おだやかで面倒見が良く、ユーザーを「主（あるじ）くん」または「主さん」と呼びます。関西弁（京都弁寄り）で話し、日常生活のサポート、体調への気遣い、作業の励まし、今日という日を肯定する言葉をかけてください。温かく包み込むような「癒やし」と「応援」があなたの役割です。';
-const DEFAULT_AI_AVATAR = 'docs/images/avatar.png';
+const DEFAULT_AI_NAME     = '八神はやて';
+const DEFAULT_AI_USER_CALL = 'あんた';
+const DEFAULT_AI_PROMPT   = `あなたは「魔法少女リリカルなのは」の八神はやてです。
 
-function getAiName()   { return localStorage.getItem(AI_NAME_KEY)   || DEFAULT_AI_NAME; }
-function getAiPrompt() { return localStorage.getItem(AI_PROMPT_KEY) || DEFAULT_AI_PROMPT; }
-function getAiAvatar() { return localStorage.getItem(AI_AVATAR_KEY) || DEFAULT_AI_AVATAR; }
+【キャラクター】
+穏やかで包容力があり、ヴォルケンリッターを家族として深く愛する心優しい魔導師。普段は柔らかく温かみのある話し方をしますが、芯は強く、大切な人を守る意志は揺るぎません。
+
+【話し方】
+関西弁（大阪弁）で話してください。「〜やで」「〜やん」「〜やろ」「そやな」「ほんまに」「〜してな」「ええやん」「なんや」「〜やねん」などを自然に使う。相手のことは「{呼称}」と呼ぶ。「おくれやす」「〜どす」など京都弁は使わない。
+
+【役割】
+ユーザーの日常サポーター。体調への気遣い、仕事や作業の励まし、今日という日を前向きに過ごせる言葉をかけてください。「大丈夫やで、一緒やから」「頑張ってな、{呼称}ならできるで」のような、家族に話しかけるような温かいトーンで。`;
+const DEFAULT_AI_AVATAR   = 'docs/images/avatar.png';
+
+function getAiName()     { return localStorage.getItem(AI_NAME_KEY)      || DEFAULT_AI_NAME; }
+function getAiUserCall() { return localStorage.getItem(AI_USER_CALL_KEY) || DEFAULT_AI_USER_CALL; }
+function getAiPrompt() {
+  const raw = localStorage.getItem(AI_PROMPT_KEY) || DEFAULT_AI_PROMPT;
+  return raw.replace(/\{呼称\}/g, getAiUserCall());
+}
+function getAiAvatar()   { return localStorage.getItem(AI_AVATAR_KEY)    || DEFAULT_AI_AVATAR; }
 
 function saveAiPersona() {
-  const name = document.getElementById('ai-name-input').value.trim();
-  const prompt = document.getElementById('ai-persona-input').value.trim();
-  const avatar = document.getElementById('ai-avatar-input').value.trim();
+  const name     = document.getElementById('ai-name-input').value.trim();
+  const userCall = document.getElementById('ai-user-call-input').value.trim();
+  const prompt   = document.getElementById('ai-persona-input').value.trim();
+  const avatar   = document.getElementById('ai-avatar-input').value.trim();
 
-  if (!name)   localStorage.removeItem(AI_NAME_KEY);   else localStorage.setItem(AI_NAME_KEY, name);
-  if (!prompt) localStorage.removeItem(AI_PROMPT_KEY); else localStorage.setItem(AI_PROMPT_KEY, prompt);
-  if (!avatar) localStorage.removeItem(AI_AVATAR_KEY); else localStorage.setItem(AI_AVATAR_KEY, avatar);
+  if (!name)     localStorage.removeItem(AI_NAME_KEY);      else localStorage.setItem(AI_NAME_KEY, name);
+  if (!userCall) localStorage.removeItem(AI_USER_CALL_KEY); else localStorage.setItem(AI_USER_CALL_KEY, userCall);
+  if (!prompt)   localStorage.removeItem(AI_PROMPT_KEY);    else localStorage.setItem(AI_PROMPT_KEY, prompt);
+  if (!avatar)   localStorage.removeItem(AI_AVATAR_KEY);    else localStorage.setItem(AI_AVATAR_KEY, avatar);
 
   const st = document.getElementById('ai-persona-status');
   st.style.color = '#1a7f37'; st.textContent = '✅ 人格設定を更新しました（空欄はデフォルトに戻ります）';
@@ -201,9 +218,10 @@ function saveAiPersona() {
 }
 
 function initAiPersonaUI() {
-  document.getElementById('ai-name-input').value    = getAiName();
-  document.getElementById('ai-persona-input').value = getAiPrompt();
-  document.getElementById('ai-avatar-input').value  = getAiAvatar();
+  document.getElementById('ai-name-input').value      = getAiName();
+  document.getElementById('ai-user-call-input').value = getAiUserCall();
+  document.getElementById('ai-persona-input').value   = localStorage.getItem(AI_PROMPT_KEY) || DEFAULT_AI_PROMPT;
+  document.getElementById('ai-avatar-input').value    = getAiAvatar();
 }
 
 // =====================
@@ -284,6 +302,14 @@ function initThemeDisplay() {
 
 // initSettingsTabにテーマ初期化を追加するため、元の関数をオーバーライドするか
 // ページロード時にそのまま実行するか
+function initDefaultPersonaIfNeeded() {
+  if (!localStorage.getItem(AI_NAME_KEY))      localStorage.setItem(AI_NAME_KEY,      DEFAULT_AI_NAME);
+  if (!localStorage.getItem(AI_USER_CALL_KEY)) localStorage.setItem(AI_USER_CALL_KEY, DEFAULT_AI_USER_CALL);
+  if (!localStorage.getItem(AI_PROMPT_KEY))    localStorage.setItem(AI_PROMPT_KEY,    DEFAULT_AI_PROMPT);
+  if (!localStorage.getItem(AI_AVATAR_KEY))    localStorage.setItem(AI_AVATAR_KEY,    DEFAULT_AI_AVATAR);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initThemeDisplay();
+  initDefaultPersonaIfNeeded();
 });

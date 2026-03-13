@@ -33,7 +33,10 @@ async function callGemini(promptOrHistory, systemInstruction = "") {
   }
 
   const requestBody = {
-    contents: contents
+    contents: contents,
+    generationConfig: {
+      maxOutputTokens: 400
+    }
   };
 
   if (systemInstruction) {
