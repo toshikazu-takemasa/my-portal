@@ -267,7 +267,7 @@ function changeTheme() {
   localStorage.setItem(THEME_KEY, newTheme);
   
   // bodyからテーマクラスを削除
-  document.body.classList.remove('theme-ff14', 'theme-hayate');
+  document.body.classList.remove('theme-ff14', 'theme-hayate', 'theme-hayate-gentle');
   
   // 新しいテーマを追加
   if (newTheme) {
