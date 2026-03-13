@@ -112,6 +112,11 @@ body.theme-hayate::before {
   );
 }
 
+.theme-hayate .side-tabs {
+  background: #1e1628 !important;
+  border: 2px solid rgba(82, 67, 102, 0.4) !important;
+}
+
 .theme-hayate .main-tabs,
 .theme-hayate .report-tabs,
 .theme-hayate .task-filter-tabs {
