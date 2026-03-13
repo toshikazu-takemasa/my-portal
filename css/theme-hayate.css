@@ -124,16 +124,11 @@ body.theme-hayate::before {
 }
 
 .theme-hayate .chat-ai-dialogue {
-  background: #2a1e38 !important;
-}
-.theme-hayate .chat-ai-dialogue::before {
-  border-right-color: #2a1e38 !important;
+  background: rgba(20, 10, 35, 0.90) !important;
+  border-left-color: rgba(160, 120, 200, 0.25) !important;
 }
 .theme-hayate .chat-ai-name {
-  color: #c9a0e8 !important;
-}
-.theme-hayate .chat-avatar {
-  border-color: rgba(180, 140, 220, 0.4) !important;
+  background: #5a3080 !important;
 }
 
 .theme-hayate .main-tabs,

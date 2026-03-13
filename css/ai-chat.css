@@ -22,71 +22,69 @@
   box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
 }
 .chat-bubble.ai {
-  align-self: flex-start;
+  align-self: stretch;
+  max-width: 100%;
   background: transparent;
   padding: 0;
   box-shadow: none;
   border-radius: 0;
   display: flex;
-  gap: 10px;
+  flex-direction: row;
+  gap: 0;
   align-items: flex-end;
-  max-width: 92%;
+  margin: 2px 0;
 }
 
-/* ADV ゲーム風アバター */
+/* VN風 キャラクターポートレート */
 .chat-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 4px;
+  width: 86px;
+  height: 86px;
+  border-radius: 0;
   object-fit: cover;
   object-position: top center;
   flex-shrink: 0;
-  border: 2px solid rgba(255,255,255,0.25);
-  box-shadow: 3px 3px 0 rgba(0,0,0,0.35);
+  box-shadow: 3px 0 10px rgba(0,0,0,0.5);
   align-self: flex-end;
+  z-index: 1;
 }
 
-/* ダイアログボックス */
+/* VN風 ダイアログボックス */
 .chat-ai-dialogue {
   flex: 1;
-  background: #3d2b1f;
-  padding: 9px 13px 11px;
-  border-radius: 0 6px 6px 6px;
-  box-shadow: 4px 4px 0 rgba(0,0,0,0.25);
+  background: rgba(10, 6, 18, 0.88);
+  padding: 8px 14px 12px 14px;
+  border-left: 2px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255,255,255,0.08);
   position: relative;
-}
-.chat-ai-dialogue::before {
-  content: '';
-  position: absolute;
-  bottom: 12px; left: -7px;
-  border: 7px solid transparent;
-  border-right-color: #3d2b1f;
-  border-left: 0;
-  margin-bottom: -7px;
+  min-width: 0;
 }
 
-/* キャラクター名タグ */
+/* キャラクター名タグ（VN風タブ） */
 .chat-ai-name {
-  font-size: 0.68rem;
+  display: inline-block;
+  background: #7a4fa0;
+  color: #fff;
+  font-size: 0.66rem;
   font-weight: 700;
-  color: #e8c97a;
-  letter-spacing: 0.08em;
-  margin-bottom: 5px;
+  padding: 2px 12px 2px 10px;
+  margin-bottom: 7px;
+  letter-spacing: 0.06em;
+  clip-path: polygon(0 0, 100% 0, 93% 100%, 0 100%);
 }
 
 .chat-ai-text,
 .chat-ai-text span,
 .chat-ai-text * {
-  color: #fff !important;
-  font-size: 0.85rem;
-  line-height: 1.6;
+  color: #f0eaf8 !important;
+  font-size: 0.84rem;
+  line-height: 1.65;
   white-space: pre-wrap;
   word-break: break-word;
   display: block;
 }
 .chat-ai-text span { display: inline; }
 
-.chat-bubble.thinking .chat-ai-text { opacity: 0.6; font-style: italic; }
+.chat-bubble.thinking .chat-ai-text { opacity: 0.55; font-style: italic; }
 
 .chat-input-row { display: flex; gap: 6px; }
 
