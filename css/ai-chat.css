@@ -74,14 +74,17 @@
   margin-bottom: 5px;
 }
 
-.chat-ai-text {
-  color: #fff;
+.chat-ai-text,
+.chat-ai-text span,
+.chat-ai-text * {
+  color: #fff !important;
   font-size: 0.85rem;
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
   display: block;
 }
+.chat-ai-text span { display: inline; }
 
 .chat-bubble.thinking .chat-ai-text { opacity: 0.6; font-style: italic; }
 
