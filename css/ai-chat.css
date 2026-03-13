@@ -71,9 +71,7 @@
   font-size: 0.84rem;
   line-height: 1.65;
   word-break: break-word;
-  min-height: 4.2em;    /* 約3行分の高さ固定 */
-  max-height: 4.2em;
-  overflow: hidden;
+  min-height: 3em;
   white-space: pre-wrap;
 }
 .vn-dialogue-text * { color: #f0eaf8 !important; }

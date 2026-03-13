@@ -15,7 +15,7 @@ let vnPages       = [];
 let vnCurrentPage = 0;
 
 function splitIntoVnPages(text) {
-  const CHARS = 75; // 1ページあたりの文字数（約3行）
+  const CHARS = 120; // 1ページあたりの文字数（約4〜5行）
   const segs = text.split(/(?<=[。！？\n])/g).filter(s => s.length > 0);
   const pages = []; let cur = '';
   for (const s of segs) {
