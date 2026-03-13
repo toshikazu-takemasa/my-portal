@@ -14,7 +14,7 @@ async function callGemini(promptOrHistory, systemInstruction = "") {
     throw new Error('Gemini APIキーが設定されていません。設定画面から登録してください。');
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
 
   let contents = [];
   if (Array.isArray(promptOrHistory)) {
