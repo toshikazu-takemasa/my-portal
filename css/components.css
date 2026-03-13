@@ -36,7 +36,7 @@
   border-radius: 0;
   padding: 2px;
   gap: 2px;
-  border: 2px solid #111;
+ 
 }
 
 .report-tab {
@@ -69,7 +69,7 @@
   min-height: 500px;
   max-height: 580px;
   padding: 12px;
-  border: 2px solid #111;
+ 
   border-radius: 0;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   font-size: 0.8rem;
@@ -144,7 +144,7 @@
   height: 22px;
   border-radius: 0;
   background: var(--section-bg);
-  border: 2px solid #111;
+ 
   transition: background 0.15s, border-color 0.15s;
   text-decoration: none;
   flex-shrink: 0;
@@ -248,7 +248,7 @@
   padding: 8px 10px;
   border-radius: 0;
   background: var(--section-bg);
-  border: 2px solid #111;
+ 
   text-decoration: none;
   color: var(--text);
   font-size: 0.82rem;
@@ -312,7 +312,7 @@
 }
 
 .issue-manager-card {
-  border: 2px solid #111;
+ 
   background: var(--section-bg);
   padding: 10px;
 }
@@ -338,7 +338,7 @@
   border: none;
   border-radius: 0;
   background: var(--section-bg);
-  border: 2px solid #111;
+ 
 }
 
 .gcal-placeholder {
@@ -361,7 +361,7 @@
   align-items: center;
   gap: 4px;
   padding: 5px 11px;
-  border: 2px solid #111;
+ 
   border-radius: 0;
   background: #fff;
   color: var(--text-sub);

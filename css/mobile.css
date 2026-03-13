@@ -70,7 +70,7 @@
   background: var(--section-bg);
   border-radius: 0;
   padding: 2px;
-  border: 2px solid #111;
+ 
 }
 
 .task-filter-tab {
@@ -108,7 +108,7 @@
   padding: 7px 8px;
   border-radius: 0;
   background: var(--section-bg);
-  border: 2px solid #111;
+ 
   text-decoration: none;
   color: var(--text);
   font-size: 0.82rem;
@@ -150,7 +150,7 @@
 .quick-memo-input {
   width: 100%;
   padding: 9px 10px;
-  border: 2px solid #111;
+ 
   border-radius: 0;
   font-size: 0.84rem;
   font-family: inherit;
@@ -170,7 +170,7 @@
 .quick-memo-select {
   flex: 1;
   padding: 7px 9px;
-  border: 2px solid #111;
+ 
   border-radius: 0;
   font-size: 0.78rem;
   outline: none;

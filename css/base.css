@@ -124,7 +124,7 @@ header h1 {
 
 .analytics-card {
   background: #fff;
-  border: 2px solid #111;
+ 
   padding: 12px 14px;
   color: #111;
   position: relative;
@@ -186,7 +186,7 @@ header h1 {
 
 .analytics-progress-track {
   height: 22px;
-  border: 2px solid #111;
+ 
   background: repeating-linear-gradient(-45deg, #f2f2f2 0 8px, #fff 8px 16px);
   margin-bottom: 8px;
 }
@@ -256,7 +256,7 @@ header h1 {
   background: var(--card-bg) !important;
   border-radius: 0 !important;
   padding: 20px 22px;
-  border: 2px solid #111 !important;
+ 
   box-shadow: 9px 9px 0 rgba(198, 0, 43, 0.95) !important;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 3% 100%, 0 90%);
   position: relative;
@@ -297,7 +297,7 @@ header h1 {
   gap: 4px;
   background: var(--section-bg);
   padding: 4px;
-  border: 2px solid #111;
+ 
   margin-bottom: 8px;
 }
 
@@ -330,7 +330,7 @@ header h1 {
 }
 
 .side-close-btn {
-  border: 2px solid #111;
+ 
   background: #fff;
   color: #111;
   border-radius: 0;
@@ -359,7 +359,7 @@ header h1 {
   text-decoration: none;
   color: var(--text);
   background: var(--section-bg);
-  border: 2px solid #111;
+ 
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
   position: relative;
   min-height: 76px;
@@ -457,7 +457,7 @@ header h1 {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  border: 2px solid #111;
+ 
 }
 
 .add-form input {
@@ -525,7 +525,7 @@ header h1 {
   max-width: 94vw;
   max-height: 90vh;
   overflow-y: auto;
-  border: 2px solid #111;
+ 
   box-shadow: 12px 12px 0 #c6002b;
   clip-path: polygon(0 0, 95% 0, 100% 10%, 100% 100%, 5% 100%, 0 90%);
 }
@@ -608,7 +608,7 @@ header h1 {
 
 .btn-modal-close {
   padding: 8px 20px;
-  border: 2px solid #111;
+ 
   border-radius: 0;
   font-size: 0.82rem;
   cursor: pointer;
