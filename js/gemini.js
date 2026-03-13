@@ -53,11 +53,12 @@ async function callGemini(promptOrHistory, systemInstruction = "") {
   });
 
   if (!res.ok) {
-    if (res.status === 429) {
-      throw new Error('Gemini API の無料枠制限（クォータ）を超えました。しばらく待ってから再度お試しください。');
-    }
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || `Gemini API エラー: ${res.status}`);
+    const detail = err.error?.message || '';
+    if (res.status === 429) {
+      throw new Error(`Gemini API 429: ${detail || 'クォータ超過またはレート制限'}`);
+    }
+    throw new Error(`Gemini API ${res.status}: ${detail || 'エラーが発生しました'}`);
   }
 
   const data = await res.json();
