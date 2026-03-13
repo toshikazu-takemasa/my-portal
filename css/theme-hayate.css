@@ -131,8 +131,8 @@ body.theme-hayate::before {
   background: #5a3080 !important;
 }
 .theme-hayate .vn-dialogue-box {
-  background: rgba(12, 6, 24, 0.95) !important;
-  border-top-color: rgba(140, 100, 180, 0.3) !important;
+  background: rgba(12, 6, 24, 0.70) !important;
+  border-top-color: rgba(140, 100, 180, 0.35) !important;
 }
 .theme-hayate #vn-ai-name {
   background: #5a3080 !important;

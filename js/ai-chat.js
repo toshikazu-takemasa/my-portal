@@ -10,6 +10,40 @@ let currentSession = null;   // { id, title, messages }
 let attachedFiles  = [];     // [{ path, content, sha }]
 const applyBlocks  = new Map(); // blockId → { path, content }
 
+// VN テキストページング
+let vnPages       = [];
+let vnCurrentPage = 0;
+
+function splitIntoVnPages(text) {
+  const CHARS = 75; // 1ページあたりの文字数（約3行）
+  const segs = text.split(/(?<=[。！？\n])/g).filter(s => s.length > 0);
+  const pages = []; let cur = '';
+  for (const s of segs) {
+    if (cur.length + s.length > CHARS && cur.length > 0) { pages.push(cur); cur = s; }
+    else { cur += s; }
+  }
+  if (cur.trim()) pages.push(cur);
+  if (pages.length === 0) {
+    for (let i = 0; i < text.length; i += CHARS) pages.push(text.slice(i, i + CHARS));
+  }
+  return pages;
+}
+
+function showVnPage(idx) {
+  const textEl = document.getElementById('vn-dialogue-text');
+  const btn    = document.getElementById('vn-advance-btn');
+  if (!textEl) return;
+  textEl.textContent = vnPages[idx] || '';
+  if (btn) btn.style.display = idx < vnPages.length - 1 ? 'block' : 'none';
+}
+
+function advanceVnText() {
+  if (vnCurrentPage < vnPages.length - 1) {
+    vnCurrentPage++;
+    showVnPage(vnCurrentPage);
+  }
+}
+
 // ---- Session management ----
 function getSessions() { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); }
 function saveSessions(s) { localStorage.setItem(SESSIONS_KEY, JSON.stringify(s.slice(0, 30))); }
@@ -227,13 +261,14 @@ function appendChatBubble(role, text) {
 
     const isThinking = role.includes('thinking');
     box.classList.toggle('thinking', isThinking);
-    textEl.innerHTML = '';
+    const btn = document.getElementById('vn-advance-btn');
     if (isThinking) {
-      const s = document.createElement('span');
-      s.textContent = '考え中…';
-      textEl.appendChild(s);
+      textEl.textContent = '考え中…';
+      if (btn) btn.style.display = 'none';
     } else {
-      textEl.appendChild(renderAIMessage(text));
+      vnPages = splitIntoVnPages(text);
+      vnCurrentPage = 0;
+      showVnPage(0);
     }
     return box;
   } else {
@@ -330,8 +365,9 @@ async function sendChat() {
     const reply = await callGemini(chatHistory, sys);
     
     thinking.classList.remove('thinking');
-    const textEl = document.getElementById('vn-dialogue-text');
-    if (textEl) { textEl.innerHTML = ''; textEl.appendChild(renderAIMessage(reply)); }
+    vnPages = splitIntoVnPages(reply);
+    vnCurrentPage = 0;
+    showVnPage(0);
     chatHistory.push({ role: 'assistant', content: reply });
     saveCurrentSession();
   } catch (e) {

@@ -8,19 +8,22 @@
   height: 530px;
 }
 
-/* 立ち絵エリア */
+/* 立ち絵エリア（全体表示・可変高さ） */
 .vn-portrait-area {
   width: 100%;
-  height: 200px;
-  flex-shrink: 0;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   background: #0a0612;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .vn-portrait-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: top center;
+  object-fit: contain;        /* 全体表示 */
+  object-position: bottom center;
   display: block;
 }
 
@@ -46,14 +49,16 @@
   align-self: flex-end;
 }
 
-/* AIダイアログボックス（VN固定） */
+/* AIダイアログボックス（VN固定・透過・クリック可） */
 .vn-dialogue-box {
   width: 100%;
-  background: rgba(8, 5, 15, 0.93);
-  padding: 8px 14px 13px;
-  border-top: 1px solid rgba(255,255,255,0.12);
+  background: rgba(8, 5, 15, 0.68);  /* 半透明 */
+  padding: 8px 14px 10px;
+  border-top: 1px solid rgba(255,255,255,0.15);
   flex-shrink: 0;
   box-sizing: border-box;
+  cursor: pointer;
+  user-select: none;
 }
 .vn-dialogue-box.thinking .vn-dialogue-text {
   opacity: 0.55;
@@ -63,11 +68,27 @@
   color: #f0eaf8;
   font-size: 0.84rem;
   line-height: 1.65;
-  white-space: pre-wrap;
   word-break: break-word;
-  min-height: 1.6em;
+  min-height: 4.2em;    /* 約3行分の高さ固定 */
+  max-height: 4.2em;
+  overflow: hidden;
+  white-space: pre-wrap;
 }
 .vn-dialogue-text * { color: #f0eaf8 !important; }
+
+/* ▼ クリックで次へ インジケーター */
+.vn-advance-indicator {
+  text-align: right;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.65rem;
+  margin-top: 2px;
+  display: none;
+  animation: vn-blink 1.2s ease-in-out infinite;
+}
+@keyframes vn-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.15; }
+}
 
 /* ---- 旧 chat-history（ポップアップ互換用） ---- */
 .chat-history {

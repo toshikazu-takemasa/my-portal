@@ -28,11 +28,11 @@
   <!-- Styles -->
   <link rel="stylesheet" href="css/base.css?v=20260313">
   <link rel="stylesheet" href="css/components.css?v=20260313">
-  <link rel="stylesheet" href="css/ai-chat.css?v=20260313e">
+  <link rel="stylesheet" href="css/ai-chat.css?v=20260313f">
   <link rel="stylesheet" href="css/ai-ticker.css?v=20260313">
   <link rel="stylesheet" href="css/mobile.css?v=20260313">
   <link rel="stylesheet" href="css/theme-ff14.css?v=20260313">
-  <link rel="stylesheet" href="css/theme-hayate.css?v=20260313e">
+  <link rel="stylesheet" href="css/theme-hayate.css?v=20260313f">
   <link rel="stylesheet" href="css/theme-hayate-gentle.css?v=20260313">
 </head>
 <body class="persona-dashboard">
@@ -235,10 +235,11 @@
         <!-- ユーザー発言ログ（コンパクト） -->
         <div class="vn-user-log" id="vn-user-log"></div>
         <div class="file-chips is-hidden" id="file-chips"></div>
-        <!-- AIダイアログボックス（更新式） -->
-        <div class="vn-dialogue-box" id="vn-dialogue-box">
+        <!-- AIダイアログボックス（更新式・クリックで次へ） -->
+        <div class="vn-dialogue-box" id="vn-dialogue-box" onclick="advanceVnText()">
           <div class="chat-ai-name" id="vn-ai-name">AI</div>
           <div class="vn-dialogue-text" id="vn-dialogue-text"></div>
+          <div class="vn-advance-indicator" id="vn-advance-btn">▼</div>
         </div>
         <!-- 入力エリア -->
         <div class="chat-input-row">
@@ -501,7 +502,7 @@
 <script src="js/finance.js?v=20260313"></script>
 <script src="js/gemini.js?v=20260313"></script>
 <script src="js/ai-ticker.js?v=20260313"></script>
-<script src="js/ai-chat.js?v=20260313e"></script>
+<script src="js/ai-chat.js?v=20260313f"></script>
 
 <script>
 const MOBILE_BREAKPOINT = 768;
