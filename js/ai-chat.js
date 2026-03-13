@@ -450,26 +450,37 @@ function appendPopupBubble(role, text) {
   const histEl = document.getElementById('ai-popup-history');
   const div = document.createElement('div');
   div.className = `chat-bubble ${role}`;
-  div.style.fontSize = '0.78rem';
-  div.style.padding = '8px 12px';
-  
+
   if (role === 'ai') {
     const avatarUrl = getAiAvatar();
+    const aiName = getAiName();
+
     if (avatarUrl) {
       const img = document.createElement('img');
       img.src = avatarUrl;
-      img.style = "width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid #fff; flex-shrink:0;";
+      img.className = 'chat-avatar';
       div.appendChild(img);
     }
+
+    const dialogue = document.createElement('div');
+    dialogue.className = 'chat-ai-dialogue';
+
+    const nameTag = document.createElement('div');
+    nameTag.className = 'chat-ai-name';
+    nameTag.textContent = aiName;
+    dialogue.appendChild(nameTag);
+
     const contentSpan = document.createElement('span');
-    contentSpan.style.color = '#fff';
+    contentSpan.className = 'chat-ai-text';
     contentSpan.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
-    div.appendChild(contentSpan);
+    dialogue.appendChild(contentSpan);
+
+    div.appendChild(dialogue);
   } else {
     div.textContent = text;
     div.style.color = '#fff';
   }
-  
+
   histEl.appendChild(div);
   histEl.scrollTop = histEl.scrollHeight;
 }
