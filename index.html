@@ -635,7 +635,15 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
+let _syncLastIsMobile = null;
+
 function syncResponsiveLayout() {
+  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+
+  // 幅方向のブレークポイント変化がなければスキップ（キーボード開閉・アドレスバー収縮などの高さ変化を無視）
+  if (isMobile === _syncLastIsMobile) return;
+  _syncLastIsMobile = isMobile;
+
   const colCalendar = document.getElementById('col-calendar');
   const colMain = document.getElementById('col-main');
   const colRight = document.getElementById('col-right');
@@ -649,7 +657,7 @@ function syncResponsiveLayout() {
   const gcalTitle = document.getElementById('gcal-title');
   if (!colCalendar || !colMain || !colRight) return;
 
-  if (window.innerWidth <= MOBILE_BREAKPOINT) {
+  if (isMobile) {
     const active = document.querySelector('.bottom-nav-item.active')?.dataset.section || 'report';
     closeMobileSideMenu();
     switchBottomNav(active);

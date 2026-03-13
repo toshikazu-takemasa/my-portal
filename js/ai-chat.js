@@ -2,7 +2,7 @@
 // AI アシスタント
 // =====================
 const SESSIONS_KEY = 'chat_sessions';
-const WELCOME_MSG  = '主くん、お疲れさま。今日はどんな一日になりそうかな？\n\n日常生活のちょっとした相談から、作業の応援、日記の振り返りまで、うちで力になれることがあったら何でも言うてな。一緒に頑張ろ！\n\n📝 文章のお手伝い・相談\n📅 日記の管理・振り返り\n📋 予定や記録の整理\n☕ ちょっとした雑談・癒やし';
+const WELCOME_MSG  = '今日も一緒に頑張ろな🌙 何でも気軽に話しかけてな！';
 
 let chatHistory   = [];
 let reflectResult = '';
@@ -207,20 +207,32 @@ function appendChatBubble(role, text) {
   const histEl = document.getElementById('chat-history');
   const div = document.createElement('div');
   div.className = `chat-bubble ${role}`;
-  
+
   if (role.includes('ai')) {
     const avatarUrl = getAiAvatar();
+    const aiName = getAiName();
+
     if (avatarUrl) {
       const img = document.createElement('img');
       img.src = avatarUrl;
       img.className = 'chat-avatar';
-      img.style = "width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #fff; flex-shrink:0;";
       div.appendChild(img);
     }
+
+    const dialogue = document.createElement('div');
+    dialogue.className = 'chat-ai-dialogue';
+
+    const nameTag = document.createElement('div');
+    nameTag.className = 'chat-ai-name';
+    nameTag.textContent = aiName;
+    dialogue.appendChild(nameTag);
+
     const contentSpan = document.createElement('span');
-    contentSpan.style.color = '#fff';
+    contentSpan.className = 'chat-ai-text';
     contentSpan.appendChild(renderAIMessage(text));
-    div.appendChild(contentSpan);
+    dialogue.appendChild(contentSpan);
+
+    div.appendChild(dialogue);
   } else {
     div.textContent = text;
     div.style.color = '#fff';
@@ -311,8 +323,7 @@ async function sendChat() {
     const reply = await callGemini(chatHistory, sys);
     
     thinking.className = 'chat-bubble ai';
-    // アバターを残すため、最後の span だけを更新
-    const contentSpan = thinking.querySelector('span');
+    const contentSpan = thinking.querySelector('.chat-ai-text');
     if (contentSpan) {
       contentSpan.innerHTML = '';
       contentSpan.appendChild(renderAIMessage(reply));
@@ -328,7 +339,7 @@ async function sendChat() {
     if (e.message.includes('無料枠')) {
       errMsg = 'ごめんね主くん、今はちょっと魔法の力が足りひんみたいやわ。しばらく待ってから、また声かけてくれるかな？';
     }
-    const contentSpan = thinking.querySelector('span');
+    const contentSpan = thinking.querySelector('.chat-ai-text');
     if (contentSpan) {
       contentSpan.textContent = errMsg;
     } else {
