@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;900&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+body.theme-hayate {
+  /* 深い夜色・こげ茶系 */
+  --bg: #1a1525;
+  --card-bg: #2d2438;
+  --section-bg: #21192b;
+  --section-bg2: #1e1628;
+  
+  /* テキスト */
+  --text: #fdfbf7;
+  --text-sub: #bbaec9;
+  
+  /* 枠線 */
+  --border: #524366;
+  
+  /* アクセント（夜天の金の装飾） */
+  --accent: #d4af37;
+  --accent-light: #594726;
+  --accent-dim: #8c763b;
+  
+  /* リンク（魔力光のやわらかな紫） */
+  --link: #a970ff;
+  --link-light: #d6bfff;
+  
+  /* その他状態色 */
+  --green: #2f7b62;
+  --green-light: #152b2a;
+  --red: #a14242;
+  --red-light: #30181b;
+  
+  --radius-lg: 12px;
+  --radius-md: 8px;
+  --radius-sm: 6px;
+
+  background:
+    radial-gradient(circle at 12% 10%, rgba(212, 175, 55, 0.12) 0 2px, transparent 2px 100%),
+    radial-gradient(circle at 80% 18%, rgba(169, 112, 255, 0.1) 0 1px, transparent 1px 100%),
+    linear-gradient(160deg, #1f192b 0%, #17131e 35%, #100c14 100%);
+  background-size: 18px 18px, 14px 14px, 100% 100%;
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Force readable foreground color */
+.theme-hayate, .theme-hayate p, .theme-hayate span, .theme-hayate div, .theme-hayate label,
+.theme-hayate li, .theme-hayate td, .theme-hayate th, .theme-hayate strong, .theme-hayate small {
+  color: var(--text);
+}
+
+.theme-hayate [style*='color:#111'], .theme-hayate [style*='color: #111'],
+.theme-hayate [style*='color:#111111'], .theme-hayate [style*='color: #111111'],
+.theme-hayate [style*='color:#5c5c5c'], .theme-hayate [style*='color: #5c5c5c'],
+.theme-hayate [style*='color:#8e8e8e'], .theme-hayate [style*='color: #8e8e8e'] {
+  color: #e5dfee !important;
+}
+
+body.theme-hayate::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    linear-gradient(120deg, transparent 18%, rgba(212, 175, 55, 0.05) 25%, transparent 32%),
+    linear-gradient(300deg, transparent 65%, rgba(169, 112, 255, 0.05) 72%, transparent 79%);
+}
+
+.theme-hayate header h1,
+.theme-hayate .analytics-label,
+.theme-hayate .analytics-big,
+.theme-hayate h2,
+.theme-hayate h3 {
+  font-family: 'Noto Serif JP', serif;
+  letter-spacing: 0.04em;
+}
+
+.theme-hayate header h1 {
+  color: #fdfbf7 !important;
+  text-shadow: 0 0 16px rgba(212, 175, 55, 0.4);
+}
+
+.theme-hayate #today {
+  color: #cca4e1 !important;
+}
+
+.theme-hayate .card,
+.theme-hayate .analytics-card,
+.theme-hayate .modal,
+.theme-hayate .issue-manager-card,
+.theme-hayate .gcal-iframe,
+.theme-hayate .gcal-placeholder,
+.theme-hayate .task-widget-item,
+.theme-hayate .issue-item {
+  background: linear-gradient(180deg, #2d2438 0%, #21192b 100%) !important;
+  border: 1px solid #524366 !important;
+  border-radius: 12px !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.15),
+    0 10px 24px rgba(0, 0, 0, 0.5) !important;
+  clip-path: none !important;
+}
+
+.theme-hayate .analytics-card::after {
+  opacity: 0.2;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(212, 175, 55, 0.2) 0 1px,
+    transparent 1px 8px
+  );
+}
+
+.theme-hayate .main-tabs,
+.theme-hayate .report-tabs,
+.theme-hayate .task-filter-tabs {
+  border-color: #61467b !important;
+  background: #231c2c !important;
+  border-radius: 10px !important;
+}
+
+.theme-hayate .main-tab,
+.theme-hayate .report-tab,
+.theme-hayate .task-filter-tab {
+  color: #bbaec9 !important;
+}
+
+.theme-hayate .main-tab.active,
+.theme-hayate .report-tab.active,
+.theme-hayate .task-filter-tab.active {
+  color: #fdfbf7 !important;
+  border-color: #d4af37 !important;
+  background: linear-gradient(180deg, #443457 0%, #30243e 100%) !important;
+  box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.15);
+}
+
+.theme-hayate .quick-memo-input,
+.theme-hayate .quick-memo-select,
+.theme-hayate .token-input,
+.theme-hayate .report-editor,
+.theme-hayate textarea,
+.theme-hayate input,
+.theme-hayate select {
+  background: #21192b !important;
+  color: #fdfbf7 !important;
+  border: 1px solid #524366 !important;
+  border-radius: 8px !important;
+}
+
+.theme-hayate .quick-memo-input:focus,
+.theme-hayate .quick-memo-select:focus,
+.theme-hayate .token-input:focus,
+.theme-hayate .report-editor:focus,
+.theme-hayate textarea:focus,
+.theme-hayate input:focus,
+.theme-hayate select:focus {
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2) !important;
+  outline: none !important;
+}
+
+.theme-hayate button,
+.theme-hayate .quick-memo-btn,
+.theme-hayate .btn-token,
+.theme-hayate .regen-btn,
+.theme-hayate .btn-modal-close,
+.theme-hayate .settings-btn,
+.theme-hayate .chat-send-btn,
+.theme-hayate .chat-clear-btn,
+.theme-hayate .btn-form-save,
+.theme-hayate .btn-form-cancel,
+.theme-hayate .issues-btn {
+  border: 1px solid #a68b31 !important;
+  border-radius: 8px !important;
+  color: #fdfbf7 !important;
+  background: linear-gradient(180deg, #514264 0%, #3e324d 100%) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.1),
+    0 4px 10px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.16s ease, filter 0.16s ease;
+}
+
+.theme-hayate button:hover,
+.theme-hayate .quick-memo-btn:hover,
+.theme-hayate .btn-token:hover,
+.theme-hayate .regen-btn:hover,
+.theme-hayate .btn-modal-close:hover,
+.theme-hayate .settings-btn:hover,
+.theme-hayate .chat-send-btn:hover,
+.theme-hayate .chat-clear-btn:hover,
+.theme-hayate .btn-form-save:hover,
+.theme-hayate .btn-form-cancel:hover,
+.theme-hayate .issues-btn:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+.theme-hayate .progress-bar,
+.theme-hayate .analytics-progress-track {
+  border-color: #524366 !important;
+  background: repeating-linear-gradient(-45deg, #20172e 0 8px, #261c36 8px 16px) !important;
+}
+
+.theme-hayate .progress-fill,
+.theme-hayate .analytics-progress-fill {
+  background: linear-gradient(90deg, #8c763b 0%, #d4af37 45%, #e6c27a 100%) !important;
+}
+
+.theme-hayate .modal-overlay {
+  background: rgba(14, 10, 20, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.theme-hayate .modal {
+  width: 440px;
+  max-width: 95vw;
+}
+
+.theme-hayate .modal-label,
+.theme-hayate .group-label,
+.theme-hayate .issues-status,
+.theme-hayate .quick-memo-status,
+.theme-hayate .modal-note,
+.theme-hayate .progress-text {
+  color: #c9bccc !important;
+}
+
+.theme-hayate .md-link,
+.theme-hayate a {
+  color: #d6bfff;
+}
+
+.theme-hayate .md-code,
+.theme-hayate .label-chip,
+.theme-hayate .acc-progress-chip {
+  background: #36294a !important;
+  color: #e6c27a !important;
+  border: 1px solid #7a6399 !important;
+  border-radius: 6px !important;
+}
+
+.theme-hayate .bottom-nav {
+  background: linear-gradient(180deg, #251c30 0%, #17131e 100%) !important;
+  border-top: 1px solid #5a4970 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(212, 175, 55, 0.2),
+    0 -4px 18px rgba(0, 0, 0, 0.6) !important;
+}
+
+.theme-hayate .bottom-nav-item {
+  color: #bbaec9 !important;
+}
+
+.theme-hayate .bottom-nav-item.active {
+  color: #e6c27a !important;
+}
+
+@media (max-width: 768px) {
+  body.theme-hayate {
+    background-size: 14px 14px, 12px 12px, 100% 100%;
+  }
+
+  .theme-hayate .card,
+  .theme-hayate .analytics-card,
+  .theme-hayate .modal,
+  .theme-hayate .issue-manager-card,
+  .theme-hayate .gcal-iframe,
+  .theme-hayate .gcal-placeholder {
+    border-radius: 8px !important;
+  }
+}

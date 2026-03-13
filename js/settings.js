@@ -254,3 +254,36 @@ function initCalendarDisplay() {
 }
 
 window.addEventListener('resize', applyCalendarVisibility);
+
+// =====================
+// テーマ切り替え
+// =====================
+const THEME_KEY = 'portal_theme';
+
+function changeTheme() {
+  const select = document.getElementById('theme-select');
+  if (!select) return;
+  const newTheme = select.value;
+  localStorage.setItem(THEME_KEY, newTheme);
+  
+  // bodyからテーマクラスを削除
+  document.body.classList.remove('theme-ff14', 'theme-hayate');
+  
+  // 新しいテーマを追加
+  if (newTheme) {
+    document.body.classList.add(newTheme);
+  }
+}
+
+function initThemeDisplay() {
+  const select = document.getElementById('theme-select');
+  if (!select) return;
+  const currentTheme = localStorage.getItem(THEME_KEY) || '';
+  select.value = currentTheme;
+}
+
+// initSettingsTabにテーマ初期化を追加するため、元の関数をオーバーライドするか
+// ページロード時にそのまま実行するか
+document.addEventListener('DOMContentLoaded', () => {
+  initThemeDisplay();
+});

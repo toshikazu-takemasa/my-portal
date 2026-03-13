@@ -32,8 +32,22 @@
   <link rel="stylesheet" href="css/ai-ticker.css">
   <link rel="stylesheet" href="css/mobile.css">
   <link rel="stylesheet" href="css/theme-ff14.css">
+  <link rel="stylesheet" href="css/theme-hayate.css">
 </head>
-<body class="persona-dashboard theme-ff14">
+<body class="persona-dashboard">
+
+<script>
+  // 即時反映するための初期化スクリプト
+  let savedTheme = localStorage.getItem('portal_theme');
+  if (savedTheme === null) {
+    // 未設定の場合は、リクエスト通り「はやてテーマ」をデフォルトにするんよ
+    savedTheme = 'theme-hayate';
+    localStorage.setItem('portal_theme', savedTheme);
+  }
+  if (savedTheme) {
+    document.body.classList.add(savedTheme);
+  }
+</script>
 
 <!-- ========== Settings Tab Section (Moved from Modal) ========== -->
 
@@ -302,6 +316,16 @@
         </div>
         <button class="btn-token" onclick="saveAiPersona()" style="margin-top:8px; width:100%;">人格設定を保存</button>
         <div id="ai-persona-status" class="modal-status"></div>
+      </div>
+
+      <!-- テーマ設定 -->
+      <div class="modal-section" style="margin-bottom:20px;">
+        <div class="modal-label">🎨 テーマ</div>
+        <select id="theme-select" class="token-input" onchange="changeTheme()">
+          <option value="">デフォルト (ダークレッド)</option>
+          <option value="theme-ff14">FF14 (Night)</option>
+          <option value="theme-hayate">八神はやて (夜天)</option>
+        </select>
       </div>
 
       <!-- カレンダー表示設定 -->
