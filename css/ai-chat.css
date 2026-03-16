@@ -28,39 +28,59 @@
 /* ユーザー発言ログ（立ち絵の右上にオーバーレイ） */
 .vn-user-log {
   position: absolute;
-  bottom: 110px;  /* dialogue-box の上 */
+  top: 10px;  /* 上部に配置 */
   right: 8px;
-  max-height: 100px;
+  max-height: 120px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 5px;
   align-items: flex-end;
   z-index: 2;
   pointer-events: none;
 }
 .vn-user-entry {
-  background: rgba(44, 44, 58, 0.82);
+  background: rgba(0, 0, 0, 0.4);
   color: #fff;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 0.78rem;
-  max-width: 80%;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  max-width: 85%;
   word-break: break-word;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* AIダイアログボックス（立ち絵の下部にオーバーレイ・透過） */
 .vn-dialogue-box {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  background: rgba(8, 5, 15, 0.68);
-  padding: 8px 14px 10px;
-  border-top: 1px solid rgba(255,255,255,0.15);
+  background: rgba(10, 8, 20, 0.85); /* 視認性を高めるため少し濃く */
+  padding: 24px 18px 24px;
+  border-top: 2px solid rgba(255,255,255,0.1);
   box-sizing: border-box;
   cursor: pointer;
   user-select: none;
-  z-index: 3;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  min-height: 120px;
+  max-height: 180px; /* 少し大きめの制限を設ける */
+  overflow-y: auto; /* 万が一長い場合もスクロール可能に */
+}
+
+/* ネームタブ */
+.vn-dialogue-name-tab {
+  position: absolute;
+  top: -24px;
+  left: 10px;
+  background: #7a4fa0;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 18px 3px 12px;
+  clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+  letter-spacing: 0.05em;
+  z-index: 4;
 }
 .vn-dialogue-box.thinking .vn-dialogue-text {
   opacity: 0.55;
@@ -68,26 +88,37 @@
 }
 .vn-dialogue-text {
   color: #f0eaf8;
-  font-size: 0.84rem;
-  line-height: 1.65;
+  font-size: 0.95rem; /* 少し大きく */
+  line-height: 1.6;
   word-break: break-word;
-  min-height: 3em;
   white-space: pre-wrap;
+  overflow: hidden;
 }
 .vn-dialogue-text * { color: #f0eaf8 !important; }
 
 /* ▼ クリックで次へ インジケーター */
 .vn-advance-indicator {
-  text-align: right;
-  color: rgba(255,255,255,0.6);
-  font-size: 0.65rem;
-  margin-top: 2px;
+  position: absolute;
+  bottom: 8px;
+  right: 18px;
   display: none;
+  z-index: 20;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: bold;
   animation: vn-blink 1.2s ease-in-out infinite;
+  text-shadow: 0 0 5px rgba(255,255,255,0.5);
+  opacity: 0.85;
+}
+.vn-advance-indicator::after {
+  content: "▼ NEXT";
+}
+.vn-advance-indicator[data-last="true"]::after {
+  content: "● FIN"; /* 最終ページは別のマークに */
 }
 @keyframes vn-blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.15; }
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50%       { transform: translateY(3px); opacity: 0.3; }
 }
 
 /* ---- 旧 chat-history（ポップアップ互換用） ---- */
@@ -276,94 +307,3 @@
   max-height: 220px; overflow-y: auto;
 }
 
-/* ========== Chat Popup (Overlay) ========== */
-.ai-popup-btn {
-  position: fixed; bottom: 20px; right: 20px;
-  width: 60px; height: 60px; border-radius: 50%;
-  background: var(--accent);
-  color: #fff; font-size: 1.5rem; display: flex;
-  align-items: center; justify-content: center;
-  cursor: pointer; z-index: 1000;
-  box-shadow: 4px 4px 0 #111;
-  transition: transform 0.2s, background 0.2s;
-}
-.ai-popup-btn:hover { transform: scale(1.1); background: #b00026; }
-
-.ai-popup-container {
-  position: fixed; bottom: 90px; right: 20px;
-  width: 360px; height: 500px;
-  background: var(--card-bg);
-  display: none; flex-direction: column;
-  z-index: 1000; box-shadow: 8px 8px 0 rgba(17, 17, 17, 0.2);
-  clip-path: polygon(0 0, 100% 0, 100% 96%, 94% 100%, 0 100%);
-}
-.ai-popup-container.open { display: flex; animation: popupSlideUp 0.3s ease-out; }
-
-@keyframes popupSlideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.ai-popup-header {
-  padding: 10px 15px; background: var(--accent); color: #fff;
-  display: flex; align-items: center; justify-content: space-between;
-  border-bottom: 2px solid #111;
-}
-.ai-popup-title { font-size: 0.9rem; font-weight: 700; margin: 0; }
-.ai-popup-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 1.2rem; }
-
-.ai-popup-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 12px; }
-.ai-popup-history { flex: 1; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
-
-/* ---- ポップアップ内の AI バブルは VN レイアウトを使わずコンパクトに ---- */
-.ai-popup-history .chat-bubble.ai {
-  flex-direction: row !important;
-  align-items: flex-start !important;
-  max-width: 100% !important;
-  background: transparent !important;
-  padding: 0 !important;
-  gap: 8px !important;
-  margin: 0 !important;
-}
-.ai-popup-history .chat-avatar {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 50% !important;
-  object-fit: cover !important;
-  object-position: top center !important;
-  flex-shrink: 0 !important;
-}
-.ai-popup-history .chat-ai-dialogue {
-  flex: 1 !important;
-  background: rgba(30, 18, 44, 0.92) !important;
-  padding: 7px 10px 9px !important;
-  border-top: none !important;
-  border-radius: 0 4px 4px 4px !important;
-}
-.ai-popup-history .chat-ai-text,
-.ai-popup-history .chat-ai-text * {
-  max-height: none !important;
-  overflow: visible !important;
-  font-size: 0.78rem !important;
-}
-
-.ai-popup-footer { padding: 8px 12px 14px; border-top: 1px solid var(--border); }
-.ai-popup-input-row { display: flex; gap: 6px; }
-.ai-popup-textarea {
-  flex: 1; height: 40px; padding: 8px 10px;
-  font-size: 0.78rem; resize: none; outline: none; background: var(--section-bg);
-}
-.ai-popup-send-btn {
-  padding: 0 12px; background: var(--accent); color: #fff;
-  font-size: 0.8rem; font-weight: 700; cursor: pointer;
-}
-
-@media (max-width: 768px) {
-  .ai-popup-btn { bottom: 85px; right: 15px; width: 50px; height: 50px; font-size: 1.2rem; }
-  .ai-popup-container { 
-    width: calc(100% - 30px); 
-    height: calc(100% - 160px); 
-    right: 15px; 
-    bottom: 145px; 
-  }
-}

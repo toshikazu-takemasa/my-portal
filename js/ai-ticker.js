@@ -48,7 +48,7 @@ async function initAiTicker(force = false) {
 性格・口調: ${persona}
 
 ## 制約
-- 60文字以内で簡潔に。
+- 短すぎず長すぎず、**30文字〜60文字程度**で。
 - 余計な説明（「生成しました」など）は省き、メッセージのみを出力してください。
 - 日本語で。設定された口調（例：関西弁）を忠実に守ってください。
 - 絵文字を1つ使ってください。
@@ -65,7 +65,21 @@ ${context}
 
     // 表示
     tickerTextEl.textContent = message;
-    tickerTextEl.classList.add('visible');
+    tickerTextEl.classList.remove('scrolling'); // 一旦リセット
+    
+    // 幅をチェックしてスクロールが必要か判定
+    setTimeout(() => {
+      const containerWidth = tickerTextEl.parentElement.offsetWidth;
+      const textWidth = tickerTextEl.scrollWidth;
+      
+      // 10px以上の差があればスクロール（パディング分考慮）
+      if (textWidth > containerWidth - 10) { 
+        tickerTextEl.classList.add('scrolling');
+        const duration = Math.max(12, textWidth / 20); 
+        tickerTextEl.style.animationDuration = `${duration}s`;
+      }
+      tickerTextEl.classList.add('visible');
+    }, 200); // 描画待ちをさらに長めに
   } catch (e) {
     console.error('AI Ticker Error:', e);
     const fallback = "今日も素晴らしい一日になりますように！✨";

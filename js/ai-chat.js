@@ -13,31 +13,98 @@ const applyBlocks  = new Map(); // blockId → { path, content }
 // VN テキストページング
 let vnPages       = [];
 let vnCurrentPage = 0;
+let vnIsTyping    = false;
+let vnTypingTimer = null;
 
 function splitIntoVnPages(text) {
-  const CHARS = 120; // 1ページあたりの文字数（約4〜5行）
-  const segs = text.split(/(?<=[。！？\n])/g).filter(s => s.length > 0);
-  const pages = []; let cur = '';
-  for (const s of segs) {
-    if (cur.length + s.length > CHARS && cur.length > 0) { pages.push(cur); cur = s; }
-    else { cur += s; }
+  const MAX_CHARS = 60; // 1行あたり30文字前後×2行を想定
+  // 句読点、感嘆符、改行で分割
+  let segs = text.split(/(?<=[。！？\n])/g).filter(s => s.length > 0);
+  const pages = [];
+  let cur = '';
+
+  for (let s of segs) {
+    // セグメント自体が長い場合は強制分割
+    while (s.length > MAX_CHARS) {
+      if (cur.length > 0) {
+        pages.push(cur.trim());
+        cur = '';
+      }
+      pages.push(s.slice(0, MAX_CHARS).trim());
+      s = s.slice(MAX_CHARS);
+    }
+
+    if (cur.length + s.length > MAX_CHARS && cur.length > 0) {
+      pages.push(cur.trim());
+      cur = s;
+    } else {
+      cur += s;
+    }
   }
-  if (cur.trim()) pages.push(cur);
-  if (pages.length === 0) {
-    for (let i = 0; i < text.length; i += CHARS) pages.push(text.slice(i, i + CHARS));
+  if (cur.trim()) pages.push(cur.trim());
+  
+  if (pages.length === 0 && text.trim().length > 0) {
+    pages.push(text.trim());
   }
   return pages;
 }
 
+function typeWriterEffect(element, text, callback) {
+  vnIsTyping = true;
+  let i = 0;
+  element.textContent = '';
+  
+  const indicator = document.getElementById('vn-advance-indicator');
+  if (indicator) indicator.style.display = 'none';
+
+  function type() {
+    if (i < text.length) {
+      element.append(text.charAt(i));
+      i++;
+      vnTypingTimer = setTimeout(type, 30); // 30ms間隔
+    } else {
+      vnIsTyping = false;
+      if (callback) callback();
+    }
+  }
+  type();
+}
+
 function showVnPage(idx) {
   const textEl = document.getElementById('vn-dialogue-text');
-  const btn    = document.getElementById('vn-advance-btn');
+  const indicator = document.getElementById('vn-advance-indicator');
   if (!textEl) return;
-  textEl.textContent = vnPages[idx] || '';
-  if (btn) btn.style.display = idx < vnPages.length - 1 ? 'block' : 'none';
+
+  if (vnTypingTimer) clearTimeout(vnTypingTimer);
+  
+  typeWriterEffect(textEl, vnPages[idx] || '', () => {
+    if (indicator) {
+      indicator.style.display = 'block';
+      // もし最終ページなら "NEXT" ではなく別の表示にする（任意）
+      if (idx < vnPages.length - 1) {
+        indicator.setAttribute('data-last', 'false');
+      } else {
+        indicator.setAttribute('data-last', 'true');
+      }
+    }
+  });
 }
 
 function advanceVnText() {
+  const box = document.getElementById('vn-dialogue-box');
+  if (box && box.classList.contains('thinking')) return; // 考え中は無視
+
+  if (vnIsTyping) {
+    // タイピング中ならスキップ
+    if (vnTypingTimer) clearTimeout(vnTypingTimer);
+    vnIsTyping = false;
+    const textEl = document.getElementById('vn-dialogue-text');
+    const indicator = document.getElementById('vn-advance-indicator');
+    if (textEl) textEl.textContent = vnPages[vnCurrentPage] || '';
+    if (indicator && vnCurrentPage < vnPages.length - 1) indicator.style.display = 'block';
+    return;
+  }
+
   if (vnCurrentPage < vnPages.length - 1) {
     vnCurrentPage++;
     showVnPage(vnCurrentPage);
@@ -89,18 +156,23 @@ function renderChatPanel() {
 
   // VN: ポートレートと名前を更新
   const portrait = document.getElementById('vn-portrait-img');
-  const nameTag  = document.getElementById('vn-ai-name');
+  const nameTag  = document.getElementById('vn-ai-name-tab');
   if (portrait) portrait.src = getAiAvatar() || '';
   if (nameTag)  nameTag.textContent = getAiName();
 
-  // VN: ユーザーログをクリア
+  // ユーザーログをクリア
   const logEl = document.getElementById('vn-user-log');
   if (logEl) logEl.innerHTML = '';
+
+  // 重要：VNモード時に残っている可能性のある古いチャットバブルを掃除
+  const wrap = document.querySelector('.chat-wrap.vn-mode');
+  if (wrap) {
+    wrap.querySelectorAll('.chat-bubble').forEach(b => b.remove());
+  }
 
   if (chatHistory.length === 0) {
     appendChatBubble('ai', WELCOME_MSG);
   } else {
-    // ユーザー発言はログに、AIは最後の1件だけ表示
     let lastAi = null;
     chatHistory.forEach(msg => {
       if (msg.role === 'user') appendChatBubble('user', msg.content);
@@ -261,10 +333,10 @@ function appendChatBubble(role, text) {
 
     const isThinking = role.includes('thinking');
     box.classList.toggle('thinking', isThinking);
-    const btn = document.getElementById('vn-advance-btn');
     if (isThinking) {
       textEl.textContent = '考え中…';
-      if (btn) btn.style.display = 'none';
+      const indicator = document.getElementById('vn-advance-indicator');
+      if (indicator) indicator.style.display = 'none';
     } else {
       vnPages = splitIntoVnPages(text);
       vnCurrentPage = 0;
@@ -332,7 +404,7 @@ async function sendChat() {
 - 段階的: 一度に多くを求めない
 - ユーザー主導: ユーザーの判断を尊重
 
-設定された人格に基づき、日本語で丁寧かつ簡潔に回答してください。`;
+設定された人格を最優先し、ユーザーと自然な対話を行ってください。`;
 
   // コンテキストの収集
   let contextStr = "";
@@ -371,7 +443,6 @@ async function sendChat() {
     chatHistory.push({ role: 'assistant', content: reply });
     saveCurrentSession();
   } catch (e) {
-    thinking.className = 'chat-bubble ai';
     let errMsg = `エラー: ${e.message}`;
     if (e.message.includes('無料枠')) {
       errMsg = 'ごめんね主くん、今はちょっと魔法の力が足りひんみたいやわ。しばらく待ってから、また声かけてくれるかな？';
@@ -432,7 +503,6 @@ function clearChat() {
   if (logEl) logEl.innerHTML = '';
   appendChatBubble('ai', WELCOME_MSG);
   attachedFiles = []; renderFileChips();
-  if (isPopupOpen) syncPopupHistory();
 }
 
 // ---- Session init ----
@@ -448,134 +518,5 @@ function clearChat() {
   renderChatPanel();
 })();
 
-// ---- Popup Chat Logic ----
-let isPopupOpen = false;
-
-function toggleAiPopup() {
-  const container = document.getElementById('ai-popup-container');
-  isPopupOpen = !isPopupOpen;
-  container.classList.toggle('open', isPopupOpen);
-  
-  if (isPopupOpen) {
-    // 最新の情報を反映
-    document.getElementById('ai-popup-title').textContent = getAiName();
-    const avatar = getAiAvatar();
-    if (avatar) document.getElementById('ai-popup-avatar').src = avatar;
-    
-    syncPopupHistory();
-    document.getElementById('ai-popup-input').focus();
-  }
-}
-
-function syncPopupHistory() {
-  const histEl = document.getElementById('ai-popup-history');
-  histEl.innerHTML = '';
-  
-  if (chatHistory.length === 0) {
-    appendPopupBubble('ai', WELCOME_MSG);
-  } else {
-    chatHistory.forEach(msg => {
-      appendPopupBubble(msg.role === 'user' ? 'user' : 'ai', msg.content);
-    });
-  }
-}
-
-function appendPopupBubble(role, text) {
-  const histEl = document.getElementById('ai-popup-history');
-  const div = document.createElement('div');
-  div.className = `chat-bubble ${role}`;
-
-  if (role === 'ai') {
-    const avatarUrl = getAiAvatar();
-    const aiName = getAiName();
-
-    if (avatarUrl) {
-      const img = document.createElement('img');
-      img.src = avatarUrl;
-      img.className = 'chat-avatar';
-      div.appendChild(img);
-    }
-
-    const dialogue = document.createElement('div');
-    dialogue.className = 'chat-ai-dialogue';
-
-    const nameTag = document.createElement('div');
-    nameTag.className = 'chat-ai-name';
-    nameTag.textContent = aiName;
-    dialogue.appendChild(nameTag);
-
-    const contentSpan = document.createElement('span');
-    contentSpan.className = 'chat-ai-text';
-    contentSpan.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
-    dialogue.appendChild(contentSpan);
-
-    div.appendChild(dialogue);
-  } else {
-    div.textContent = text;
-    div.style.color = '#fff';
-  }
-
-  histEl.appendChild(div);
-  histEl.scrollTop = histEl.scrollHeight;
-}
-
-async function sendPopupChat() {
-  const input = document.getElementById('ai-popup-input');
-  const text = input.value.trim();
-  if (!text) return;
-  
-  const geminiKey = getGeminiKey();
-  if (!geminiKey) {
-    alert('⚙️ 設定から Gemini API キー を先に設定してください。');
-    return;
-  }
-
-  input.value = '';
-  appendPopupBubble('user', text);
-  chatHistory.push({ role: 'user', content: text });
-  saveCurrentSession();
-  
-  // メイン画面のヒストリも更新（もし開いていれば）
-  if (document.getElementById('chat-history')) {
-    appendChatBubble('user', text);
-  }
-
-  const thinking = document.createElement('div');
-  thinking.className = 'chat-bubble ai thinking';
-  thinking.style.fontSize = '0.78rem';
-  thinking.textContent = '...';
-  document.getElementById('ai-popup-history').appendChild(thinking);
-
-  const aiName = getAiName();
-  const persona = getAiPrompt();
-  let sys = `あなたは「${aiName}」として振る舞ってください。人格・口調設定：${persona}\n日本語で回答してください。`;
-
-  try {
-    const reply = await callGemini(chatHistory, sys);
-    thinking.remove();
-    appendPopupBubble('ai', reply);
-    chatHistory.push({ role: 'assistant', content: reply });
-    saveCurrentSession();
-    
-    if (document.getElementById('chat-history')) {
-      appendChatBubble('ai', reply);
-    }
-  } catch (e) {
-    thinking.remove();
-    let errMsg = `Error: ${e.message}`;
-    if (e.message.includes('無料枠')) {
-      errMsg = 'ごめんね主くん、今はちょっと魔法の力が足りひんみたいやわ。しばらく待ってから、また声かけてくれるかな？';
-    }
-    appendPopupBubble('ai', errMsg);
-  }
-}
-
-// Enterで送信
-document.addEventListener('keydown', (e) => {
-  if (e.target.id === 'ai-popup-input' && e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendPopupChat();
-  }
-});
 
 
