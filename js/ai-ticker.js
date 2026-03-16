@@ -10,12 +10,19 @@ let tickerPages = [];
 let tickerCurrentPage = 0;
 
 function splitTickerIntoPages(text) {
-  const MAX_CHARS = 40; // ティッカーエリアに収まる程度の文字数
+  // 2行分（1行40文字前後 × 2）を1ページとして分割
+  const MAX_CHARS = 80; 
   const pages = [];
-  let s = text;
+  let s = text.replace(/\n+/g, ' ').trim(); // 改行をスペースに置換
+  
   while (s.length > MAX_CHARS) {
-    pages.push(s.slice(0, MAX_CHARS));
-    s = s.slice(MAX_CHARS);
+    // なるべく句読点やスペースで切り分け
+    let splitPos = s.lastIndexOf(' ', MAX_CHARS);
+    if (splitPos === -1 || splitPos < MAX_CHARS * 0.7) {
+      splitPos = MAX_CHARS;
+    }
+    pages.push(s.slice(0, splitPos).trim());
+    s = s.slice(splitPos).trim();
   }
   if (s) pages.push(s);
   return pages;
@@ -27,19 +34,27 @@ function showTickerPage(idx) {
   tickerTextEl.textContent = tickerPages[idx] || '';
   tickerTextEl.classList.add('visible');
   
-  // 次のページがあるかのインジケータ（任意で追加可能）
   const container = tickerTextEl.parentElement;
-  if (idx < tickerPages.length - 1) {
-    container.classList.add('has-next');
-  } else {
-    container.classList.remove('has-next');
+  if (container) {
+    if (idx < tickerPages.length - 1) {
+      container.classList.add('has-next');
+    } else {
+      container.classList.remove('has-next');
+    }
   }
 }
 
-function advanceTickerPage() {
+function advanceTickerPage(e) {
+  // 更新ボタン等のクリックは無視
+  if (e && e.target && e.target.closest('#ai-ticker-refresh')) return;
+
   if (tickerCurrentPage < tickerPages.length - 1) {
     tickerCurrentPage++;
     showTickerPage(tickerCurrentPage);
+  } else {
+    // 最終ページなら最初に戻る（ループ）
+    tickerCurrentPage = 0;
+    showTickerPage(0);
   }
 }
 
