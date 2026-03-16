@@ -5,13 +5,59 @@
 const TICKER_CACHE_KEY = 'ai_ticker_cache';
 const TICKER_DATE_KEY  = 'ai_ticker_date';
 
+// ページング管理用
+let tickerPages = [];
+let tickerCurrentPage = 0;
+
+function splitTickerIntoPages(text) {
+  const MAX_CHARS = 40; // ティッカーエリアに収まる程度の文字数
+  const pages = [];
+  let s = text;
+  while (s.length > MAX_CHARS) {
+    pages.push(s.slice(0, MAX_CHARS));
+    s = s.slice(MAX_CHARS);
+  }
+  if (s) pages.push(s);
+  return pages;
+}
+
+function showTickerPage(idx) {
+  const tickerTextEl = document.getElementById('ai-ticker-text');
+  if (!tickerTextEl) return;
+  tickerTextEl.textContent = tickerPages[idx] || '';
+  tickerTextEl.classList.add('visible');
+  
+  // 次のページがあるかのインジケータ（任意で追加可能）
+  const container = tickerTextEl.parentElement;
+  if (idx < tickerPages.length - 1) {
+    container.classList.add('has-next');
+  } else {
+    container.classList.remove('has-next');
+  }
+}
+
+function advanceTickerPage() {
+  if (tickerCurrentPage < tickerPages.length - 1) {
+    tickerCurrentPage++;
+    showTickerPage(tickerCurrentPage);
+  }
+}
+
 /**
  * AIティッカーを初期化し、メッセージを表示する
  */
 async function initAiTicker(force = false) {
   const tickerTextEl = document.getElementById('ai-ticker-text');
   const avatarEl = document.getElementById('ai-ticker-avatar');
+  const container = document.querySelector('.ai-ticker-container');
   if (!tickerTextEl) return;
+
+  // クリックイベントの設定（一度だけ）
+  if (container && !container.dataset.listenerAdded) {
+    container.addEventListener('click', advanceTickerPage);
+    container.dataset.listenerAdded = 'true';
+    container.style.cursor = 'pointer';
+  }
 
   // アバターの反映
   const avatarUrl = getAiAvatar();
@@ -26,8 +72,9 @@ async function initAiTicker(force = false) {
   const cachedMsg  = localStorage.getItem(TICKER_CACHE_KEY);
 
   if (!force && cachedDate === today && cachedMsg) {
-    tickerTextEl.textContent = cachedMsg;
-    tickerTextEl.classList.add('visible');
+    tickerPages = splitTickerIntoPages(cachedMsg);
+    tickerCurrentPage = 0;
+    showTickerPage(0);
     return;
   }
 
@@ -64,30 +111,16 @@ ${context}
     localStorage.setItem(TICKER_DATE_KEY, today);
 
     // 表示
-    tickerTextEl.textContent = message;
-    tickerTextEl.classList.remove('scrolling'); // 一旦リセット
-    
-    // 幅をチェックしてスクロールが必要か判定
-    setTimeout(() => {
-      const containerWidth = tickerTextEl.parentElement.offsetWidth;
-      const textWidth = tickerTextEl.scrollWidth;
-      
-      // コンテナ幅よりテキスト幅が大きい場合はスクロール
-      if (textWidth > containerWidth - 10) { 
-        tickerTextEl.classList.add('scrolling');
-        // scrollingクラスがついている時はスタイルで調整するため、インラインの時間は削除せず活用
-        const duration = Math.max(12, textWidth / 20); 
-        tickerTextEl.style.animationDuration = `${duration}s`;
-      } else {
-        tickerTextEl.classList.remove('scrolling');
-      }
-      tickerTextEl.classList.add('visible');
-    }, 300); // 描画待ちをさらに長めに設定
+    tickerPages = splitTickerIntoPages(message);
+    tickerCurrentPage = 0;
+    showTickerPage(0);
+
   } catch (e) {
     console.error('AI Ticker Error:', e);
     const fallback = "今日も素晴らしい一日になりますように！✨";
-    tickerTextEl.textContent = cachedMsg || fallback;
-    tickerTextEl.classList.add('visible');
+    tickerPages = splitTickerIntoPages(cachedMsg || fallback);
+    tickerCurrentPage = 0;
+    showTickerPage(0);
   }
 }
 

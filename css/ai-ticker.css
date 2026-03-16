@@ -2,29 +2,33 @@
 .ai-ticker-container {
   margin-top: 10px;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.05); /* Glassmorphism light */
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   overflow: hidden;
   position: relative;
-  min-height: 40px;
+  min-height: 48px; /* アバターのサイズに合わせて少し高さを確保 */
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* 両端に寄せる */
   border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 10px;
 }
 
 .ai-ticker-text {
+  flex: 1; /* 残りのスペースを埋める */
   font-size: 0.85rem;
   color: var(--accent, #c6002b);
   font-weight: 500;
-  text-align: center;
+  text-align: left; /* 左寄せに変更 */
   line-height: 1.4;
   opacity: 0;
   transition: opacity 0.8s ease-in-out;
   white-space: nowrap;
   max-width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis; /* スクロールが始まらない瞬間に見切れるのを防ぐ */
+  text-overflow: ellipsis;
+  position: relative;
+  z-index: 1; /* アバターより下にする */
 }
 
 .ai-ticker-text.visible {
@@ -37,9 +41,10 @@
   left: 100%;
   animation: ticker-scroll linear infinite;
   text-align: left;
-  padding-left: 20px;
+  padding-left: 50px; /* アバターの領域を避けて開始 */
   max-width: none;
   overflow: visible;
+  z-index: 1;
 }
 
 @keyframes ticker-scroll {
