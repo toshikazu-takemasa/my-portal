@@ -72,14 +72,17 @@ ${context}
       const containerWidth = tickerTextEl.parentElement.offsetWidth;
       const textWidth = tickerTextEl.scrollWidth;
       
-      // 10px以上の差があればスクロール（パディング分考慮）
+      // コンテナ幅よりテキスト幅が大きい場合はスクロール
       if (textWidth > containerWidth - 10) { 
         tickerTextEl.classList.add('scrolling');
+        // scrollingクラスがついている時はスタイルで調整するため、インラインの時間は削除せず活用
         const duration = Math.max(12, textWidth / 20); 
         tickerTextEl.style.animationDuration = `${duration}s`;
+      } else {
+        tickerTextEl.classList.remove('scrolling');
       }
       tickerTextEl.classList.add('visible');
-    }, 200); // 描画待ちをさらに長めに
+    }, 300); // 描画待ちをさらに長めに設定
   } catch (e) {
     console.error('AI Ticker Error:', e);
     const fallback = "今日も素晴らしい一日になりますように！✨";

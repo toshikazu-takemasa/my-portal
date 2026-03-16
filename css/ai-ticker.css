@@ -21,7 +21,10 @@
   line-height: 1.4;
   opacity: 0;
   transition: opacity 0.8s ease-in-out;
-  white-space: nowrap; /* 折り返しを防ぎ、常に1行で表示 */
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis; /* スクロールが始まらない瞬間に見切れるのを防ぐ */
 }
 
 .ai-ticker-text.visible {
@@ -35,6 +38,8 @@
   animation: ticker-scroll linear infinite;
   text-align: left;
   padding-left: 20px;
+  max-width: none;
+  overflow: visible;
 }
 
 @keyframes ticker-scroll {

@@ -3,9 +3,24 @@
 
 /* ===== VNモード レイアウト ===== */
 .chat-wrap.vn-mode {
-  display: flex;
-  flex-direction: column;
   height: 530px;
+}
+@media (max-width: 768px) {
+  .chat-wrap, .chat-wrap.vn-mode {
+    height: 500px;
+  }
+  .vn-portrait-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: top center;
+  }
+  .vn-portrait-area {
+    background: #0a0612;
+  }
+  .vn-user-log {
+    display: none; /* スマホでは立ち絵を優先するため非表示に */
+  }
 }
 
 /* 立ち絵エリア（全体表示・ダイアログをオーバーレイ） */
@@ -14,7 +29,7 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  background: #0a0612;
+  background: linear-gradient(to bottom, #1a0b2e 0%, #0a0612 100%); /* 真っ黒ではなくグラデーションに */
   position: relative;   /* absolute 子要素の基準 */
 }
 .vn-portrait-img {
@@ -23,6 +38,7 @@
   object-fit: contain;
   object-position: bottom center;
   display: block;
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%); /* 足元をふんわり消してダイアログに馴染ませる */
 }
 
 /* ユーザー発言ログ（立ち絵の右上にオーバーレイ） */
