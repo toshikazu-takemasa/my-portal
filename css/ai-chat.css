@@ -1,25 +1,36 @@
 /* ========== AI Chat ========== */
-.chat-wrap { display: flex; flex-direction: column; height: 530px; }
+.chat-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 530px;
+}
 
 /* ===== VNモード レイアウト ===== */
 .chat-wrap.vn-mode {
   height: 530px;
 }
+
 @media (max-width: 768px) {
-  .chat-wrap, .chat-wrap.vn-mode {
+
+  .chat-wrap,
+  .chat-wrap.vn-mode {
     height: 500px;
   }
+
   .vn-portrait-img {
     width: 100%;
     height: 100%;
     object-fit: contain;
     object-position: top center;
   }
+
   .vn-portrait-area {
     background: #0a0612;
   }
+
   .vn-user-log {
-    display: none; /* スマホでは立ち絵を優先するため非表示に */
+    display: none;
+    /* スマホでは立ち絵を優先するため非表示に */
   }
 }
 
@@ -29,22 +40,27 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  background: linear-gradient(to bottom, #1a0b2e 0%, #0a0612 100%); /* 真っ黒ではなくグラデーションに */
-  position: relative;   /* absolute 子要素の基準 */
+  background: linear-gradient(to bottom, #1a0b2e 0%, #0a0612 100%);
+  /* 真っ黒ではなくグラデーションに */
+  position: relative;
+  /* absolute 子要素の基準 */
 }
+
 .vn-portrait-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  object-position: bottom center;
+  object-position: top center;
   display: block;
-  mask-image: linear-gradient(to bottom, black 85%, transparent 100%); /* 足元をふんわり消してダイアログに馴染ませる */
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  /* 足元をふんわり消してダイアログに馴染ませる */
 }
 
 /* ユーザー発言ログ（立ち絵の右上にオーバーレイ） */
 .vn-user-log {
   position: absolute;
-  top: 10px;  /* 上部に配置 */
+  top: 10px;
+  /* 上部に配置 */
   right: 8px;
   max-height: 120px;
   overflow-y: auto;
@@ -55,6 +71,7 @@
   z-index: 2;
   pointer-events: none;
 }
+
 .vn-user-entry {
   background: rgba(0, 0, 0, 0.4);
   color: #fff;
@@ -70,18 +87,23 @@
 /* AIダイアログボックス（立ち絵の下部にオーバーレイ・透過） */
 .vn-dialogue-box {
   position: absolute;
-  bottom: 0; left: 0; right: 0;
-  background: rgba(10, 8, 20, 0.85); /* 視認性を高めるため少し濃く */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(10, 8, 20, 0.85);
+  /* 視認性を高めるため少し濃く */
   padding: 24px 18px 24px;
-  border-top: 2px solid rgba(255,255,255,0.1);
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
   cursor: pointer;
   user-select: none;
   z-index: 10;
   backdrop-filter: blur(8px);
   min-height: 120px;
-  max-height: 180px; /* 少し大きめの制限を設ける */
-  overflow-y: auto; /* 万が一長い場合もスクロール可能に */
+  max-height: 180px;
+  /* 少し大きめの制限を設ける */
+  overflow-y: auto;
+  /* 万が一長い場合もスクロール可能に */
 }
 
 /* ネームタブ */
@@ -98,19 +120,25 @@
   letter-spacing: 0.05em;
   z-index: 4;
 }
+
 .vn-dialogue-box.thinking .vn-dialogue-text {
   opacity: 0.55;
   font-style: italic;
 }
+
 .vn-dialogue-text {
   color: #f0eaf8;
-  font-size: 0.95rem; /* 少し大きく */
+  font-size: 0.95rem;
+  /* 少し大きく */
   line-height: 1.6;
   word-break: break-word;
   white-space: pre-wrap;
   overflow: hidden;
 }
-.vn-dialogue-text * { color: #f0eaf8 !important; }
+
+.vn-dialogue-text * {
+  color: #f0eaf8 !important;
+}
 
 /* ▼ クリックで次へ インジケーター */
 .vn-advance-indicator {
@@ -123,41 +151,65 @@
   font-size: 0.75rem;
   font-weight: bold;
   animation: vn-blink 1.2s ease-in-out infinite;
-  text-shadow: 0 0 5px rgba(255,255,255,0.5);
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
   opacity: 0.85;
 }
+
 .vn-advance-indicator::after {
   content: "▼ NEXT";
 }
+
 .vn-advance-indicator[data-last="true"]::after {
-  content: "● FIN"; /* 最終ページは別のマークに */
+  content: "● FIN";
+  /* 最終ページは別のマークに */
 }
+
 @keyframes vn-blink {
-  0%, 100% { transform: translateY(0); opacity: 1; }
-  50%       { transform: translateY(3px); opacity: 0.3; }
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translateY(3px);
+    opacity: 0.3;
+  }
 }
 
 /* ---- 旧 chat-history（ポップアップ互換用） ---- */
 .chat-history {
-  flex: 1; overflow-y: auto;
-  display: flex; flex-direction: column; gap: 8px;
-  padding: 4px 2px; margin-bottom: 8px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 2px;
+  margin-bottom: 8px;
 }
 
 .chat-bubble {
-  max-width: 86%; padding: 10px 14px; border-radius: 8px;
-  font-size: 0.85rem; line-height: 1.6;
-  white-space: pre-wrap; word-break: break-word;
- 
-  position: relative; margin-bottom: 4px;
+  max-width: 86%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  position: relative;
+  margin-bottom: 4px;
 }
+
 .chat-bubble.user {
   align-self: flex-end;
   background: #2c2c3a;
   color: #fff;
   border-bottom-right-radius: 2px;
-  box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
 }
+
 /* ===== VN/ADVゲーム風 AIバブル ===== */
 .chat-bubble.ai {
   align-self: stretch;
@@ -167,7 +219,8 @@
   box-shadow: none;
   border-radius: 0;
   display: flex;
-  flex-direction: column;  /* 縦積み：アバター上 → テキスト下 */
+  flex-direction: column;
+  /* 縦積み：アバター上 → テキスト下 */
   gap: 0;
   margin: 6px 0;
 }
@@ -187,7 +240,7 @@
   width: 100%;
   background: rgba(8, 5, 15, 0.92);
   padding: 8px 14px 13px 14px;
-  border-top: 1px solid rgba(255,255,255,0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
   position: relative;
   box-sizing: border-box;
 }
@@ -215,111 +268,307 @@
   word-break: break-word;
   display: block;
 }
-.chat-ai-text span { display: inline; }
 
-.chat-bubble.thinking .chat-ai-text { opacity: 0.55; font-style: italic; }
+.chat-ai-text span {
+  display: inline;
+}
 
-.chat-input-row { display: flex; gap: 6px; }
+.chat-bubble.thinking .chat-ai-text {
+  opacity: 0.55;
+  font-style: italic;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 6px;
+}
 
 .chat-textarea {
-  flex: 1; padding: 8px 11px;
+  flex: 1;
+  padding: 8px 11px;
   border-radius: 0;
-  font-size: 0.82rem; font-family: inherit; resize: none; outline: none; line-height: 1.45;
-  background: var(--section-bg); color: var(--text);
+  font-size: 0.82rem;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  line-height: 1.45;
+  background: var(--section-bg);
+  color: var(--text);
   transition: border-color 0.15s, background 0.15s;
 }
-.chat-textarea:focus { border-color: var(--accent); background: var(--card-bg); }
+
+.chat-textarea:focus {
+  border-color: var(--accent);
+  background: var(--card-bg);
+}
 
 .chat-send-btn {
-  padding: 0 16px; border-radius: 0;
-  background: #c6002b; color: #fff; font-size: 0.82rem; font-weight: 700;
-  cursor: pointer; transition: opacity 0.15s; white-space: nowrap;
+  padding: 0 16px;
+  border-radius: 0;
+  background: #c6002b;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
   box-shadow: 3px 3px 0 #111;
 }
-.chat-send-btn:hover { opacity: 0.85; }
-.chat-send-btn:disabled { opacity: 0.45; cursor: default; }
+
+.chat-send-btn:hover {
+  opacity: 0.85;
+}
+
+.chat-send-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
 
 .chat-options {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-top: 7px; font-size: 0.74rem; color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 7px;
+  font-size: 0.74rem;
+  color: var(--text-sub);
 }
-.chat-clear-btn { background: none; border: none; color: var(--text-sub); font-size: 0.82rem; cursor: pointer; padding: 0 2px; transition: color 0.15s; }
-.chat-clear-btn:hover { color: var(--red); }
+
+.chat-clear-btn {
+  background: none;
+  border: none;
+  color: var(--text-sub);
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color 0.15s;
+}
+
+.chat-clear-btn:hover {
+  color: var(--red);
+}
 
 /* ---- Session bar ---- */
-.chat-session-bar { display:flex; align-items:center; gap:6px; margin-bottom:10px; }
+.chat-session-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
 .session-select-btn {
-  flex:1; text-align:left; padding:6px 10px;
-  border-radius:0;
-  background:var(--section-bg); cursor:pointer; font-size:0.78rem; color:var(--text);
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;
+  flex: 1;
+  text-align: left;
+  padding: 6px 10px;
+  border-radius: 0;
+  background: var(--section-bg);
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
   transition: background 0.15s, border-color 0.15s;
 }
-.session-select-btn:hover { background:var(--section-bg2); border-color: var(--accent); }
+
+.session-select-btn:hover {
+  background: var(--section-bg2);
+  border-color: var(--accent);
+}
+
 .btn-new-session {
-  padding:6px 12px; border-radius:0;
-  background:var(--accent); color:#fff; font-size:0.78rem; font-weight:600;
-  cursor:pointer; white-space:nowrap; transition: opacity 0.15s;
+  padding: 6px 12px;
+  border-radius: 0;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
 }
-.btn-new-session:hover { opacity:0.85; }
+
+.btn-new-session:hover {
+  opacity: 0.85;
+}
+
 .session-dropdown {
-  position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:200;
-  background:var(--card-bg); border-radius:0;
-  box-shadow:0 4px 20px rgba(61,61,61,.12); max-height:280px; overflow-y:auto;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: var(--card-bg);
+  border-radius: 0;
+  box-shadow: 0 4px 20px rgba(61, 61, 61, .12);
+  max-height: 280px;
+  overflow-y: auto;
 }
-.session-item { padding:9px 13px; cursor:pointer; border-bottom:1px solid var(--border); }
-.session-item:hover { background:var(--section-bg); }
-.session-item.active { background:var(--accent-light); }
-.session-item-title { font-size:0.8rem; font-weight:600; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.session-item-meta { font-size:0.72rem; color:var(--text-sub); display:flex; justify-content:space-between; margin-top:3px; }
-.session-del { cursor:pointer; color:var(--border); transition: color 0.15s; }
-.session-del:hover { color:var(--red); }
+
+.session-item {
+  padding: 9px 13px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+
+.session-item:hover {
+  background: var(--section-bg);
+}
+
+.session-item.active {
+  background: var(--accent-light);
+}
+
+.session-item-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-item-meta {
+  font-size: 0.72rem;
+  color: var(--text-sub);
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3px;
+}
+
+.session-del {
+  cursor: pointer;
+  color: var(--border);
+  transition: color 0.15s;
+}
+
+.session-del:hover {
+  color: var(--red);
+}
 
 /* ---- File chips ---- */
-.file-chips { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px; }
-.file-chip {
-  display:inline-flex; align-items:center; gap:5px; padding:3px 9px;
-  background:var(--accent-light);
-  border-radius:0; font-size:0.73rem; color:#111;
+.file-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
 }
-.file-chip-remove { cursor:pointer; color:var(--text-sub); font-size:0.65rem; transition: color 0.15s; }
-.file-chip-remove:hover { color:var(--red); }
+
+.file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  background: var(--accent-light);
+  border-radius: 0;
+  font-size: 0.73rem;
+  color: #111;
+}
+
+.file-chip-remove {
+  cursor: pointer;
+  color: var(--text-sub);
+  font-size: 0.65rem;
+  transition: color 0.15s;
+}
+
+.file-chip-remove:hover {
+  color: var(--red);
+}
 
 /* ---- Apply block ---- */
 .apply-block {
-  margin:8px 0; padding:11px 13px;
-  background:#fff1f4; border-radius:0;
+  margin: 8px 0;
+  padding: 11px 13px;
+  background: #fff1f4;
+  border-radius: 0;
 }
-.apply-path { font-size:0.78rem; font-weight:600; color:var(--green); margin-bottom:4px; }
-.apply-summary { font-size:0.75rem; color:var(--link); cursor:pointer; }
+
+.apply-path {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+
+.apply-summary {
+  font-size: 0.75rem;
+  color: var(--link);
+  cursor: pointer;
+}
+
 .apply-preview {
-  font-size:0.72rem; background:var(--card-bg);
-  border-radius:4px; padding:7px 9px; max-height:160px; overflow-y:auto;
-  margin:4px 0 8px; white-space:pre-wrap; word-break:break-all;
+  font-size: 0.72rem;
+  background: var(--card-bg);
+  border-radius: 4px;
+  padding: 7px 9px;
+  max-height: 160px;
+  overflow-y: auto;
+  margin: 4px 0 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
+
 .apply-btn {
-  padding:5px 12px; background:var(--green); color:#fff; border:none;
-  border-radius:0; font-size:0.75rem; font-weight:700;
-  cursor:pointer; transition: opacity 0.15s;
+  padding: 5px 12px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
 }
-.apply-btn:hover { opacity: 0.88; }
-.apply-btn:disabled { opacity:0.55; cursor:default; }
+
+.apply-btn:hover {
+  opacity: 0.88;
+}
+
+.apply-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
 
 /* ========== Reflection ========== */
-.reflect-q { margin-bottom: 10px; }
-.reflect-q label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-sub); margin-bottom: 4px; }
+.reflect-q {
+  margin-bottom: 10px;
+}
+
+.reflect-q label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  margin-bottom: 4px;
+}
+
 .reflect-q textarea {
-  width: 100%; padding: 8px 10px; border-radius: 0;
-  font-size: 0.8rem; line-height: 1.5; resize: vertical; outline: none;
-  font-family: inherit; background: var(--section-bg); color: var(--text);
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  background: var(--section-bg);
+  color: var(--text);
   transition: border-color 0.15s, background 0.15s;
 }
-.reflect-q textarea:focus { border-color: var(--accent); background: var(--card-bg); }
+
+.reflect-q textarea:focus {
+  border-color: var(--accent);
+  background: var(--card-bg);
+}
 
 .reflect-result {
   background: var(--section-bg);
-  border-radius: 0; padding: 13px 15px;
-  margin-top: 10px; font-size: 0.82rem; line-height: 1.65;
-  max-height: 220px; overflow-y: auto;
+  border-radius: 0;
+  padding: 13px 15px;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  max-height: 220px;
+  overflow-y: auto;
 }
-
