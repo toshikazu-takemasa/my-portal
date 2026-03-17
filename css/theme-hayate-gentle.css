@@ -7,8 +7,8 @@ body.theme-hayate-gentle {
   --section-bg: #f5f0ea;
   --section-bg2: #efe9e1;
   
-  /* テキスト（柔らかいこげ茶色） */
-  --text: #594a42;
+  /* テキスト（柔らかいこげ茶色 -> 新しいテーマカラー） */
+  --text: #d1b9ac;
   --text-sub: #8c7a6f;
   
   /* 枠線（薄いブラウン） */
@@ -44,10 +44,10 @@ body.theme-hayate-gentle {
   position: relative;
 }
 
-/* Force readable foreground color */
-.theme-hayate-gentle, .theme-hayate-gentle p, .theme-hayate-gentle span, .theme-hayate-gentle div, .theme-hayate-gentle label,
+/* Force readable foreground color for main content */
+.theme-hayate-gentle p, .theme-hayate-gentle label,
 .theme-hayate-gentle li, .theme-hayate-gentle td, .theme-hayate-gentle th, .theme-hayate-gentle strong, .theme-hayate-gentle small {
-  color: var(--text);
+  color: #d1b9ac;
 }
 
 .theme-hayate-gentle [style*='color:#111'], .theme-hayate-gentle [style*='color: #111'],
@@ -60,10 +60,29 @@ body.theme-hayate-gentle {
 }
 
 /* ボタンの中などの白文字は白のままにする例外 */
-.theme-hayate-gentle button[style*='color:#fff'],
+.theme-hayate-gentle [style*='color:#fff'],
 .theme-hayate-gentle button[style*='color: #fff'],
 .theme-hayate-gentle .acc-progress-chip {
   color: #fff !important;
+}
+
+.theme-hayate-gentle .vn-dialogue-box {
+  background: rgba(90, 75, 66, 0.4) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* メニュー（ボトムナビなど）の視認性確保 */
+.theme-hayate-gentle .bottom-nav-label {
+  color: #ffffff !important;
+}
+.theme-hayate-gentle .bottom-nav-item.active .bottom-nav-label {
+  color: #ffffff !important;
+}
+.theme-hayate-gentle .bottom-nav-item {
+  color: #a6968d !important;
+}
+.theme-hayate-gentle .bottom-nav-item.active {
+  color: #d6988f !important;
 }
 
 body.theme-hayate-gentle::before {

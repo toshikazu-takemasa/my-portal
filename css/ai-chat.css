@@ -90,15 +90,15 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(10, 8, 20, 0.85);
-  /* 視認性を高めるため少し濃く */
+  background: rgba(10, 8, 20, 0.6);
+  /* 視認性を保ちつつ立ち絵が見えるように調整 */
   padding: 24px 18px 24px;
   border-top: 2px solid rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
   cursor: pointer;
   user-select: none;
   z-index: 10;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(5px);
   min-height: 120px;
   max-height: 180px;
   /* 少し大きめの制限を設ける */
