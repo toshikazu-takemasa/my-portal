@@ -164,6 +164,50 @@ ${context}
 }
 
 /**
+ * 日記の内容を読み取り、ティッカーにコメントを表示する
+ */
+async function updateTickerWithDiaryComment(diaryContent) {
+  const tickerTextEl = document.getElementById('ai-ticker-text');
+  if (!tickerTextEl || !diaryContent) return;
+
+  const aiName = getAiName();
+  const persona = getAiPrompt();
+
+  tickerTextEl.textContent = "日記を読んでいます...";
+  
+  try {
+    const prompt = `
+以下のユーザーの日記（または振り返り内容）を読んで、短く温かいコメントを返してください。
+褒めたり、ねぎらったり、明日へのエールを送ったりしてください。
+
+## あなたの設定
+名前: ${aiName}
+性格・口調: ${persona}
+
+## 制約
+- **30文字〜60文字程度**で。
+- 日本語で。設定された口調を忠実に守ってください。
+- 絵文字を1つ使ってください。
+- 「日記を読みました」などのメタな発言は避け、直接内容に触れてください。
+
+## 日記の内容
+${diaryContent}
+`;
+
+    const message = (await callGemini(prompt, `あなたは${aiName}です。${persona}`)).trim();
+    
+    // ティッカーを更新（キャッシュは上書きしない。リロード時は今日のメッセージに戻るため）
+    tickerPages = splitTickerIntoPages(message);
+    tickerCurrentPage = 0;
+    showTickerPage(0);
+
+  } catch (e) {
+    console.error('AI Diary Comment Error:', e);
+    // エラー時は何もしない（既存のティッカー表示を維持）
+  }
+}
+
+/**
  * メッセージを強制的に再生成する
  */
 async function refreshAiTicker() {

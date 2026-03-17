@@ -374,6 +374,11 @@ async function pushReportToGitHub(message) {
       
       // 保存成功時にチェックボックスをリセット
       resetAllCheckboxes();
+
+      // AIティッカーにコメントをリクエスト
+      if (typeof updateTickerWithDiaryComment === 'function') {
+        updateTickerWithDiaryComment(reportContent);
+      }
     } else {
       const err = await res.json().catch(() => ({}));
       if (saveEl) { saveEl.style.color = '#cf222e'; saveEl.textContent = `保存失敗: ${err.message || res.status}`; }
