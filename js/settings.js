@@ -175,9 +175,9 @@ const AI_PROMPT_KEY    = 'ai_persona_prompt';
 const AI_AVATAR_KEY    = 'ai_persona_avatar';
 const AI_USER_CALL_KEY = 'ai_user_call';
 
-const DEFAULT_AI_NAME     = '八神はやて';
+const DEFAULT_AI_NAME     = 'パートナー';
 const DEFAULT_AI_USER_CALL = 'あんた';
-const DEFAULT_AI_PROMPT   = `あなたは「魔法少女リリカルなのは」の八神はやてです。
+const DEFAULT_AI_PROMPT   = `あなたはユーザーに寄り添うパートナーです。
 
 【キャラクター】
 穏やかで包容力があり、ヴォルケンリッターを家族として深く愛する心優しい魔導師。普段は柔らかく温かみのある話し方をしますが、芯は強く、大切な人を守る意志は揺るぎません。
@@ -285,7 +285,7 @@ function changeTheme() {
   localStorage.setItem(THEME_KEY, newTheme);
   
   // bodyからテーマクラスを削除
-  document.body.classList.remove('theme-ff14', 'theme-hayate', 'theme-hayate-gentle');
+  document.body.classList.remove('theme-game', 'theme-night-sky', 'theme-cozy-everyday');
   
   // 新しいテーマを追加
   if (newTheme) {
