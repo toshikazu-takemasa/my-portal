@@ -8,7 +8,8 @@ function saveChecklistConfig() {
   const status = document.getElementById('checklist-edit-status');
   if (!textarea) return;
   const lines = textarea.value.split('\n').map(t => t.trim()).filter(t => t);
-  const tasks = lines.map((title, idx) => ({ id: `dt${idx+1}`, title, type: 'daily' }));
+  // タイトルをIDとして使うことでチェック状態の不整合を防ぐ
+  const tasks = lines.map(title => ({ id: title, title, type: 'daily' }));
   localStorage.setItem(CHECKLIST_CONFIG_KEY, JSON.stringify(tasks));
   status.style.color = '#1a7f37';
   status.textContent = '✅ チェックリストを保存しました';

@@ -69,7 +69,9 @@ function renderDailyChecklist() {
     listEl.innerHTML = '';
 
     dailyTasks.forEach(task => {
-      const key = `daily-task-${task.id}`;
+      // タイトルをIDとして使う
+      const id = task.title;
+      const key = `daily-task-${id}`;
       const isChecked = localStorage.getItem(key) === 'true';
 
       const row = document.createElement('label');
@@ -114,7 +116,8 @@ function renderDailyChecklist() {
 
 function resetDailyChecklist() {
   dailyTasks.forEach(task => {
-    localStorage.removeItem(`daily-task-${task.id}`);
+    const id = task.title;
+    localStorage.removeItem(`daily-task-${id}`);
   });
   renderDailyChecklist();
 }
