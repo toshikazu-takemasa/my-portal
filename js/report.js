@@ -379,6 +379,10 @@ async function pushReportToGitHub(message) {
       if (typeof updateTickerWithDiaryComment === 'function') {
         updateTickerWithDiaryComment(reportContent);
       }
+
+        // 家計・メモ入力欄をリセット
+        if (typeof clearFinanceInputs === 'function') clearFinanceInputs();
+        if (typeof clearQuickMemo === 'function') clearQuickMemo();
     } else {
       const err = await res.json().catch(() => ({}));
       if (saveEl) { saveEl.style.color = '#cf222e'; saveEl.textContent = `保存失敗: ${err.message || res.status}`; }
