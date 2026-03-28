@@ -6,7 +6,7 @@ let reportSha = '';
 let reportTab = 'preview';
 let reportPath = '';
 
-function getDailyReportPaths() {
+function getDailyReportPaths () {
   const jst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
   const y = jst.getFullYear();
   const m = String(jst.getMonth() + 1).padStart(2, '0');
@@ -16,11 +16,11 @@ function getDailyReportPaths() {
   return [`${base}_日記.md`, `${base}_日報.md`];
 }
 
-function getDailyReportPath() {
+function getDailyReportPath () {
   return reportPath || getDailyReportPaths()[0];
 }
 
-async function loadDailyTasksConfigForReport() {
+async function loadDailyTasksConfigForReport () {
   try {
     const res = await fetch('./data/portal-config.json');
     if (!res.ok) return [];
@@ -31,14 +31,14 @@ async function loadDailyTasksConfigForReport() {
   }
 }
 
-function toReportChecklistLine(task) {
+function toReportChecklistLine (task) {
   const title = (task?.title || '').trim();
   if (!title) return null;
   if (task.url) return `- [x] [${title}](${task.url})`;
   return `- [x] ${title}`;
 }
 
-async function getCheckedChecklistLinesForReport() {
+async function getCheckedChecklistLinesForReport () {
   const dailyTasks = await loadDailyTasksConfigForReport();
   return dailyTasks
     .filter(task => localStorage.getItem(`daily-task-${task.id}`) === 'true')
@@ -46,7 +46,7 @@ async function getCheckedChecklistLinesForReport() {
     .filter(Boolean);
 }
 
-function getCheckedTaskWidgetLinesForReport() {
+function getCheckedTaskWidgetLinesForReport () {
   const taskDateKey = (typeof todayISO !== 'undefined' && todayISO)
     ? todayISO
     : new Date().toISOString().slice(0, 10);
@@ -81,13 +81,13 @@ function getCheckedTaskWidgetLinesForReport() {
     .filter(Boolean);
 }
 
-async function getCheckedLinesForReport() {
+async function getCheckedLinesForReport () {
   const checklistLines = await getCheckedChecklistLinesForReport();
   const taskLines = getCheckedTaskWidgetLinesForReport();
   return [...checklistLines, ...taskLines];
 }
 
-function getDailyMemoForReport() {
+function getDailyMemoForReport () {
   const keyDate = (typeof todayISO !== 'undefined' && todayISO)
     ? todayISO
     : new Date().toISOString().slice(0, 10);
@@ -95,7 +95,7 @@ function getDailyMemoForReport() {
   return memo.trim();
 }
 
-function getFinanceRecordsForReport() {
+function getFinanceRecordsForReport () {
   const jst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
   const todayStr = `${jst.getFullYear()}-${String(jst.getMonth() + 1).padStart(2, '0')}-${String(jst.getDate()).padStart(2, '0')}`;
   const ym = `${jst.getFullYear()}-${String(jst.getMonth() + 1).padStart(2, '0')}`;
@@ -123,7 +123,7 @@ function getFinanceRecordsForReport() {
 }
 
 
-async function generateDailyReportTemplate() {
+async function generateDailyReportTemplate () {
   const jst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
   const y = jst.getFullYear();
   const m = String(jst.getMonth() + 1).padStart(2, '0');
@@ -147,7 +147,7 @@ ${checklistBlock}${memoBlock}${financeBlock}
   return template;
 }
 
-async function getCurrentDailyReportSha(token, repo) {
+async function getCurrentDailyReportSha (token, repo) {
   const path = getDailyReportPath();
   const encodedPath = path.split('/').map(encodeURIComponent).join('/');
   const apiUrl = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
@@ -169,7 +169,7 @@ async function getCurrentDailyReportSha(token, repo) {
   return data.sha || null;
 }
 
-async function fetchDailyReport() {
+async function fetchDailyReport () {
   const token = getToken();
   if (!token) {
     document.getElementById('report-preview').innerHTML = '<p class="md-empty">⚙️ 設定から PAT を設定すると日記を表示します</p>';
@@ -234,7 +234,7 @@ async function fetchDailyReport() {
   }
 }
 
-function switchMainTab(name) {
+function switchMainTab (name) {
   const tabs = ['report', 'issues', 'links', 'ai', 'settings'];
   const enabledTabs = tabs.filter(t => {
     const tabEl = document.getElementById('mtab-' + t);
@@ -267,7 +267,7 @@ function switchMainTab(name) {
   }
 }
 
-function switchTab(tab) {
+function switchTab (tab) {
   reportTab = tab;
   const previewEl = document.getElementById('report-preview');
   const editEl = document.getElementById('report-edit');
@@ -280,7 +280,7 @@ function switchTab(tab) {
   renderCurrentTab();
 }
 
-function renderCurrentTab() {
+function renderCurrentTab () {
   if (!reportContent) return;
   if (reportTab === 'preview') {
     document.getElementById('report-preview').innerHTML = renderMarkdown(reportContent);
@@ -290,7 +290,7 @@ function renderCurrentTab() {
   }
 }
 
-function attachMdCheckboxListeners() {
+function attachMdCheckboxListeners () {
   document.querySelectorAll('.md-cb').forEach(cb => {
     cb.addEventListener('change', () => {
       const lineIdx = parseInt(cb.dataset.line);
@@ -318,7 +318,7 @@ function attachMdCheckboxListeners() {
   });
 }
 
-async function saveDailyReport() {
+async function saveDailyReport () {
   const newContent = document.getElementById('report-textarea').value;
   reportContent = newContent;
   const statusEl = document.getElementById('save-status');
@@ -327,7 +327,7 @@ async function saveDailyReport() {
   await pushReportToGitHub('✏️ 日記を編集');
 }
 
-async function pushReportToGitHub(message) {
+async function pushReportToGitHub (message) {
   const token = getToken();
   const repo = getRepo();
   if (!token || !repo) return;
@@ -371,7 +371,7 @@ async function pushReportToGitHub(message) {
       if (saveEl) { saveEl.style.color = '#1a7f37'; saveEl.textContent = '✅ 保存しました'; }
       const now = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
       metaEl.textContent = `保存完了 ${now}（git pull で同期）`;
-      
+
       // 保存成功時にチェックボックスをリセット
       resetAllCheckboxes();
 
@@ -380,9 +380,9 @@ async function pushReportToGitHub(message) {
         updateTickerWithDiaryComment(reportContent);
       }
 
-        // 家計・メモ入力欄をリセット
-        if (typeof clearFinanceInputs === 'function') clearFinanceInputs();
-        if (typeof clearQuickMemo === 'function') clearQuickMemo();
+      // 家計・メモ入力欄をリセット
+      if (typeof clearFinanceInputs === 'function') clearFinanceInputs();
+      if (typeof clearQuickMemo === 'function') clearQuickMemo();
     } else {
       const err = await res.json().catch(() => ({}));
       if (saveEl) { saveEl.style.color = '#cf222e'; saveEl.textContent = `保存失敗: ${err.message || res.status}`; }
@@ -392,7 +392,7 @@ async function pushReportToGitHub(message) {
   }
 }
 
-function resetAllCheckboxes() {
+function resetAllCheckboxes () {
   if (typeof resetDailyChecklist === 'function') resetDailyChecklist();
   if (typeof resetPillars === 'function') resetPillars();
   if (typeof resetTaskWidgetChecks === 'function') resetTaskWidgetChecks();
@@ -406,7 +406,7 @@ function resetAllCheckboxes() {
  * チェックリスト・タスク・メモ・家計記録を収集し、
  * #reflect-output にプレビュー表示する。
  */
-async function startAutoReflect() {
+async function startAutoReflect () {
   const btn = document.getElementById('reflect-start-btn');
   const statusEl = document.getElementById('reflect-status');
   const outputEl = document.getElementById('reflect-output');
@@ -460,7 +460,7 @@ async function startAutoReflect() {
  * startAutoReflect で生成したプレビューと追加コメントを
  * 現在の日記に追記して GitHub へ保存する。
  */
-async function appendAutoReflection() {
+async function appendAutoReflection () {
   const outputEl = document.getElementById('reflect-output');
   const commentEl = document.getElementById('reflect-comment');
   const statusEl = document.getElementById('reflect-status');
@@ -507,7 +507,7 @@ async function appendAutoReflection() {
 window.startAutoReflect = startAutoReflect;
 window.appendAutoReflection = appendAutoReflection;
 
-async function regenReport() {
+async function regenReport () {
   const token = getToken();
   const repo = getRepo();
   if (!token || !repo) { alert('GitHub PAT とリポジトリを設定してください'); return; }
