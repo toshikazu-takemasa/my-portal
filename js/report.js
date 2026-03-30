@@ -41,7 +41,10 @@ function toReportChecklistLine (task) {
 async function getCheckedChecklistLinesForReport () {
   const dailyTasks = await loadDailyTasksConfigForReport();
   return dailyTasks
-    .filter(task => localStorage.getItem(`daily-task-${task.title}`) === 'true')
+    .filter(task => {
+      const title = (task?.title || '').trim();
+      return localStorage.getItem(`daily-task-${title}`) === 'true';
+    })
     .map(toReportChecklistLine)
     .filter(Boolean);
 }

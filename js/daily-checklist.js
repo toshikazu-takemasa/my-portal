@@ -3,7 +3,7 @@
 // =====================
 let dailyTasks = [];
 
-async function loadDailyTasks() {
+async function loadDailyTasks () {
   const listEl = document.getElementById('daily-checklist-list-right');
   try {
     // まず設定画面で保存した内容（localStorage）を優先
@@ -49,7 +49,7 @@ window.addEventListener('portal-config-loaded', () => {
         renderDailyChecklist();
         return;
       }
-    } catch {}
+    } catch { }
   }
   if (typeof portalConfig !== 'undefined' && portalConfig?.dailyTasks) {
     dailyTasks = portalConfig.dailyTasks;
@@ -57,21 +57,21 @@ window.addEventListener('portal-config-loaded', () => {
   }
 });
 
-function renderDailyChecklist() {
+function renderDailyChecklist () {
   // 右側のみに表示（左側は削除）
   const listEls = [
     document.getElementById('daily-checklist-list-right')
   ];
-  
+
   listEls.forEach(listEl => {
     if (!listEl || dailyTasks.length === 0) return;
 
     listEl.innerHTML = '';
 
     dailyTasks.forEach(task => {
-      // タイトルをIDとして使う
-      const id = task.title;
-      const key = `daily-task-${id}`;
+      // タイトルをIDとして使う（前後空白を除去して統一）
+      const title = (task.title || '').trim();
+      const key = `daily-task-${title}`;
       const isChecked = localStorage.getItem(key) === 'true';
 
       const row = document.createElement('label');
@@ -92,10 +92,10 @@ function renderDailyChecklist() {
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.style.cssText = 'color:inherit;text-decoration:inherit;';
-        link.textContent = task.title;
+        link.textContent = title;
         text.appendChild(link);
       } else {
-        text.textContent = task.title;
+        text.textContent = title;
       }
 
       checkbox.addEventListener('change', (e) => {
@@ -114,7 +114,7 @@ function renderDailyChecklist() {
   });
 }
 
-function resetDailyChecklist() {
+function resetDailyChecklist () {
   dailyTasks.forEach(task => {
     const id = task.title;
     localStorage.removeItem(`daily-task-${id}`);
