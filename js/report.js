@@ -22,6 +22,13 @@ function getDailyReportPath () {
 
 async function loadDailyTasksConfigForReport () {
   try {
+    const stored = localStorage.getItem('daily_tasks_config_v1');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
     const res = await fetch('./data/portal-config.json');
     if (!res.ok) return [];
     const config = await res.json();
