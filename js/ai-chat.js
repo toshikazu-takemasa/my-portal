@@ -414,12 +414,12 @@ async function sendChat() {
       contextStr += `\n\n### 今日の日記:\n${reportContent}`;
     } else {
       // なければ最新の日記をフェッチ
-      const latest = await fetchLatestContextForChat('日記', 1);
+      const latest = await fetchLatestContextForChat('vault/diary', 1);
       contextStr += `\n\n### 直近の日記:\n${latest}`;
     }
   }
   if (includeKnowledge) {
-    const latest = await fetchLatestContextForChat('ナレッジ', 2);
+    const latest = await fetchLatestContextForChat('vault/knowledge', 2);
     contextStr += `\n\n### ナレッジ記録:\n${latest}`;
   }
 

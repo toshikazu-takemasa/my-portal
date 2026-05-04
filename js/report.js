@@ -11,9 +11,7 @@ function getDailyReportPaths () {
   const y = jst.getFullYear();
   const m = String(jst.getMonth() + 1).padStart(2, '0');
   const d = String(jst.getDate()).padStart(2, '0');
-  const days = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
-  const base = `日記/${y}-${m}-${d}_${days[jst.getDay()]}`;
-  return [`${base}_日記.md`, `${base}_日報.md`];
+  return [`vault/diary/${y}-${m}-${d}.md`];
 }
 
 function getDailyReportPath () {
@@ -296,8 +294,42 @@ function renderCurrentTab () {
     document.getElementById('report-preview').innerHTML = renderMarkdown(reportContent);
     attachMdCheckboxListeners();
   } else {
-    document.getElementById('report-textarea').value = reportContent;
+    const textarea = document.getElementById('report-textarea');
+    if (textarea) {
+      // 下書きがlocalStorageにあれば優先
+      const draft = localStorage.getItem('diary-draft');
+      textarea.value = draft !== null ? draft : reportContent;
+    }
   }
+}
+
+// --- 自動保存・下書き復元・ライブプレビュー ---
+document.addEventListener('DOMContentLoaded', () => {
+  const textarea = document.getElementById('report-textarea');
+  if (!textarea) return;
+
+  // 下書き復元（初期表示時）
+  const draft = localStorage.getItem('diary-draft');
+  if (draft !== null) textarea.value = draft;
+
+  // 入力時に自動保存＆ライブプレビュー
+  textarea.addEventListener('input', () => {
+    localStorage.setItem('diary-draft', textarea.value);
+    // プレビュータブにも即時反映
+    if (reportTab === 'preview') {
+      document.getElementById('report-preview').innerHTML = renderMarkdown(textarea.value);
+      attachMdCheckboxListeners();
+    }
+  });
+});
+
+// 保存時に下書きを消す
+const origSaveDailyReport = saveDailyReport;
+saveDailyReport = async function () {
+  const textarea = document.getElementById('report-textarea');
+  if (textarea) localStorage.removeItem('diary-draft');
+  await origSaveDailyReport.apply(this, arguments);
+};
 }
 
 function attachMdCheckboxListeners () {

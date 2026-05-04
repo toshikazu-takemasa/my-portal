@@ -1,0 +1,73 @@
+{
+  "links": [
+    {
+      "id": "b1",
+      "emoji": "📅",
+      "name": "Google Calendar",
+      "url": "https://calendar.google.com",
+      "category": "今日の予定",
+      "sortOrder": 0
+    },
+    {
+      "id": "b2",
+      "emoji": "📧",
+      "name": "Gmail",
+      "url": "https://mail.google.com",
+      "category": "今日の予定",
+      "sortOrder": 1
+    },
+    {
+      "id": "b3",
+      "emoji": "⚡",
+      "name": "GitHub Issues",
+      "url": "https://github.com",
+      "category": "今日の予定",
+      "sortOrder": 2
+    },
+    {
+      "id": "b4",
+      "emoji": "🤖",
+      "name": "Claude",
+      "url": "https://claude.ai",
+      "category": "AI",
+      "sortOrder": 3
+    },
+    {
+      "id": "b5",
+      "emoji": "💎",
+      "name": "Gemini",
+      "url": "https://gemini.google.com",
+      "category": "AI",
+      "sortOrder": 4
+    },
+    {
+      "id": "b6",
+      "emoji": "🐙",
+      "name": "GitHub",
+      "url": "https://github.com",
+      "category": "開発",
+      "sortOrder": 5
+    }
+  ],
+  "dailyTasks": [
+    { "id": "dt1", "title": "ウォーキング", "completed": false },
+    { "id": "dt2", "title": "メールチェック", "completed": false },
+    { "id": "dt3", "title": "家計", "completed": false },
+    { "id": "dt4", "title": "ライティング", "completed": false },
+    { "id": "dt5", "title": "エクササイズ", "completed": false },
+    { "id": "dt6", "title": "読書または勉強", "completed": false }
+  ],
+  "pillars": [
+    { "id": "p1", "title": "扉は朝は開けて出る", "completed": false },
+    { "id": "p2", "title": "すり足注意", "completed": false },
+    { "id": "p3", "title": "掃除", "completed": false },
+    { "id": "p4", "title": "昨日の食器", "completed": false },
+    { "id": "p5", "title": "弁当", "completed": false },
+    { "id": "p6", "title": "パン", "completed": false },
+    { "id": "p7", "title": "着替え", "completed": false },
+    { "id": "p8", "title": "明日の服", "completed": false },
+    { "id": "p9", "title": "エアコン", "completed": false },
+    { "id": "p10", "title": "スマホしまう", "completed": false }
+  ],
+  "kintaiUrl": ""
+}

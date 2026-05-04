@@ -229,7 +229,7 @@ async function fetchLatestContext() {
 
   try {
     // 1. 最新の日記を取得 (直近3日分くらい)
-    const diaryRes = await fetch(`https://api.github.com/repos/${repo}/contents/日記`, {
+    const diaryRes = await fetch(`https://api.github.com/repos/${repo}/contents/vault/diary`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (diaryRes.ok) {
@@ -247,7 +247,7 @@ async function fetchLatestContext() {
     }
 
     // 2. ナレッジから1つ取得
-    const knowledgeRes = await fetch(`https://api.github.com/repos/${repo}/contents/ナレッジ`, {
+    const knowledgeRes = await fetch(`https://api.github.com/repos/${repo}/contents/vault/knowledge`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (knowledgeRes.ok) {

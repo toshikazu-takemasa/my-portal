@@ -4,6 +4,8 @@
 
 このリポジトリの設計思想・改修計画・ADRは以下を参照:
 
+- **改修計画**: `/workspaces/workspace/保管庫/ナレッジ/企画・理論/portal/redesign-plan.md`
+- **設計思想の背景**: `/workspaces/workspace/保管庫/ナレッジ/企画・理論/portal/design-philosophy.md`
 - **ADR一覧**: `docs/adr/`（portal-appから移植済み、ADR-001〜027）
 
 ## 設計原則（要約）
