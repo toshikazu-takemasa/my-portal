@@ -6,14 +6,6 @@ let dailyTasks = [];
 async function loadDailyTasks () {
   const listEl = document.getElementById('daily-checklist-list-right');
   try {
-    // まず設定画面で保存した内容（localStorage）を優先
-    const stored = localStorage.getItem('daily_tasks_config_v1');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        dailyTasks = parsed;
-      }
-    }
     // なければ portal-config.json
     if (!dailyTasks.length) {
       const res = await fetch('./data/portal-config.json');
@@ -39,18 +31,6 @@ async function loadDailyTasks () {
 
 // 共通の構成読み込みイベントに同期
 window.addEventListener('portal-config-loaded', () => {
-  // 設定画面で保存した内容があればそちらを優先
-  const stored = localStorage.getItem('daily_tasks_config_v1');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        dailyTasks = parsed;
-        renderDailyChecklist();
-        return;
-      }
-    } catch { }
-  }
   if (typeof portalConfig !== 'undefined' && portalConfig?.dailyTasks) {
     dailyTasks = portalConfig.dailyTasks;
     renderDailyChecklist();

@@ -1,37 +1,7 @@
 // =====================
 // チェックリスト編集（設定画面）
 // =====================
-const CHECKLIST_CONFIG_KEY = 'daily_tasks_config_v1';
 
-function saveChecklistConfig() {
-  const textarea = document.getElementById('checklist-edit-input');
-  const status = document.getElementById('checklist-edit-status');
-  if (!textarea) return;
-  const lines = textarea.value.split('\n').map(t => t.trim()).filter(t => t);
-  // タイトルをIDとして使うことでチェック状態の不整合を防ぐ
-  const tasks = lines.map(title => ({ id: title, title, type: 'daily' }));
-  localStorage.setItem(CHECKLIST_CONFIG_KEY, JSON.stringify(tasks));
-  status.style.color = '#1a7f37';
-  status.textContent = '✅ チェックリストを保存しました';
-  setTimeout(() => { status.textContent = ''; }, 2000);
-  // 反映
-  if (typeof loadDailyTasks === 'function') loadDailyTasks();
-}
-
-function initChecklistEditUI() {
-  const textarea = document.getElementById('checklist-edit-input');
-  if (!textarea) return;
-  let tasks = [];
-  const stored = localStorage.getItem(CHECKLIST_CONFIG_KEY);
-  if (stored) {
-    try {
-      tasks = JSON.parse(stored);
-    } catch {}
-  } else if (typeof dailyTasks !== 'undefined' && dailyTasks.length > 0) {
-    tasks = dailyTasks;
-  }
-  textarea.value = tasks.map(t => t.title).join('\n');
-}
 // =====================
 // 勤怠シートURL（月次更新）
 // =====================
@@ -108,7 +78,6 @@ function initSettingsTab() {
   showModalGeminiUI();
   showRepoConfig();
   initCalendarDisplay();
-  initChecklistEditUI();
   const statusEl = document.getElementById('modal-status');
   if (statusEl) statusEl.textContent = '';
 }
