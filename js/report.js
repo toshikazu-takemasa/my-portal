@@ -323,7 +323,6 @@ saveDailyReport = async function () {
   if (textarea) localStorage.removeItem('diary-draft');
   await origSaveDailyReport.apply(this, arguments);
 };
-}
 
 function attachMdCheckboxListeners () {
   document.querySelectorAll('.md-cb').forEach(cb => {
