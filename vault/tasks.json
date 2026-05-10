@@ -1,6 +1,15 @@
 {
   "tasks": [
     {
+      "id": "1778377251253",
+      "status": "todo",
+      "priority": "P2",
+      "labels": [],
+      "createdAt": "2026-05-10T01:40:51.253Z",
+      "updatedAt": "2026-05-10T01:40:51.253Z",
+      "title": "d"
+    },
+    {
       "id": "1778377218782",
       "status": "todo",
       "priority": "P2",
@@ -28,5 +37,5 @@
       "title": "テスト"
     }
   ],
-  "lastSync": "2026-05-10T01:40:18.783Z"
+  "lastSync": "2026-05-10T01:40:51.253Z"
 }
