@@ -140,7 +140,6 @@ body.theme-cozy-everyday::before {
   );
 }
 
-.theme-cozy-everyday .main-tabs,
 .theme-cozy-everyday .report-tabs,
 .theme-cozy-everyday .task-filter-tabs {
   border-color: #e6dcd3 !important;
@@ -148,13 +147,11 @@ body.theme-cozy-everyday::before {
   border-radius: 12px !important;
 }
 
-.theme-cozy-everyday .main-tab,
 .theme-cozy-everyday .report-tab,
 .theme-cozy-everyday .task-filter-tab {
   color: #8c7a6f !important;
 }
 
-.theme-cozy-everyday .main-tab.active,
 .theme-cozy-everyday .report-tab.active,
 .theme-cozy-everyday .task-filter-tab.active {
   color: #594a42 !important;

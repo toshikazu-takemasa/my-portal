@@ -112,7 +112,6 @@ body.theme-game::before {
   );
 }
 
-.theme-game .main-tabs,
 .theme-game .report-tabs,
 .theme-game .task-filter-tabs {
   border-color: #6079a2 !important;
@@ -120,13 +119,11 @@ body.theme-game::before {
   border-radius: 10px !important;
 }
 
-.theme-game .main-tab,
 .theme-game .report-tab,
 .theme-game .task-filter-tab {
   color: #b5c1d8 !important;
 }
 
-.theme-game .main-tab.active,
 .theme-game .report-tab.active,
 .theme-game .task-filter-tab.active {
   color: #f5dba2 !important;

@@ -1,34 +1,3 @@
-/* ========== Main Tabs (日報 / クイックリンク) ========== */
-.main-tabs {
-  display: flex;
-  gap: 2px;
-  margin-bottom: 18px;
-  border-bottom: 2px solid #111;
-  padding-bottom: 0;
-}
-
-.main-tab {
-  padding: 8px 16px;
-  border: none;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -1.5px;
-  background: none;
-  color: #595959;
-  font-size: 0.84rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, transform 0.15s;
-  letter-spacing: 0.04em;
-}
-
-.main-tab.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-  transform: translateY(-1px);
-}
-
-.main-tab:hover:not(.active) { color: var(--text); }
-
 /* ========== Daily Report ========== */
 .report-tabs {
   display: flex;

@@ -138,7 +138,6 @@ body.theme-night-sky::before {
   background: #5a3080 !important;
 }
 
-.theme-night-sky .main-tabs,
 .theme-night-sky .report-tabs,
 .theme-night-sky .task-filter-tabs {
   border-color: #61467b !important;
@@ -146,13 +145,11 @@ body.theme-night-sky::before {
   border-radius: 10px !important;
 }
 
-.theme-night-sky .main-tab,
 .theme-night-sky .report-tab,
 .theme-night-sky .task-filter-tab {
   color: #bbaec9 !important;
 }
 
-.theme-night-sky .main-tab.active,
 .theme-night-sky .report-tab.active,
 .theme-night-sky .task-filter-tab.active {
   color: #fdfbf7 !important;

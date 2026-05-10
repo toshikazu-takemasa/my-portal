@@ -212,9 +212,4 @@
   .quick-memo-input {
     font-size: 16px; /* iOS ズーム防止 */
   }
-
-  /* モバイルはボトムナビで切り替えるので上部タブ不要 */
-  .main-tabs {
-    display: none !important;
-  }
 }
