@@ -557,28 +557,10 @@ syncResponsiveLayout();
 // カレンダーの表示/非表示設定を適用（初期状態）
 applyCalendarVisibility();
 
-// PWA: Service Worker 登録（http/https 環境のみ。file:// では無効）
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(registration => {
-        // Service Worker の更新をチェック（定期的に5秒ごと）
-        setInterval(() => registration.update(), 5000);
-        
-        // updatefound イベント: 新しいworkerがインストール中
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
-              // workerが切り替わり、既に古いworkerがactiveだった場合のみリロード
-              // これにより無限リロードを防ぐ
-              console.log('Service Worker 更新を検出: ページを再読み込みします');
-              window.location.reload();
-            }
-          });
-        });
-      })
-      .catch(err => console.warn('Service Worker 登録エラー:', err));
+// Service Worker を使用しない（キャッシュ問題回避）。既存の SW があればアンレジスター
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    registrations.forEach(r => r.unregister());
   });
 }
 
