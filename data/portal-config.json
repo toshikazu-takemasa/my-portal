@@ -1,5 +1,8 @@
 {
-  "links": [
+  "repo": "toshikazu-takemasa/my-portal",
+  "calendarUrl": "https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Asia%2FTokyo&showPrint=0&showTabs=0&showTz=0&mode=AGENDA&src=dGFrZW1hMTk4OUBnbWFpbC5jb20&src=amEuamFwYW5lc2UjaG9saWRheUBncm91cC52LmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23039be5&color=%230b8043",
+  "branch": "main",
+"links": [
     {
       "id": "b1",
       "emoji": "📅",

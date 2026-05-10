@@ -25,18 +25,36 @@ function formatYen(value) {
   return `${Number(value || 0).toLocaleString('ja-JP')}円`;
 }
 
-function clearFinanceInputs() {
-  const dateEl = document.getElementById('finance-date');
-  const typeEl = document.getElementById('finance-type');
-  const categoryEl = document.getElementById('finance-category');
-  const amountEl = document.getElementById('finance-amount');
-  const noteEl = document.getElementById('finance-note');
+async function registerFinanceRecord() {
+  const type = document.getElementById('fi-type').value;
+  const category = document.getElementById('fi-category').value;
+  const amount = Number(document.getElementById('fi-amount').value);
+  const note = document.getElementById('fi-note').value.trim();
 
-  if (dateEl) dateEl.value = new Date().toISOString().slice(0, 10);
-  if (typeEl) typeEl.value = 'expense';
-  if (categoryEl) categoryEl.value = '';
-  if (amountEl) amountEl.value = '';
-  if (noteEl) noteEl.value = '';
+  if (!amount) return;
+
+  const btn = document.querySelector('.finance-form button');
+  btn.disabled = true;
+
+  try {
+    await FinanceService.addRecord({ type, category, amount, note });
+    
+    // UIリセット
+    document.getElementById('fi-amount').value = '';
+    document.getElementById('fi-note').value = '';
+    
+    const status = document.getElementById('finance-status');
+    status.textContent = '✅ 登録しました（リポジトリ同期完了）';
+    status.style.color = '#1a7f37';
+    setTimeout(() => { status.textContent = ''; }, 3000);
+    
+    // リスト再描画
+    renderFinanceList();
+  } catch (e) {
+    alert('登録エラー: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 function renderFinanceRecords() {
@@ -142,8 +160,26 @@ function removeFinanceRecord(id) {
   renderFinanceRecords();
 }
 
+function clearFinanceInputs() {
+  const fields = ['finance-date', 'finance-type', 'finance-category', 'finance-amount', 'finance-note'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+  // 日付は今日をデフォルト設定
+  const dateEl = document.getElementById('finance-date');
+  if (dateEl && !dateEl.value) {
+    const today = new Date();
+    dateEl.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  }
+}
+
 window.addFinanceRecord = addFinanceRecord;
 window.clearFinanceInputs = clearFinanceInputs;
+window.removeFinanceRecord = removeFinanceRecord;
+window.renderFinanceRecords = renderFinanceRecords;
 
 document.addEventListener('DOMContentLoaded', () => {
   clearFinanceInputs();

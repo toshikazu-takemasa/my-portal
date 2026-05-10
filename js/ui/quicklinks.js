@@ -1,6 +1,7 @@
-// =====================
-// クイックリンク（全リンク統合・DnD対応）
-// =====================
+/**
+ * Quick Links
+ * 依存関係: js/domains/config-service.js
+ */
 const LINKS_KEY = 'all_links_v2';
 
 const DEFAULT_LINKS = [
@@ -13,19 +14,16 @@ const DEFAULT_LINKS = [
 ];
 
 function getAllLinks() {
+  if (ConfigService.data.links && ConfigService.data.links.length > 0) {
+    return ConfigService.data.links;
+  }
   const stored = localStorage.getItem(LINKS_KEY);
   if (stored) { try { return JSON.parse(stored); } catch {} }
-  const links = DEFAULT_LINKS.map(l => ({ ...l }));
-  localStorage.setItem(LINKS_KEY, JSON.stringify(links));
-  return links;
+  return DEFAULT_LINKS.map(l => ({ ...l }));
 }
 
-function saveLinks(links) {
-  localStorage.setItem(LINKS_KEY, JSON.stringify(links));
-  if (portalConfig) {
-    portalConfig.links = links;
-    savePortalConfigDebounced('🔗 リンクを更新');
-  }
+async function saveLinks(links) {
+  await ConfigService.updateConfig({ links: links }, '🔗 クイックリンクを更新');
   renderAllLinks();
 }
 
@@ -34,9 +32,9 @@ let _dragId = null;
 function renderAllLinks() {
   const links = getAllLinks();
   const grid  = document.getElementById('links-body');
+  if (!grid) return;
   grid.innerHTML = '';
 
-  // カテゴリ順（空が先、あとは登場順）
   const catOrder = [];
   const groups   = {};
   links.forEach(l => {
@@ -46,7 +44,6 @@ function renderAllLinks() {
   });
 
   catOrder.forEach(cat => {
-    // カテゴリラベル（ドロップ対象）
     if (cat) {
       const label = document.createElement('div');
       label.className = 'link-cat-label';
@@ -54,18 +51,17 @@ function renderAllLinks() {
       label.dataset.cat = cat;
       label.addEventListener('dragover', e => { e.preventDefault(); label.classList.add('drag-over'); });
       label.addEventListener('dragleave', () => label.classList.remove('drag-over'));
-      label.addEventListener('drop', e => {
+      label.addEventListener('drop', async e => {
         e.preventDefault();
         label.classList.remove('drag-over');
         if (!_dragId) return;
         const all = getAllLinks();
         const lnk = all.find(l => l.id === _dragId);
-        if (lnk) { lnk.category = cat; saveLinks(all); }
+        if (lnk) { lnk.category = cat; await saveLinks(all); }
       });
       grid.appendChild(label);
     }
 
-    // リンクカード
     groups[cat].forEach(lnk => {
       const a = document.createElement('a');
       a.className = 'link-card';
@@ -78,7 +74,6 @@ function renderAllLinks() {
         `<span class="link-card-label">${escapeHtml(lnk.name)}</span>` +
         `<span class="del-btn">✕</span>`;
 
-      // ファビコン（成功時は絵文字を置き換え、失敗時はそのまま）
       try {
         const domain   = new URL(lnk.url).hostname;
         const iconWrap = a.querySelector('.link-card-icon');
@@ -95,50 +90,44 @@ function renderAllLinks() {
         img.addEventListener('error', () => img.remove());
       } catch {}
 
-      // 削除
-      a.querySelector('.del-btn').addEventListener('click', e => {
+      a.querySelector('.del-btn').addEventListener('click', async e => {
         e.preventDefault(); e.stopPropagation();
-        saveLinks(getAllLinks().filter(l => l.id !== lnk.id));
+        await saveLinks(getAllLinks().filter(l => l.id !== lnk.id));
       });
 
-      // DnD: ドラッグ開始
       a.addEventListener('dragstart', e => {
         _dragId = lnk.id;
         e.dataTransfer.effectAllowed = 'move';
         setTimeout(() => a.classList.add('dragging'), 0);
       });
-      // DnD: ドラッグ終了
       a.addEventListener('dragend', () => {
         a.classList.remove('dragging');
         document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
         _dragId = null;
       });
-      // DnD: 他カードの上を通過
       a.addEventListener('dragover', e => {
         e.preventDefault();
         if (_dragId !== lnk.id) a.classList.add('drag-over');
       });
       a.addEventListener('dragleave', () => a.classList.remove('drag-over'));
-      // DnD: このカードへドロップ（並び替え＋カテゴリ変更）
-      a.addEventListener('drop', e => {
+      a.addEventListener('drop', async e => {
         e.preventDefault(); e.stopPropagation();
         a.classList.remove('drag-over');
         if (!_dragId || _dragId === lnk.id) return;
-        const all    = getAllLinks();
+        const all    = [...getAllLinks()];
         const srcIdx = all.findIndex(l => l.id === _dragId);
         if (srcIdx < 0) return;
         const [src] = all.splice(srcIdx, 1);
         src.category = lnk.category;
         const tgtIdx = all.findIndex(l => l.id === lnk.id);
         all.splice(tgtIdx, 0, src);
-        saveLinks(all);
+        await saveLinks(all);
       });
 
       grid.appendChild(a);
     });
   });
 
-  // 追加ボタン
   const addBtn = document.createElement('button');
   addBtn.className = 'add-card-btn';
   addBtn.id = 'add-link-btn';
@@ -146,10 +135,9 @@ function renderAllLinks() {
   addBtn.innerHTML = '<span style="font-size:1.4rem;line-height:1;">＋</span><span>追加</span>';
   grid.appendChild(addBtn);
 
-  // datalist 更新
   const cats = [...new Set(links.map(l => l.category).filter(Boolean))];
   const dl   = document.getElementById('cat-list');
-  dl.innerHTML = cats.map(c => `<option value="${escapeHtml(c)}">`).join('');
+  if (dl) dl.innerHTML = cats.map(c => `<option value="${escapeHtml(c)}">`).join('');
 }
 
 function toggleAddForm() {
@@ -159,17 +147,21 @@ function toggleAddForm() {
   if (show) document.getElementById('fl-name').focus();
 }
 
-function addCustomLink() {
+async function addCustomLink() {
   const emoji = document.getElementById('fl-emoji').value.trim() || '🔗';
   const name  = document.getElementById('fl-name').value.trim();
   const url   = document.getElementById('fl-url').value.trim();
   const cat   = document.getElementById('fl-cat').value.trim();
   if (!name || !url) return;
-  const links = getAllLinks();
+  const links = [...getAllLinks()];
   links.push({ id: 'c' + Date.now(), emoji, name, url, category: cat });
-  saveLinks(links);
+  await saveLinks(links);
   ['fl-emoji','fl-name','fl-url','fl-cat'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('add-link-form').classList.add('is-hidden');
 }
 
-renderAllLinks();
+window.renderAllLinks = renderAllLinks;
+window.getAllLinks = getAllLinks;
+window.toggleAddForm = toggleAddForm;
+window.addCustomLink = addCustomLink;
+window.saveLinks = saveLinks;

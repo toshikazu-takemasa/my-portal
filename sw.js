@@ -1,7 +1,7 @@
 // =====================
 // Service Worker - Private Portal
 // =====================
-const CACHE_NAME = 'private-portal-v11';
+const CACHE_NAME = 'private-portal-v12';
 
 const STATIC_ASSETS = [
   './',
@@ -10,17 +10,22 @@ const STATIC_ASSETS = [
   './css/components.css',
   './css/ai-chat.css',
   './css/mobile.css',
-  './js/config.js',
-  './js/utils.js',
-  './js/settings.js',
-  './js/portal-config.js',
-  './js/checklist.js',
-  './js/quicklinks.js',
-  './js/github.js',
-  './js/report.js',
-  './js/tasks.js',
-  './js/daily-checklist.js',
-  './js/ai-chat.js',
+  './js/core/config.js',
+  './js/core/utils.js',
+  './js/core/github.js',
+  './js/core/gemini.js',
+  './js/ui/settings.js',
+  './js/ui/checklist.js',
+  './js/ui/quicklinks.js',
+  './js/ui/report.js',
+  './js/ui/tasks.js',
+  './js/ui/issues.js',
+  './js/ui/daily-checklist.js',
+  './js/ui/analytics.js',
+  './js/ui/quick-memo.js',
+  './js/ui/finance.js',
+  './js/ui/ai-ticker.js',
+  './js/ui/ai-chat.js',
   './manifest.json',
 ];
 
