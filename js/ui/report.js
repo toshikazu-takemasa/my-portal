@@ -384,7 +384,8 @@ window.appendAutoReflection = appendAutoReflection;
 async function regenReport () {
   const token = getToken();
   const repo = getRepo();
-  if (!token || !repo) { alert('GitHub PAT とリポジトリを設定してください'); return; }
+  if (!token) { alert('設定画面から GitHub PAT を入力してください'); return; }
+  if (!repo)  { alert('portal-config.json に repo が設定されていません'); return; }
 
   const btn = document.getElementById('regen-btn');
   const statusEl = document.getElementById('regen-status');

@@ -1,7 +1,7 @@
 // =====================
 // Service Worker - Private Portal
 // =====================
-const CACHE_NAME = 'private-portal-v12';
+const CACHE_NAME = 'private-portal-v13';
 
 const STATIC_ASSETS = [
   './',
@@ -22,11 +22,13 @@ const STATIC_ASSETS = [
   './js/ui/issues.js',
   './js/ui/daily-checklist.js',
   './js/ui/analytics.js',
-  './js/ui/quick-memo.js',
   './js/ui/finance.js',
   './js/ui/ai-ticker.js',
   './js/ui/ai-chat.js',
   './manifest.json',
+  './data/portal-config.json',
+  './vault/persona/persona.md',
+  './vault/persona/avatar.png',
 ];
 
 // インストール時に静的アセットをキャッシュ

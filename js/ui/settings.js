@@ -90,10 +90,13 @@ async function toggleCalendarDisplay() {
 
 function applyCalendarVisibility() {
   const show = ConfigService.data.showCalendar !== false;
-  const col = document.getElementById('col-calendar');
   const layout = document.querySelector('.layout');
-  if (col) col.classList.toggle('is-hidden', !show);
   if (layout) layout.classList.toggle('calendar-hidden', !show);
+  // モバイルでは switchBottomNav が表示を管理するので col-calendar への is-hidden 付与はデスクトップのみ
+  if (window.innerWidth > 768) {
+    const col = document.getElementById('col-calendar');
+    if (col) col.classList.toggle('is-hidden', !show);
+  }
 }
 
 // ---- Kintai URL ----
