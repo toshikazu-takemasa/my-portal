@@ -64,42 +64,51 @@ window.GitHubStorage = {
 
     const encPath = path.split('/').map(encodeURIComponent).join('/');
     const url = `https://api.github.com/repos/${repo}/contents/${encPath}`;
+    const encodedContent = encodeUtf8Base64(content);
 
-    // 現在の SHA を取得（更新の場合に必要）
-    let sha;
-    try {
-      const existing = await this.getFile(path);
-      if (existing) sha = existing.sha;
-    } catch (e) {
-      // 存在しない場合は新規作成
-    }
+    const attemptSave = async () => {
+      // 毎回最新の SHA を取得（リトライ時も含む）
+      let sha;
+      try {
+        const existing = await this.getFile(path);
+        if (existing) sha = existing.sha;
+      } catch (e) { /* 新規作成 */ }
 
-    const body = {
-      message,
-      content: encodeUtf8Base64(content),
-      branch: getBranch(),
-      ...(sha ? { sha } : {})
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message,
+          content: encodedContent,
+          branch: getBranch(),
+          ...(sha ? { sha } : {})
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        if (res.status === 401 || res.status === 403) throw new GitHubAuthError(err.message || `HTTP ${res.status}`);
+        const error = new Error(err.message || `HTTP ${res.status}`);
+        error.status = res.status;
+        throw error;
+      }
+      return await res.json();
     };
 
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      if (res.status === 401 || res.status === 403) {
-        throw new GitHubAuthError(err.message || `HTTP ${res.status}`);
+    try {
+      return await attemptSave();
+    } catch (e) {
+      // SHA 不一致（409/422）の場合は最新 SHA で1回リトライ
+      if (e.status === 409 || e.status === 422) {
+        console.warn('SHA 不一致のためリトライします:', e.message);
+        return await attemptSave();
       }
-      throw new Error(err.message || `HTTP ${res.status}`);
+      throw e;
     }
-
-    return await res.json();
   },
 
   /**
