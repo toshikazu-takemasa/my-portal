@@ -85,10 +85,16 @@ async function loadPillarsConfig() {
   }
 
   try {
-    const res = await fetch('./data/portal-config.json');
-    if (!res.ok) return;
-    const config = await res.json();
-    if (Array.isArray(config.pillars) && config.pillars.length > 0) {
+    let config = null;
+    // file:// プロトコルでは fetch が CORS エラーになるため、インライン変数を優先使用
+    if (window.PORTAL_CONFIG_INLINE) {
+      config = window.PORTAL_CONFIG_INLINE;
+    } else {
+      const res = await fetch('./data/portal-config.json');
+      if (!res.ok) return;
+      config = await res.json();
+    }
+    if (config && Array.isArray(config.pillars) && config.pillars.length > 0) {
       localStorage.setItem(CHECKLIST_PILLARS_CONFIG_KEY, JSON.stringify(config.pillars));
       setPillars(config.pillars);
     }
@@ -160,3 +166,10 @@ function resetChecklistsForNewDay() {
 
 loadPillarsConfig();
 setInterval(resetChecklistsForNewDay, 60 * 1000);
+
+window.togglePillars = togglePillars;
+window.resetPillars = resetPillars;
+window.setPillars = setPillars;
+window.savePillars = savePillars;
+window.loadPillarsConfig = loadPillarsConfig;
+window.updatePillarsChip = updatePillarsChip;

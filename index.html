@@ -38,16 +38,7 @@
 <body class="persona-dashboard">
 
 <script>
-  // 即時反映するための初期化スクリプト
-  let savedTheme = localStorage.getItem('portal_theme');
-  if (savedTheme === null) {
-    // 未設定の場合は、デフォルトテーマを適用する
-    savedTheme = 'theme-night-sky';
-    localStorage.setItem('portal_theme', savedTheme);
-  }
-  if (savedTheme) {
-    document.body.classList.add(savedTheme);
-  }
+  document.body.classList.add('theme-cozy-everyday');
 </script>
 
 <!-- ========== Settings Tab Section (Moved from Modal) ========== -->
@@ -90,45 +81,6 @@
     <!-- 日々のチェックリスト -->
     <!-- 削除（右側に統合） -->
 
-    <!-- クイックメモ -->
-    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-4 !pb-4 !px-4 !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)]" id="quick-memo-card" style="margin-top:12px;">
-      <h2 style="margin-bottom:10px;">📝 クイックメモ</h2>
-      <div class="quick-memo-form">
-        <textarea id="quick-memo-input" class="quick-memo-input" rows="6" placeholder="今日のメモを入力…"></textarea>
-        <div class="quick-memo-actions">
-          <button class="quick-memo-btn" onclick="saveQuickMemo()">保存</button>
-          <button class="quick-memo-btn" onclick="clearQuickMemo()" style="background:#fff;color:#111;border:2px solid #111;">クリア</button>
-        </div>
-        <div class="quick-memo-status" id="quick-memo-status"></div>
-      </div>
-    </div>
-
-    <div class="card is-hidden !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-4 !pb-4 !px-4 !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)]" id="finance-card" style="margin-top:12px;">
-      <h2 style="margin-bottom:10px;">💴 家計記録</h2>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
-        <input id="finance-date" type="date" class="quick-memo-input" style="flex:1;min-width:130px;padding:7px 9px;font-size:0.8rem;">
-        <select id="finance-type" class="quick-memo-select" style="min-width:110px;">
-          <option value="expense">支出</option>
-          <option value="income">収入</option>
-        </select>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
-        <input id="finance-category" type="text" class="quick-memo-input" placeholder="カテゴリ（食費/交通など）" style="flex:1;min-width:140px;padding:7px 9px;font-size:0.8rem;">
-        <input id="finance-amount" type="number" class="quick-memo-input" placeholder="金額" style="width:120px;padding:7px 9px;font-size:0.8rem;">
-      </div>
-      <input id="finance-note" type="text" class="quick-memo-input" placeholder="メモ（任意）" style="margin-bottom:8px;padding:7px 9px;font-size:0.8rem;">
-      <div style="display:flex;gap:6px;margin-bottom:8px;">
-        <button class="quick-memo-btn" onclick="addFinanceRecord()">追加</button>
-        <button class="quick-memo-btn" style="background:#fff;color:#111;border:2px solid #111;" onclick="clearFinanceInputs()">クリア</button>
-      </div>
-      <div id="finance-status" class="quick-memo-status" style="margin-bottom:8px;"></div>
-      <div style="font-size:0.78rem;border-top:1px dashed #d7d7d7;padding-top:8px;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;">
-        <span>収入: <strong id="finance-total-income">0円</strong></span>
-        <span>支出: <strong id="finance-total-expense">0円</strong></span>
-        <span>収支: <strong id="finance-total-balance">0円</strong></span>
-      </div>
-      <div id="finance-list" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;"></div>
-    </div>
   </div>
 
   <!-- ===== Col 2: Tabs (日記) ===== -->
@@ -159,7 +111,10 @@
         <p style="font-size:0.8rem;color:#8e8e8e;line-height:1.5;margin-bottom:10px;">📋 チェックリスト・タスク・メモ・家計記録など、本日の記録をまとめて日記に反映します。</p>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
           <button id="reflect-start-btn" onclick="startAutoReflect()" style="padding:6px 14px;border:2px solid #111;border-radius:0;background:#c6002b;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
-            📝 今日の記録を日記に反映
+            📝 記録を反映
+          </button>
+          <button id="ai-reflection-btn" onclick="requestAiReflection()" style="padding:6px 14px;border:2px solid #111;border-radius:0;background:#111;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
+            🤖 AI振り返りを追記
           </button>
           <span id="reflect-status" style="font-size:0.78rem;color:#8e8e8e;"></span>
         </div>
@@ -263,20 +218,6 @@
     <div id="main-panel-settings" class="is-hidden">
       <h2 style="margin-bottom:14px;">⚙️ 設定</h2>
 
-      <!-- GitHub リポジトリ -->
-      <div class="modal-section" style="margin-bottom:20px;">
-        <div class="modal-label">🐙 GitHub リポジトリ</div>
-        <div class="token-row">
-          <input id="repo-input" class="token-input" type="text" placeholder="username/your-repo">
-          <button class="btn-token" onclick="saveRepoConfig()">保存</button>
-        </div>
-        <p class="modal-note">例: username/private-workspace</p>
-        <div class="token-row" style="margin-top:6px;">
-          <input id="branch-input" class="token-input" type="text" placeholder="main（デフォルトブランチ）">
-        </div>
-        <div id="repo-status" class="modal-status"></div>
-      </div>
-
       <!-- GitHub PAT -->
       <div class="modal-section" style="margin-bottom:20px;">
         <div class="modal-label">GitHub Personal Access Token</div>
@@ -314,35 +255,6 @@
         </div>
       </div>
 
-      <!-- AI Persona Settings -->
-      <div class="modal-section" style="margin-bottom:20px;">
-        <div class="modal-label">🎭 AI人格設定</div>
-        <div class="token-row" style="margin-bottom:8px;">
-          <input id="ai-name-input" class="token-input" type="text" placeholder="AIの名前（例：パートナー）">
-        </div>
-        <textarea id="ai-persona-input" class="quick-memo-input" rows="3" placeholder="AIの性格・口調設定" style="font-size:0.8rem; margin-bottom:8px;"></textarea>
-        <div class="token-row" style="margin-bottom:8px;">
-          <input id="ai-user-call-input" class="token-input" type="text" placeholder="あなたへの呼称（例：あんた、主さん、たけさん）">
-        </div>
-        <div class="token-row">
-          <input id="ai-avatar-input" class="token-input" type="text" placeholder="アバター画像URL (docs/images/avatar.png)">
-        </div>
-        <button class="btn-token" onclick="saveAiPersona()" style="margin-top:8px; width:100%;">人格設定を保存</button>
-        <div id="ai-persona-status" class="modal-status"></div>
-      </div>
-
-      <!-- テーマ設定 -->
-      <div class="modal-section" style="margin-bottom:20px;">
-        <div class="modal-label">🎨 テーマ</div>
-        <select id="theme-select" class="token-input" onchange="changeTheme()">
-          <option value="">デフォルト (ダークレッド)</option>
-          <option value="theme-game">Game (Night)</option>
-          <option value="theme-night-sky">Night Sky</option>
-          <option value="theme-cozy-everyday">Cozy Everyday</option>
-        </select>
-      </div>
-
-
       <!-- カレンダー表示設定 -->
       <div class="modal-section" style="margin-bottom:20px;">
         <div class="modal-label">📅 Google Calendar 表示</div>
@@ -368,7 +280,7 @@
     <!-- チェック/Issue/確認 サブタブ (PC/スマホ共通) -->
     <div class="side-tabs" id="side-tabs">
       <button class="side-tab active" id="stab-checklist" onclick="switchSideTab('checklist')">チェック</button>
-      <button class="side-tab" id="stab-issues" onclick="switchSideTab('issues')">Issue</button>
+      <button class="side-tab" id="stab-tasks" onclick="switchSideTab('tasks')">タスク</button>
       <button class="side-tab" id="stab-pillars" onclick="switchSideTab('pillars')">確認</button>
     </div>
 
@@ -378,29 +290,31 @@
       <div id="daily-checklist-list-right" class="daily-checklist"></div>
     </div>
 
-    <!-- Issueウィジェット -->
-    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="issue-widget-card">
+    <!-- タスクウィジェット -->
+    <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="task-widget-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;">
-        <h2 style="margin-bottom:0;">🐙 Issue</h2>
-        <div style="display:flex;gap:6px;">
-          <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;" onclick="fetchIssueWidget()">↻ 更新</button>
-          <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;background:#111;" onclick="switchMainTab('issues')">Issueタブ</button>
-        </div>
+        <h2 style="margin-bottom:0;">📋 タスク</h2>
+        <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;" onclick="fetchTaskWidget()">↻ 更新</button>
       </div>
       <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
-        <select id="issue-widget-filter-state" class="quick-memo-select" style="min-width:90px;flex:0 0 auto;" onchange="fetchIssueWidget()">
-          <option value="open">open</option>
-          <option value="closed">closed</option>
-          <option value="all">all</option>
+        <select id="task-filter-status" class="quick-memo-select" style="min-width:90px;flex:0 0 auto;" onchange="fetchTaskWidget()">
+          <option value="active">進行中</option>
+          <option value="all">すべて</option>
+          <option value="done">完了</option>
         </select>
-        <input id="issue-widget-search-input" type="text" class="quick-memo-input" placeholder="#番号 / タイトル検索" style="flex:1;min-width:140px;padding:7px 9px;font-size:0.8rem;" onkeydown="if(event.key==='Enter'){fetchIssueWidget();}">
+        <input id="task-search-input" type="text" class="quick-memo-input" placeholder="タイトル検索" style="flex:1;min-width:140px;padding:7px 9px;font-size:0.8rem;" onkeydown="if(event.key==='Enter'){fetchTaskWidget();}">
       </div>
       <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
-        <input id="issue-widget-create-title" type="text" class="quick-memo-input" placeholder="新規Issueタイトル" style="flex:1;min-width:140px;padding:7px 9px;font-size:0.8rem;" onkeydown="if(event.key==='Enter'){createIssueFromWidget();}">
-        <button class="quick-memo-btn" style="padding:7px 11px;font-size:0.76rem;" onclick="createIssueFromWidget()">追加</button>
+        <input id="task-create-title" type="text" class="quick-memo-input" placeholder="新規タスクタイトル" style="flex:1;min-width:140px;padding:7px 9px;font-size:0.8rem;" onkeydown="if(event.key==='Enter'){createTaskFromWidget();}">
+        <select id="task-create-priority" class="quick-memo-select" style="flex:0 0 auto;">
+          <option value="P2">P2</option>
+          <option value="P1">P1</option>
+          <option value="P3">P3</option>
+        </select>
+        <button class="quick-memo-btn" style="padding:7px 11px;font-size:0.76rem;" onclick="createTaskFromWidget()">追加</button>
       </div>
-      <div class="task-widget-list" id="issue-widget-list"></div>
-      <div id="issue-widget-status" class="issues-status"></div>
+      <div class="task-widget-list" id="task-widget-list"></div>
+      <div id="task-widget-status" class="issues-status"></div>
     </div>
 
     <!-- 確認事項（アコーディオン） -->
@@ -436,14 +350,6 @@
     <span class="bottom-nav-icon">📋</span>
     <span class="bottom-nav-label">チェック/Issue</span>
   </button>
-  <button class="bottom-nav-item" data-section="finance" onclick="switchBottomNav('finance')">
-    <span class="bottom-nav-icon">💴</span>
-    <span class="bottom-nav-label">家計</span>
-  </button>
-  <button class="bottom-nav-item" data-section="memo" onclick="switchBottomNav('memo')">
-    <span class="bottom-nav-icon">⚡</span>
-    <span class="bottom-nav-label">メモ</span>
-  </button>
   <button class="bottom-nav-item" data-section="ai" onclick="switchBottomNav('ai')">
     <span class="bottom-nav-icon">✨</span>
     <span class="bottom-nav-label">AI</span>
@@ -457,24 +363,37 @@
 </nav>
 
 <!-- ========== Scripts ========== -->
-<script src="js/config.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/settings.js"></script>
-<script src="js/portal-config.js"></script>
-<script src="js/checklist.js"></script>
-<script src="js/quicklinks.js"></script>
+<script src="js/core/config.js"></script>
+<script src="js/core/utils.js"></script>
+<!-- Storage Layer -->
+<script src="js/storage/github-storage.js"></script>
+<script src="js/storage/task-repository.js"></script>
+<script src="js/storage/config-repository.js"></script>
+<script src="js/storage/diary-repository.js"></script>
 
-  <script src="js/github.js?v=20260313"></script>
-<script src="js/report.js?v=20260313"></script>
-<script src="js/tasks.js?v=20260313"></script>
-<script src="js/issues.js?v=20260313"></script>
-<script src="js/daily-checklist.js?v=20260313"></script>
-<script src="js/analytics.js?v=20260313"></script>
-<script src="js/quick-memo.js?v=20260313"></script>
-<script src="js/finance.js?v=20260313"></script>
-<script src="js/gemini.js?v=20260313"></script>
-<script src="js/ai-ticker.js?v=20260313"></script>
-<script src="js/ai-chat.js?v=20260313i"></script>
+<!-- Domain Layer -->
+<script src="js/domains/task-service.js"></script>
+<script src="js/domains/config-service.js"></script>
+<script src="js/domains/ai-service.js"></script>
+<script src="js/domains/diary-service.js"></script>
+
+<!-- Agent Layer -->
+<script src="js/agent/tool-definitions.js"></script>
+<script src="js/agent/tool-dispatcher.js"></script>
+
+<!-- UI Layer -->
+<script src="js/ui/settings.js"></script>
+<script src="js/ui/checklist.js"></script>
+<script src="js/ui/quicklinks.js"></script>
+
+<script src="js/core/github.js?v=20260313"></script>
+<script src="js/ui/report.js?v=20260313"></script>
+<script src="js/ui/tasks.js?v=20260510"></script>
+<script src="js/ui/daily-checklist.js?v=20260313"></script>
+<script src="js/ui/analytics.js?v=20260313"></script>
+<script src="js/core/gemini.js?v=20260313"></script>
+<script src="js/ui/ai-ticker.js?v=20260313"></script>
+<script src="js/ui/ai-chat.js?v=20260313i"></script>
 
 <script>
 const MOBILE_BREAKPOINT = 768;
@@ -498,12 +417,10 @@ function switchBottomNav(section) {
   const gcalIframe = document.getElementById('gcal-iframe');
   const gcalTitle = document.getElementById('gcal-title');
   const dailyChecklistCard = document.getElementById('daily-checklist-card');
-  const issueWidgetCard = document.getElementById('issue-widget-card');
+  const taskWidgetCard = document.getElementById('task-widget-card');
   const pillarsCard = document.getElementById('pillars-card');
-  const financeCard = document.getElementById('finance-card');
   const pillarsBody = document.getElementById('pillars-body');
   const pillarsHeader = document.getElementById('pillars-header');
-  const quickMemoCard = document.getElementById('quick-memo-card');
 
   if (window.innerWidth > MOBILE_BREAKPOINT) return; // PC では無効
 
@@ -512,10 +429,8 @@ function switchBottomNav(section) {
   setHidden(colRight, true);
 
   setHidden(dailyChecklistCard, false);
-  setHidden(issueWidgetCard, false);
+  setHidden(taskWidgetCard, false);
   setHidden(pillarsCard, false);
-  setHidden(quickMemoCard, true);
-  setHidden(financeCard, true);
   setHidden(gcalTitle, false);
   if (pillarsBody) pillarsBody.classList.remove('open');
   if (pillarsHeader) pillarsHeader.classList.remove('open');
@@ -528,29 +443,6 @@ function switchBottomNav(section) {
     setHidden(colRight, false);
     setHidden(document.getElementById('side-tabs'), false);
     switchSideTab('checklist');
-  } else if (section === 'memo') {
-    setHidden(colCalendar, false);
-    setHidden(document.getElementById('side-tabs'), true);
-    setHidden(dailyChecklistCard, true);
-    setHidden(issueWidgetCard, true);
-    setHidden(pillarsCard, true);
-    if (quickMemoCard) {
-      setHidden(quickMemoCard, false);
-    }
-    setHidden(gcalTitle, true);
-    setHidden(gcalPlaceholder, true);
-    setHidden(gcalIframe, true);
-  } else if (section === 'finance') {
-    setHidden(colCalendar, false);
-    setHidden(document.getElementById('side-tabs'), true);
-    setHidden(dailyChecklistCard, true);
-    setHidden(issueWidgetCard, true);
-    setHidden(pillarsCard, true);
-    setHidden(quickMemoCard, true);
-    setHidden(financeCard, false);
-    setHidden(gcalTitle, true);
-    setHidden(gcalPlaceholder, true);
-    setHidden(gcalIframe, true);
   } else if (section === 'ai') {
     setHidden(colMain, false);
     switchMainTab('ai');
@@ -562,22 +454,21 @@ function switchBottomNav(section) {
 
 function switchSideTab(tab) {
   const checklistCard = document.getElementById('daily-checklist-card');
-  const issueCard = document.getElementById('issue-widget-card');
-  const pillarsCard = document.getElementById('pillars-card');
+  const taskCard      = document.getElementById('task-widget-card');
+  const pillarsCard   = document.getElementById('pillars-card');
   const stabChecklist = document.getElementById('stab-checklist');
-  const stabIssues = document.getElementById('stab-issues');
-  const stabPillars = document.getElementById('stab-pillars');
+  const stabTasks     = document.getElementById('stab-tasks');
+  const stabPillars   = document.getElementById('stab-pillars');
 
   const setCardVisible = (t) => {
-    checklistCard.classList.toggle('is-hidden', t !== 'checklist');
-    issueCard.classList.toggle('is-hidden', t !== 'issues');
-    pillarsCard.classList.toggle('is-hidden', t !== 'pillars');
-    
-    stabChecklist.classList.toggle('active', t === 'checklist');
-    stabIssues.classList.toggle('active', t === 'issues');
-    stabPillars.classList.toggle('active', t === 'pillars');
+    checklistCard?.classList.toggle('is-hidden', t !== 'checklist');
+    taskCard?.classList.toggle('is-hidden', t !== 'tasks');
+    pillarsCard?.classList.toggle('is-hidden', t !== 'pillars');
 
-    // 確認事項が選ばれた時はアコーディオンを開く
+    stabChecklist?.classList.toggle('active', t === 'checklist');
+    stabTasks?.classList.toggle('active', t === 'tasks');
+    stabPillars?.classList.toggle('active', t === 'pillars');
+
     if (t === 'pillars') {
       const pillarsBody = document.getElementById('pillars-body');
       const pillarsHeader = document.getElementById('pillars-header');
@@ -634,9 +525,7 @@ function syncResponsiveLayout() {
   const colCalendar = document.getElementById('col-calendar');
   const colMain = document.getElementById('col-main');
   const colRight = document.getElementById('col-right');
-  const issueWidgetCard = document.getElementById('issue-widget-card');
-  const quickMemoCard = document.getElementById('quick-memo-card');
-  const financeCard = document.getElementById('finance-card');
+  const taskWidgetCard = document.getElementById('task-widget-card');
   const setHidden = (element, hidden) => {
     if (!element) return;
     element.classList.toggle('is-hidden', hidden);
@@ -656,9 +545,7 @@ function syncResponsiveLayout() {
   setHidden(colRight, false);
   setHidden(document.getElementById('side-tabs'), false);
   switchSideTab('checklist');
-  setHidden(issueWidgetCard, false);
-  setHidden(quickMemoCard, false);
-  setHidden(financeCard, false);
+  setHidden(taskWidgetCard, false);
   setHidden(gcalTitle, false);
   applyCalendarVisibility();
 }
@@ -666,38 +553,12 @@ function syncResponsiveLayout() {
 window.addEventListener('resize', syncResponsiveLayout);
 syncResponsiveLayout();
 
-// Issues ボタンのリポジトリ URL を動的設定
-function updateIssueBtns() {
-  const repo = getRepo();
-  if (!repo) return;
-  const morning = document.getElementById('issues-morning-link');
-  if (morning) morning.href = `https://github.com/${repo}/issues`;
-}
 
-updateIssueBtns();
-
-// Google Calendar iframe（設定済みの場合に表示）
-// ※カレンダー埋め込み URL は localStorage に保存されている場合のみ読み込む
-const GCAL_URL_KEY = 'gcal_embed_url';
-const gcalUrl = localStorage.getItem(GCAL_URL_KEY);
-const gcalIframeEl = document.getElementById('gcal-iframe');
-const gcalPlaceholderEl = document.getElementById('gcal-placeholder');
-if (gcalUrl) {
-  if (gcalIframeEl) {
-    gcalIframeEl.src = gcalUrl;
-    gcalIframeEl.classList.remove('is-hidden');
-  }
-  if (gcalPlaceholderEl) gcalPlaceholderEl.classList.add('is-hidden');
-} else {
-  if (gcalPlaceholderEl) gcalPlaceholderEl.classList.remove('is-hidden');
-  if (gcalIframeEl) gcalIframeEl.classList.add('is-hidden');
-}
-
-// カレンダーの表示/非表示設定を適用
+// カレンダーの表示/非表示設定を適用（初期状態）
 applyCalendarVisibility();
 
-// PWA: Service Worker 登録（キャッシュ更新対応）
-if ('serviceWorker' in navigator) {
+// PWA: Service Worker 登録（http/https 環境のみ。file:// では無効）
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then(registration => {
@@ -727,24 +588,72 @@ document.getElementById('chat-input')?.addEventListener('keydown', e => {
 });
 
 // アプリ全体の初期化
-if (getToken() && getRepo()) {
-  // データの初回取得
-  if (typeof fetchDailyReport === 'function') fetchDailyReport();
-  if (typeof fetchTaskWidget === 'function') fetchTaskWidget();
-  if (typeof fetchIssueBoard === 'function') fetchIssueBoard();
-  
-  // ポータル設定の読み込みと連動
-  if (typeof loadPortalConfig === 'function') {
-    loadPortalConfig().then(() => {
-      if (typeof renderAllLinks === 'function') renderAllLinks();
-      const kintaiLink = document.getElementById('kintai-sheet-link');
-      if (kintaiLink && getKintaiUrl()) kintaiLink.href = getKintaiUrl();
-    });
+(async () => {
+  // data/portal-config.json を最初に読み込む
+  try {
+    const res = await fetch('data/portal-config.json');
+    if (res.ok) window.PORTAL_CONFIG_INLINE = await res.json();
+  } catch (e) {
+    console.warn('portal-config.json の読み込みに失敗しました:', e);
   }
-} else if (!getRepo()) {
-  // リポジトリ未設定の場合は設定を促す
-  setTimeout(() => { if (typeof switchMainTab === 'function') switchMainTab('settings'); }, 500);
-}
+
+  // vault/persona/persona.md をロードして frontmatter をパース
+  try {
+    const res = await fetch('vault/persona/persona.md');
+    if (res.ok) {
+      const text = await res.text();
+      const fm = {};
+      let body = text;
+      const match = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+      if (match) {
+        match[1].split('\n').forEach(line => {
+          const [k, ...v] = line.split(':');
+          if (k) fm[k.trim()] = v.join(':').trim();
+        });
+        body = match[2].trim();
+      }
+      window.AI_PERSONA = { name: fm.name, userCallName: fm.userCallName, avatarUrl: fm.avatarUrl, body };
+    }
+  } catch (e) {
+    console.warn('persona.md の読み込みに失敗しました:', e);
+  }
+  // persona ロード完了を通知（ticker・chat はこのイベントを待つ）
+  window.dispatchEvent(new Event('persona-loaded'));
+
+  // Google Calendar iframe（portal-config.json の calendarUrl が設定されている場合に表示）
+  const gcalUrl = window.PORTAL_CONFIG_INLINE && window.PORTAL_CONFIG_INLINE.calendarUrl;
+  const gcalIframeEl = document.getElementById('gcal-iframe');
+  const gcalPlaceholderEl = document.getElementById('gcal-placeholder');
+  if (gcalUrl) {
+    if (gcalIframeEl) { gcalIframeEl.src = gcalUrl; gcalIframeEl.classList.remove('is-hidden'); }
+    if (gcalPlaceholderEl) gcalPlaceholderEl.classList.add('is-hidden');
+  } else {
+    if (gcalPlaceholderEl) gcalPlaceholderEl.classList.remove('is-hidden');
+    if (gcalIframeEl) gcalIframeEl.classList.add('is-hidden');
+  }
+  applyCalendarVisibility();
+
+  const token = getToken();
+
+  if (token) {
+    // 1. まず設定をロード（リポジトリから）
+    await ConfigService.init();
+
+    // 2. その他のデータを並列で取得
+    fetchDailyReport();
+    if (typeof fetchTaskWidget === 'function') fetchTaskWidget();
+
+    // 3. リンクの描画
+    if (typeof renderAllLinks === 'function') renderAllLinks();
+
+    // 4. 勤怠リンク設定
+    const kintaiLink = document.getElementById('kintai-sheet-link');
+    if (kintaiLink && getKintaiUrl()) kintaiLink.href = getKintaiUrl();
+  } else {
+    // PAT 未設定の場合は設定画面へ
+    setTimeout(() => { if (typeof switchMainTab === 'function') switchMainTab('settings'); }, 500);
+  }
+})();
 </script>
 
 </body>

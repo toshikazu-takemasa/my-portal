@@ -221,52 +221,10 @@ async function refreshAiTicker() {
  * 日記やナレッジから最新の情報を数件取得して文字列にする
  */
 async function fetchLatestContext() {
-  const token = getToken();
-  const repo  = getRepo();
-  if (!token || !repo) return "（記録がまだありません）";
-
-  let contextParts = [];
-
-  try {
-    // 1. 最新の日記を取得 (直近3日分くらい)
-    const diaryRes = await fetch(`https://api.github.com/repos/${repo}/contents/vault/diary`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (diaryRes.ok) {
-      const files = await diaryRes.json();
-      // 日付順にソートして最新3つ
-      const latestDiaries = files
-        .filter(f => f.name.endsWith('.md'))
-        .sort((a, b) => b.name.localeCompare(a.name))
-        .slice(0, 3);
-
-      for (const file of latestDiaries) {
-        const content = await fetchFileContent(file.path);
-        contextParts.push(`### 日記: ${file.name}\n${content.slice(0, 300)}...`);
-      }
-    }
-
-    // 2. ナレッジから1つ取得
-    const knowledgeRes = await fetch(`https://api.github.com/repos/${repo}/contents/vault/knowledge`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (knowledgeRes.ok) {
-      const files = await knowledgeRes.json();
-      const latestKnowledge = files
-        .filter(f => f.name.endsWith('.md'))
-        .sort((a, b) => b.name.localeCompare(a.name))
-        .slice(0, 1);
-
-      for (const file of latestKnowledge) {
-        const content = await fetchFileContent(file.path);
-        contextParts.push(`### ナレッジ: ${file.name}\n${content.slice(0, 300)}...`);
-      }
-    }
-  } catch (e) {
-    console.warn('Context fetch error:', e);
+  if (typeof AiService !== 'undefined') {
+    return await AiService.getLatestContext();
   }
-
-  return contextParts.join('\n\n');
+  return "（記録がまだありません）";
 }
 
 /**
@@ -284,8 +242,12 @@ async function fetchFileContent(path) {
   return new TextDecoder('utf-8').decode(Uint8Array.from(raw, c => c.charCodeAt(0)));
 }
 
-// ページ読み込み完了後に実行
-window.addEventListener('DOMContentLoaded', () => {
+window.initAiTicker = initAiTicker;
+window.refreshAiTicker = refreshAiTicker;
+window.updateTickerWithDiaryComment = updateTickerWithDiaryComment;
+
+// persona-loaded イベント後に実行（AI_PERSONA が確実にセットされた後）
+window.addEventListener('persona-loaded', () => {
   if (getToken() && getRepo() && getGeminiKey()) {
     initAiTicker();
   }
