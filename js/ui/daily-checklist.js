@@ -6,11 +6,17 @@ let dailyTasks = [];
 async function loadDailyTasks () {
   const listEl = document.getElementById('daily-checklist-list-right');
   try {
-    // なければ portal-config.json
+    // なければ portal-config.json or PORTAL_CONFIG_INLINE
     if (!dailyTasks.length) {
-      const res = await fetch('./data/portal-config.json');
-      if (res.ok) {
-        const config = await res.json();
+      let config = null;
+      // file:// プロトコルでは fetch が CORS エラーになるため、インライン変数を優先使用
+      if (window.PORTAL_CONFIG_INLINE) {
+        config = window.PORTAL_CONFIG_INLINE;
+      } else {
+        const res = await fetch('./data/portal-config.json');
+        if (res.ok) config = await res.json();
+      }
+      if (config) {
         dailyTasks = config.dailyTasks || [];
       } else if (typeof portalConfig !== 'undefined' && portalConfig?.dailyTasks) {
         dailyTasks = portalConfig.dailyTasks;
@@ -111,3 +117,7 @@ if (document.readyState === 'loading') {
   // スクリプトが </body> の直前で読み込まれる場合、DOMContentLoaded は既に発火している
   loadDailyTasks();
 }
+
+window.loadDailyTasks = loadDailyTasks;
+window.resetDailyChecklist = resetDailyChecklist;
+window.renderDailyChecklist = renderDailyChecklist;

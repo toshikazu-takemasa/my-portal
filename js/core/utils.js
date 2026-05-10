@@ -111,3 +111,9 @@ function inlineFormat(raw) {
   });
   return s;
 }
+
+window.escapeHtml = escapeHtml;
+window.encodeUtf8Base64 = encodeUtf8Base64;
+window.renderMarkdown = renderMarkdown;
+window.renderMdTable = renderMdTable;
+window.inlineFormat = inlineFormat;

@@ -2,12 +2,11 @@
 // 定数・リポジトリ設定
 // =====================
 
-// リポジトリ・ブランチは localStorage から読み込む（設定画面で変更可能）
-const REPO_KEY    = 'github_repo';
-const BRANCH_KEY  = 'github_branch';
+function getRepo()   { return (window.PORTAL_CONFIG_INLINE && window.PORTAL_CONFIG_INLINE.repo) || ''; }
+function getBranch() { return (window.PORTAL_CONFIG_INLINE && window.PORTAL_CONFIG_INLINE.branch) || 'main'; }
 
-function getRepo()   { return localStorage.getItem(REPO_KEY)   || ''; }
-function getBranch() { return localStorage.getItem(BRANCH_KEY) || 'main'; }
+window.getRepo = getRepo;
+window.getBranch = getBranch;
 
 // =====================
 // 日付初期化（JST）
@@ -16,17 +15,23 @@ function getJstTodayISO() {
   const jst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
   return `${jst.getFullYear()}-${String(jst.getMonth() + 1).padStart(2, '0')}-${String(jst.getDate()).padStart(2, '0')}`;
 }
+window.getJstTodayISO = getJstTodayISO;
 
 const jstNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
 const dateStr = jstNow.toLocaleDateString('ja-JP', {
   year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', timeZone: 'Asia/Tokyo'
 });
-document.getElementById('today').textContent = dateStr;
+const todayEl = document.getElementById('today');
+if (todayEl) todayEl.textContent = dateStr;
 
 // --- localStorage キー（JST日付ベース） ---
 let todayISO    = getJstTodayISO();
 let todayKey    = 'checklist_' + todayISO;
 let PILLARS_KEY = 'pillars_' + todayISO;
+
+window.todayISO = todayISO;
+window.todayKey = todayKey;
+window.PILLARS_KEY = PILLARS_KEY;
 
 // 古いキーを削除
 Object.keys(localStorage)

@@ -80,7 +80,6 @@ function showVnPage(idx) {
   typeWriterEffect(textEl, vnPages[idx] || '', () => {
     if (indicator) {
       indicator.style.display = 'block';
-      // もし最終ページなら "NEXT" ではなく別の表示にする（任意）
       if (idx < vnPages.length - 1) {
         indicator.setAttribute('data-last', 'false');
       } else {
@@ -95,7 +94,6 @@ function advanceVnText() {
   if (box && box.classList.contains('thinking')) return; // 考え中は無視
 
   if (vnIsTyping) {
-    // タイピング中ならスキップ
     if (vnTypingTimer) clearTimeout(vnTypingTimer);
     vnIsTyping = false;
     const textEl = document.getElementById('vn-dialogue-text');
@@ -130,7 +128,6 @@ function newChatSession() {
   currentSession = { id: Date.now().toString(), title: '新しい会話', messages: [] };
   chatHistory = []; attachedFiles = [];
   renderChatPanel(); closeSessionDropdown();
-  if (isPopupOpen) syncPopupHistory();
 }
 
 function loadSession(id) {
@@ -154,17 +151,14 @@ function renderChatPanel() {
   document.getElementById('session-title-display').textContent =
     currentSession ? currentSession.title : '新しい会話';
 
-  // VN: ポートレートと名前を更新
   const portrait = document.getElementById('vn-portrait-img');
   const nameTag  = document.getElementById('vn-ai-name-tab');
   if (portrait) portrait.src = getAiAvatar() || '';
   if (nameTag)  nameTag.textContent = getAiName();
 
-  // ユーザーログをクリア
   const logEl = document.getElementById('vn-user-log');
   if (logEl) logEl.innerHTML = '';
 
-  // 重要：VNモード時に残っている可能性のある古いチャットバブルを掃除
   const wrap = document.querySelector('.chat-wrap.vn-mode');
   if (wrap) {
     wrap.querySelectorAll('.chat-bubble').forEach(b => b.remove());
@@ -176,7 +170,7 @@ function renderChatPanel() {
     let lastAi = null;
     chatHistory.forEach(msg => {
       if (msg.role === 'user') appendChatBubble('user', msg.content);
-      else lastAi = msg.content;
+      else if (msg.role === 'assistant' || msg.role === 'model') lastAi = msg.content;
     });
     appendChatBubble('ai', lastAi || WELCOME_MSG);
   }
@@ -221,25 +215,17 @@ document.addEventListener('click', e => {
 
 // ---- File attachment ----
 async function promptFileAttach() {
-  const path = prompt('ファイルパスを入力\n例: 保管庫/ナレッジ/メモ.md');
+  const path = prompt('ファイルパスを入力\n例: vault/knowledge/memo.md');
   if (!path) return;
   await fetchFileForAttach(path.trim());
 }
 
 async function fetchFileForAttach(path) {
-  const token = getToken();
-  if (!token) { alert('GitHub PAT が必要です（⚙️ 設定）'); return; }
-  if (!getRepo()) { alert('GitHub リポジトリが設定されていません（⚙️ 設定）'); return; }
-  const enc = path.split('/').map(encodeURIComponent).join('/');
   try {
-    const res = await fetch(`https://api.github.com/repos/${getRepo()}/contents/${enc}`,
-      { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) { alert(`ファイルが見つかりません:\n${path}`); return; }
-    const data = await res.json();
-    const raw  = atob(data.content.replace(/\n/g, ''));
-    const text = new TextDecoder('utf-8').decode(Uint8Array.from(raw, c => c.charCodeAt(0)));
+    const res = await GitHubStorage.getFile(path);
+    if (!res) { alert(`ファイルが見つかりません:\n${path}`); return; }
     attachedFiles = attachedFiles.filter(f => f.path !== path);
-    attachedFiles.push({ path, content: text, sha: data.sha });
+    attachedFiles.push({ path, content: res.content, sha: res.sha });
     renderFileChips();
   } catch(e) { alert('ファイル取得エラー: ' + e.message); }
 }
@@ -256,77 +242,9 @@ function renderFileChips() {
     </span>`).join('');
 }
 
-// ---- File apply ----
-async function applyFileEdit(blockId, btn) {
-  const token = getToken();
-  if (!token) { alert('GitHub PAT が必要です'); return; }
-  if (!getRepo()) { alert('GitHub リポジトリが設定されていません'); return; }
-  const block = applyBlocks.get(blockId);
-  if (!block) return;
-  btn.disabled = true; btn.textContent = '適用中…';
-  try {
-    const enc = block.path.split('/').map(encodeURIComponent).join('/');
-    const url = `https://api.github.com/repos/${getRepo()}/contents/${enc}`;
-    const getRes = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    const body = {
-      message: `✏️ AI編集: ${block.path.split('/').pop()}`,
-      content: encodeUtf8Base64(block.content)
-    };
-    if (getRes.ok) { const d = await getRes.json(); body.sha = d.sha; }
-    const putRes = await fetch(url, {
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    if (putRes.ok) {
-      btn.textContent = '✅ 適用完了'; btn.style.background = '#1a7f37';
-      const nd = await putRes.json();
-      const af = attachedFiles.find(f => f.path === block.path);
-      if (af) { af.sha = nd.content.sha; af.content = block.content; }
-    } else {
-      const err = await putRes.json().catch(() => ({}));
-      btn.textContent = `失敗: ${err.message || putRes.status}`;
-      btn.style.background = '#cf222e'; btn.disabled = false;
-    }
-  } catch(e) { btn.textContent = 'エラー: ' + e.message; btn.disabled = false; }
-}
-
-
 // ---- Message rendering ----
-function renderAIMessage(text) {
-  const container = document.createElement('div');
-  const applyRe = /===APPLY:\s*(.+?)===\n([\s\S]*?)===END===/g;
-  const parts = []; let lastIdx = 0, m;
-  while ((m = applyRe.exec(text)) !== null) {
-    if (m.index > lastIdx) parts.push({ type: 'text', content: text.slice(lastIdx, m.index) });
-    parts.push({ type: 'apply', path: m[1].trim(), content: m[2] });
-    lastIdx = m.index + m[0].length;
-  }
-  if (lastIdx < text.length) parts.push({ type: 'text', content: text.slice(lastIdx) });
-
-  parts.forEach(part => {
-    if (part.type === 'text') {
-      const span = document.createElement('span');
-      span.innerHTML = escapeHtml(part.content).replace(/\n/g, '<br>');
-      container.appendChild(span);
-    } else {
-      const blockId = 'ab_' + Math.random().toString(36).slice(2);
-      applyBlocks.set(blockId, { path: part.path, content: part.content });
-      const d = document.createElement('div');
-      d.className = 'apply-block';
-      d.innerHTML = `<div class="apply-path">📄 ${escapeHtml(part.path)}</div>
-        <details><summary class="apply-summary">内容を確認（${part.content.split('\n').length}行）</summary>
-          <pre class="apply-preview">${escapeHtml(part.content)}</pre></details>
-        <button class="apply-btn" onclick="applyFileEdit('${blockId}',this)">✅ ファイルに適用</button>`;
-      container.appendChild(d);
-    }
-  });
-  return container;
-}
-
 function appendChatBubble(role, text) {
   if (role.includes('ai')) {
-    // VN: ダイアログボックスを更新
     const box    = document.getElementById('vn-dialogue-box');
     const textEl = document.getElementById('vn-dialogue-text');
     if (!box || !textEl) return null;
@@ -344,7 +262,6 @@ function appendChatBubble(role, text) {
     }
     return box;
   } else {
-    // VN: ユーザー発言をコンパクトログに追加
     const logEl = document.getElementById('vn-user-log');
     if (!logEl) return null;
     const entry = document.createElement('div');
@@ -356,13 +273,10 @@ function appendChatBubble(role, text) {
   }
 }
 
+// ---- Agentic Send Chat ----
 async function sendChat() {
   const geminiKey = getGeminiKey();
-  
-  if (!geminiKey) {
-    alert('⚙️ 設定から Gemini API キー を先に設定してください。');
-    return;
-  }
+  if (!geminiKey) { alert('⚙️ 設定から Gemini API キー を先に設定してください。'); return; }
   
   const input = document.getElementById('chat-input');
   const text  = input.value.trim();
@@ -380,7 +294,6 @@ async function sendChat() {
   saveCurrentSession();
 
   const thinking = appendChatBubble('ai thinking', '考え中…');
-
   const includeReport = document.getElementById('include-report').checked;
   const includeKnowledge = document.getElementById('include-knowledge')?.checked;
 
@@ -390,110 +303,78 @@ async function sendChat() {
   let sys = `あなたは「${aiName}」として振る舞ってください。
 人格・口調設定：${persona}
 
-利用可能なポータル機能：
-📝 文章校正・コミュニケーション改善
-🤔 業務相談・意思決定サポート
-🔧 技術タスク・実装支援
-📋 情報整理・作業記録管理
-📅 日記管理・振り返り・工数集計支援
+利用可能なポータル機能（ツールを使って実行してください）：
+- ファイルの保存・読込・一覧取得（日記やナレッジ管理）
+- タスクの追加・更新・取得（リポジトリ内の tasks.json を管理）
+- 日記の統合・エクスポート
 
 ## 応答スタイル
 - 設定された口調を忠実に守ってください。
-- 回答の長さは内容に応じて調整し、必要なら詳しく説明してください
-- 問いかけ型: ユーザーの思考を引き出す
-- 段階的: 一度に多くを求めない
-- ユーザー主導: ユーザーの判断を尊重
+- ファイルの作成や更新を行ったら、必ずその旨を報告してください。
+- ユーザーに確認が必要な場合は、ツールを実行する前に問いかけてください。`;
 
-設定された人格を最優先し、ユーザーと自然な対話を行ってください。必要に応じて十分な説明を行ってください。`;
-
-  // コンテキストの収集
-  let contextStr = "";
-  if (includeReport) {
-    // グローバルな reportContent (report.jsで定義されている想定) があれば使用
-    if (typeof reportContent !== 'undefined' && reportContent) {
-      contextStr += `\n\n### 今日の日記:\n${reportContent}`;
-    } else {
-      // なければ最新の日記をフェッチ
-      const latest = await fetchLatestContextForChat('vault/diary', 1);
-      contextStr += `\n\n### 直近の日記:\n${latest}`;
-    }
+  if (includeReport || includeKnowledge) {
+    const latest = await AiService.getLatestContext();
+    sys += `\n\n## 現在のコンテキスト\n${latest}`;
   }
-  if (includeKnowledge) {
-    const latest = await fetchLatestContextForChat('vault/knowledge', 2);
-    contextStr += `\n\n### ナレッジ記録:\n${latest}`;
-  }
-
-  if (contextStr) {
-    sys += `\n\n## 参照情報\n以下の情報をコンテキストとして考慮してください:\n${contextStr}`;
-  }
-
+  
   if (attachedFiles.length > 0) {
-    sys += '\n\n## 添付ファイル\nファイルの編集依頼があった場合、完全な新しいファイル内容を以下の形式で出力してください（省略不可）:\n===APPLY: ファイルパス===\n[完全なファイル内容]\n===END===\n\n添付ファイル:';
+    sys += '\n\n## 添付ファイル:';
     attachedFiles.forEach(f => { sys += `\n\n### ${f.path}\n\`\`\`\n${f.content}\n\`\`\``; });
   }
 
+  let currentContents = chatHistory.map(msg => ({
+    role: msg.role === 'assistant' || msg.role === 'model' ? 'model' : 'user',
+    parts: [{ text: msg.content }]
+  }));
+
   try {
-    // Gemini を使用
-    const reply = await callGemini(chatHistory, sys);
+    let loop = true;
+    let maxIter = 5;
+    let finalReply = "";
+
+    while (loop && maxIter-- > 0) {
+      const data = await callGeminiRaw(currentContents, sys, ToolDefinitions);
+      const message = data.candidates?.[0]?.content;
+      if (!message) break;
+
+      currentContents.push(message);
+
+      const toolCalls = message.parts.filter(p => p.functionCall);
+      if (toolCalls.length > 0) {
+        const responses = [];
+        for (const call of toolCalls) {
+          const result = await ToolDispatcher.dispatch(call.functionCall.name, call.functionCall.args);
+          responses.push({
+            functionResponse: {
+              name: call.functionCall.name,
+              response: { result: result }
+            }
+          });
+        }
+        currentContents.push({ role: 'user', parts: responses });
+      } else {
+        loop = false;
+        finalReply = message.parts.map(p => p.text).join('') || '';
+      }
+    }
     
     thinking.classList.remove('thinking');
-    vnPages = splitIntoVnPages(reply);
-    vnCurrentPage = 0;
-    showVnPage(0);
-    chatHistory.push({ role: 'assistant', content: reply });
-    saveCurrentSession();
-  } catch (e) {
-    let errMsg = `エラー: ${e.message}`;
-    if (e.message.includes('無料枠')) {
-      errMsg = 'ごめんね主くん、今はちょっと魔法の力が足りひんみたいやわ。しばらく待ってから、また声かけてくれるかな？';
+    if (finalReply) {
+      vnPages = splitIntoVnPages(finalReply);
+      vnCurrentPage = 0;
+      showVnPage(0);
+      chatHistory.push({ role: 'assistant', content: finalReply });
+      saveCurrentSession();
     }
+  } catch (e) {
+    console.error('Chat Error:', e);
+    let errMsg = `エラー: ${e.message}`;
     thinking.classList.remove('thinking');
     const textEl = document.getElementById('vn-dialogue-text');
     if (textEl) textEl.textContent = errMsg;
     chatHistory.pop();
   } finally { btn.disabled = false; input.focus(); }
-}
-
-/**
- * チャット用コンテキストのフェッチ (ai-ticker.js のロジックを流用)
- */
-async function fetchLatestContextForChat(folder, count) {
-  const token = getToken();
-  const repo  = getRepo();
-  if (!token || !repo) return "";
-
-  try {
-    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${folder}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!res.ok) return "";
-    const files = await res.json();
-    const targets = files
-      .filter(f => f.name.endsWith('.md'))
-      .sort((a, b) => b.name.localeCompare(a.name))
-      .slice(0, count);
-
-    let parts = [];
-    for (const file of targets) {
-      const content = await fetchFileContentForChat(file.path);
-      parts.push(`[${file.name}]\n${content.slice(0, 500)}`);
-    }
-    return parts.join('\n\n');
-  } catch (e) {
-    return "";
-  }
-}
-
-async function fetchFileContentForChat(path) {
-  const token = getToken();
-  const repo  = getRepo();
-  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  if (!res.ok) return "";
-  const data = await res.json();
-  const raw  = atob(data.content.replace(/\n/g, ''));
-  return new TextDecoder('utf-8').decode(Uint8Array.from(raw, c => c.charCodeAt(0)));
 }
 
 function clearChat() {
@@ -518,5 +399,13 @@ function clearChat() {
   renderChatPanel();
 })();
 
+function switchChatSession(id) { loadSession(id); }
 
-
+window.sendChat = sendChat;
+window.clearChat = clearChat;
+window.newChatSession = newChatSession;
+window.switchChatSession = switchChatSession;
+window.toggleSessionDropdown = toggleSessionDropdown;
+window.advanceVnText = advanceVnText;
+window.promptFileAttach = promptFileAttach;
+window.initChat = function() { renderChatPanel(); };
