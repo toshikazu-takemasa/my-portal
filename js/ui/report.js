@@ -78,11 +78,7 @@ async function fetchDailyReport () {
 
 function switchMainTab (name) {
   const tabs = ['report', 'issues', 'links', 'ai', 'settings'];
-  const enabledTabs = tabs.filter(t => {
-    const tabEl = document.getElementById('mtab-' + t);
-    const panelEl = document.getElementById('main-panel-' + t);
-    return !!tabEl && !!panelEl;
-  });
+  const enabledTabs = tabs.filter(t => !!document.getElementById('main-panel-' + t));
 
   const fallback = enabledTabs.includes('report')
     ? 'report'
