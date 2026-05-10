@@ -350,12 +350,15 @@
     <span class="bottom-nav-icon">📋</span>
     <span class="bottom-nav-label">チェック/Issue</span>
   </button>
+  <button class="bottom-nav-item" data-section="calendar" onclick="switchBottomNav('calendar')">
+    <span class="bottom-nav-icon">📅</span>
+    <span class="bottom-nav-label">カレンダー</span>
+  </button>
   <button class="bottom-nav-item" data-section="ai" onclick="switchBottomNav('ai')">
     <span class="bottom-nav-icon">✨</span>
     <span class="bottom-nav-label">AI</span>
   </button>
   <button class="bottom-nav-item" data-section="settings" onclick="switchBottomNav('settings')">
-
     <span class="bottom-nav-icon">⚙️</span>
     <span class="bottom-nav-label">設定</span>
   </button>
@@ -443,6 +446,13 @@ function switchBottomNav(section) {
     setHidden(colRight, false);
     setHidden(document.getElementById('side-tabs'), false);
     switchSideTab('checklist');
+  } else if (section === 'calendar') {
+    setHidden(colCalendar, false);
+    setHidden(document.getElementById('side-tabs'), true);
+    setHidden(dailyChecklistCard, true);
+    setHidden(taskWidgetCard, true);
+    setHidden(pillarsCard, true);
+    setHidden(gcalTitle, false);
   } else if (section === 'ai') {
     setHidden(colMain, false);
     switchMainTab('ai');
