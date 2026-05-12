@@ -1,0 +1,48 @@
+<!-- AI チャットパネル -->
+<div id="main-panel-ai" class="is-hidden">
+  <div class="chat-session-bar">
+    <div style="position:relative;flex:1;min-width:0;">
+      <button class="session-select-btn" onclick="toggleSessionDropdown()">
+        <span id="session-title-display">新しい会話</span> ▾
+      </button>
+      <div class="session-dropdown is-hidden" id="session-dropdown"></div>
+    </div>
+    <button class="btn-new-session" onclick="newChatSession()">＋ New</button>
+  </div>
+
+  <div class="chat-wrap vn-mode">
+    <!-- キャラクター立ち絵エリア（ログ・ダイアログをオーバーレイ） -->
+    <div class="vn-portrait-area">
+      <img class="vn-portrait-img" id="vn-portrait-img" src="" alt="">
+      <div class="vn-user-log" id="vn-user-log"></div>
+      <div class="vn-dialogue-box" id="vn-dialogue-box" onclick="advanceVnText()">
+        <div class="vn-dialogue-name-tab" id="vn-ai-name-tab">AI</div>
+        <div class="vn-dialogue-text" id="vn-dialogue-text"></div>
+        <div class="vn-advance-indicator" id="vn-advance-indicator"></div>
+      </div>
+    </div>
+    <div class="file-chips is-hidden" id="file-chips"></div>
+    <!-- 入力エリア -->
+    <div class="chat-input-row">
+      <textarea class="chat-textarea" id="chat-input" rows="2" placeholder="質問を入力… (Enter で送信 / Shift+Enter で改行)"></textarea>
+      <button class="chat-send-btn" id="chat-send-btn" onclick="sendChat()">送信</button>
+    </div>
+    <div class="chat-options">
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+        <input type="checkbox" id="include-report" style="accent-color:#c6002b;">
+        日記を含める
+      </label>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+        <input type="checkbox" id="include-knowledge" style="accent-color:#c6002b;">
+        ナレッジを含める
+      </label>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button class="chat-clear-btn" title="ファイルを添付" onclick="promptFileAttach()">📎</button>
+        <button class="chat-clear-btn" title="この会話をクリア" onclick="clearChat()">🗑</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/ui/ai-chat.js?v=20260510i"></script>
+<script src="js/ui/ai-ticker.js?v=20260510"></script>

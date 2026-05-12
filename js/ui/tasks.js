@@ -170,3 +170,7 @@ async function createTaskFromWidget() {
 
 window.fetchTaskWidget = fetchTaskWidget;
 window.createTaskFromWidget = createTaskFromWidget;
+window.resetTaskWidgetChecks = function() {
+  localStorage.removeItem(getTaskCheckedKey());
+  fetchTaskWidget();
+};

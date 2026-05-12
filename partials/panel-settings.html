@@ -1,0 +1,55 @@
+<!-- 設定パネル -->
+<div id="main-panel-settings" class="is-hidden">
+  <h2 style="margin-bottom:14px;">⚙️ 設定</h2>
+
+  <!-- GitHub PAT -->
+  <div class="modal-section" style="margin-bottom:20px;">
+    <div class="modal-label">GitHub Personal Access Token</div>
+    <div id="modal-pat-set" class="is-hidden">
+      <div style="font-size:0.82rem;color:#c6002b;margin-bottom:8px;font-weight:700;">✅ PAT が設定済みです</div>
+      <button class="btn-token danger" onclick="clearToken()">トークンを削除</button>
+    </div>
+    <div id="modal-pat-unset">
+      <div class="token-row">
+        <input id="token-input" class="token-input" type="password" placeholder="ghp_xxxxxxxxxxxx">
+        <button class="btn-token" onclick="saveToken()">保存</button>
+      </div>
+      <p class="modal-note">repo スコープ + Actions write が必要です</p>
+    </div>
+    <div id="modal-status" class="modal-status"></div>
+  </div>
+
+  <!-- Gemini API Key -->
+  <div class="modal-section" style="margin-bottom:20px;">
+    <div class="modal-label">💎 Gemini API キー</div>
+    <div id="modal-gemini-set" class="is-hidden">
+      <div style="font-size:0.82rem;color:#c6002b;margin-bottom:8px;font-weight:700;">✅ APIキーが設定済みです</div>
+      <button class="btn-token danger" onclick="clearGeminiKey()">削除</button>
+    </div>
+    <div id="modal-gemini-unset">
+      <div class="token-row">
+        <input id="gemini-key-input" class="token-input" type="password" placeholder="AIzaSy...">
+        <button class="btn-token" onclick="saveGeminiKey()">保存</button>
+      </div>
+      <p class="modal-note">aistudio.google.com で発行できます</p>
+    </div>
+    <div id="gemini-test-row" class="token-row" style="margin-top:8px;">
+      <button class="btn-token" style="background:#5c5c5c;color:#fff;border-color:#5c5c5c;" onclick="testGeminiKey()" id="gemini-test-btn">接続テスト</button>
+      <span id="gemini-test-status" style="font-size:0.75rem;margin-left:8px;"></span>
+    </div>
+  </div>
+
+  <!-- カレンダー表示設定 -->
+  <div class="modal-section" style="margin-bottom:20px;">
+    <div class="modal-label">📅 Google Calendar 表示</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <label style="display:flex;align-items:center;cursor:pointer;">
+        <input type="checkbox" id="show-calendar-checkbox" onchange="toggleCalendarDisplay()" style="width:18px;height:18px;cursor:pointer;">
+        <span style="margin-left:8px;font-size:0.85rem;color:#5c5c5c;">カレンダーを表示する</span>
+      </label>
+    </div>
+    <p class="modal-note">非表示にすると画面からカレンダーが消えます</p>
+  </div>
+</div>
+
+<script src="js/ui/settings.js"></script>

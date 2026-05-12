@@ -59,33 +59,60 @@ window.DiaryService = {
   },
 
   /**
+   * デイリーチェックリストを収集する
+   */
+  async collectDailyChecklist() {
+    const lines = [];
+    const checkboxes = document.querySelectorAll('#daily-checklist-list-right .daily-task-check');
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        const title = cb.nextElementSibling ? cb.nextElementSibling.textContent.trim() : '';
+        if (title) lines.push(`- [x] ${title}`);
+      }
+    });
+    return lines;
+  },
+
+  /**
+   * 完了済みタスクを収集する
+   */
+  async collectTasks() {
+    const lines = [];
+    const rows = document.querySelectorAll('#task-widget-list .task-widget-item');
+    rows.forEach(row => {
+      const cb = row.querySelector('input[type="checkbox"]');
+      if (cb && cb.checked) {
+        const titleSpan = row.querySelector('.issue-title');
+        if (titleSpan) {
+          lines.push(`- [x] ${titleSpan.textContent.trim()}`);
+        }
+      }
+    });
+    return lines;
+  },
+
+  /**
+   * 確認事項（Pillars）を収集する
+   */
+  async collectPillars() {
+    const lines = [];
+    const checkboxes = document.querySelectorAll('#pillars-list .pillar-check');
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        const title = cb.nextElementSibling ? cb.nextElementSibling.textContent.trim() : '';
+        if (title) lines.push(`- [x] ${title}`);
+      }
+    });
+    return lines;
+  },
+
+  /**
    * 完了した項目（チェックリスト、タスク）を収集する
    */
   async collectCheckedLines() {
-    const lines = [];
-    
-    // 1. デイリーチェックリスト
-    const dailyTasks = ConfigService.data.dailyTasks || [];
-    dailyTasks.forEach(task => {
-      if (localStorage.getItem(`daily-task-${task.title}`) === 'true') {
-        lines.push(`- [x] ${task.title}`);
-      }
-    });
-
-    // 2. 完了済みタスク（リポジトリから取得）
-    if (window.TaskRepository) {
-      const allTasks = await TaskRepository.getAllTasks();
-      const today = getJstTodayISO();
-      const doneToday = allTasks.filter(t => 
-        t.status === 'done' && 
-        t.closedAt && t.closedAt.startsWith(today)
-      );
-      doneToday.forEach(t => {
-        lines.push(`- [x] ${t.title}`);
-      });
-    }
-
-    return lines;
+    const daily = await this.collectDailyChecklist();
+    const tasks = await this.collectTasks();
+    return [...daily, ...tasks];
   },
 
   /**

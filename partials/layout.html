@@ -1,0 +1,50 @@
+<header class="!flex !items-center !gap-4 !mb-6 !max-w-[1400px] !mx-auto max-[768px]:!mb-[14px]">
+  <h1 class="!text-[1.25rem] !font-bold !text-[var(--text)] !tracking-[-0.01em] max-[768px]:!text-[1rem]">My Portal</h1>
+  <span id="today" class="!text-[0.88rem] !text-[var(--text-sub)] !flex-1"></span>
+  <button class="settings-btn" onclick="if(window.innerWidth <= MOBILE_BREAKPOINT) switchBottomNav('settings'); else switchMainTab('settings');" title="設定を開く">⚙️</button>
+</header>
+
+<section class="analytics-band">
+  <article class="analytics-card analytics-card-progress">
+    <p class="analytics-label">PROGRESS CHART</p>
+    <div class="analytics-progress-track">
+      <div class="analytics-progress-fill" id="analytics-progress-fill"></div>
+    </div>
+    <div id="ai-ticker-container" class="ai-ticker-container" style="display:flex; align-items:center; gap:12px;">
+      <img id="ai-ticker-avatar" src="docs/images/avatar.png" alt="AI Avatar" style="width:40px; height:40px; border-radius:50%; border:2px solid var(--accent); object-fit:cover; display:none;">
+      <span id="ai-ticker-text" class="ai-ticker-text" style="flex:1;">... Loading AI Message ...</span>
+      <button id="ai-ticker-refresh" class="regen-btn" style="padding:4px 8px;" onclick="refreshAiTicker()" title="メッセージを再生成">🔄</button>
+    </div>
+    <p class="analytics-footnote" id="analytics-progress-text">0 / 0 DONE</p>
+  </article>
+</section>
+
+<div class="layout !grid !gap-4 !max-w-[1400px] !mx-auto !items-start">
+
+  <!-- ===== Col 1: Google Calendar ===== -->
+  <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="col-calendar">
+    <h2 id="gcal-title">📅 Google Calendar</h2>
+    <div id="gcal-placeholder" class="gcal-placeholder">
+      <p style="font-size:0.82rem;color:#8e8e8e;text-align:center;">Google Calendar を表示するには<br>設定でカレンダー埋め込み URL を入力してください</p>
+      <button onclick="if(window.innerWidth <= MOBILE_BREAKPOINT) switchBottomNav('settings'); else switchMainTab('settings');" style="margin-top:8px;padding:6px 14px;border:2px solid #111;border-radius:0;background:#fff;color:#111;font-size:0.76rem;cursor:pointer;font-weight:700;">⚙️ 設定を開く</button>
+    </div>
+    <iframe class="gcal-iframe is-hidden" id="gcal-iframe" src="" frameborder="0" scrolling="no"></iframe>
+  </div>
+
+  <!-- ===== Col 2: Main Panels ===== -->
+  <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="col-main">
+    <div data-partial="partials/panel-report.html"></div>
+    <div data-partial="partials/panel-links.html"></div>
+    <div data-partial="partials/panel-ai.html"></div>
+    <div data-partial="partials/panel-settings.html"></div>
+  </div>
+
+  <!-- ===== Col 3: Right Column ===== -->
+  <div data-partial="partials/col-right.html"></div>
+
+</div><!-- /layout -->
+
+<div class="mobile-side-overlay" id="mobile-side-overlay" onclick="closeMobileSideMenu()"></div>
+
+<!-- ボトムナビゲーション -->
+<div data-partial="partials/bottom-nav.html"></div>

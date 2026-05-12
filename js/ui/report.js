@@ -163,14 +163,15 @@ ${context}`;
 
     const aiComment = await callGemini(prompt);
     
-    // DiaryService を使って追記
-    const newContent = await DiaryService.appendReflection(reportContent, aiComment);
+    // 追記せずに結果を表示のみ行う
+    const outputEl = document.getElementById('reflect-output');
+    const resultEl = document.getElementById('reflect-ai-result');
+    if (outputEl && resultEl) {
+      outputEl.classList.remove('is-hidden');
+      resultEl.innerHTML = renderMarkdown(aiComment);
+    }
     
-    // UIを更新
-    reportContent = newContent;
-    renderCurrentTab();
-    
-    if (statusEl) statusEl.textContent = '✅ 振り返りを追記しました';
+    if (statusEl) statusEl.textContent = '✅ 振り返りを受信しました';
   } catch (e) {
     console.error('AI Reflection Error:', e);
     if (statusEl) statusEl.textContent = '❌ エラーが発生しました';
@@ -290,92 +291,80 @@ function resetAllCheckboxes () {
 // 今日の記録を日記に反映
 // =====================
 
-/**
- * チェックリスト・タスク・メモ・家計記録を収集し、
- * #reflect-output にプレビュー表示する。
- */
-async function startAutoReflect () {
-  const btn = document.getElementById('reflect-start-btn');
-  const statusEl = document.getElementById('reflect-status');
-  const outputEl = document.getElementById('reflect-output');
-  const resultEl = document.getElementById('reflect-ai-result');
-  if (!btn || !statusEl || !outputEl || !resultEl) return;
-
-  btn.disabled = true;
-  statusEl.textContent = '収集中…';
-  outputEl.classList.add('is-hidden');
+async function appendListToReport(title, items, successMessage) {
+  const statusEl = document.getElementById('save-status');
 
   try {
-    const today = getJstTodayISO();
-    const previewMd = await DiaryService.generateTemplate(today);
-
-    // プレビュー表示
-    resultEl.innerHTML = renderMarkdown(previewMd);
-
-    outputEl.classList.remove('is-hidden');
-    statusEl.textContent = '内容を確認して「日記に追記して保存」を押してください';
-
-    // 生成した内容を後で appendAutoReflection が参照できるよう保持
-    outputEl.dataset.reflectMd = previewMd;
-  } catch (e) {
-    statusEl.textContent = '収集エラー: ' + (e.message || String(e));
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-/**
- * startAutoReflect で生成したプレビューと追加コメントを
- * 現在の日記に追記して GitHub へ保存する。
- */
-async function appendAutoReflection () {
-  const outputEl = document.getElementById('reflect-output');
-  const commentEl = document.getElementById('reflect-comment');
-  const statusEl = document.getElementById('reflect-status');
-  const appendBtn = document.getElementById('reflect-append-btn');
-  if (!outputEl || !statusEl) return;
-
-  const previewMd = (outputEl.dataset.reflectMd || '').trim();
-  const comment = ((commentEl?.value) || '').trim();
-
-  if (!previewMd) {
-    statusEl.textContent = '先に「今日の記録を日記に反映」を押してください';
-    return;
-  }
-
-  if (appendBtn) appendBtn.disabled = true;
-  statusEl.textContent = '保存中…';
-
-  try {
-    // 日記がまだ読み込まれていない場合はテンプレートを準備
+    // 日記データがまだ読み込まれていない場合のみ取得
     if (!reportContent) {
-      reportContent = await DiaryService.generateTemplate(getJstTodayISO());
+      if (statusEl) {
+        statusEl.style.color = '#888';
+        statusEl.textContent = '日記を取得中…';
+      }
+      const diary = await DiaryService.getTodayDiary();
+      reportContent = diary.content;
+      reportSha = diary.sha;
+      reportPath = diary.path;
     }
 
-    // 追記内容を構築
-    const commentBlock = comment ? '\n\n## 💬 コメント\n' + comment : '';
-    const appendText = '\n\n---\n\n' + previewMd + commentBlock;
+    if (!items || items.length === 0) {
+      alert('完了した項目がありません。');
+      if (statusEl && statusEl.textContent === '日記を取得中…') statusEl.textContent = '';
+      return;
+    }
 
-    // 既存のコンテンツに追記
-    reportContent = reportContent.trimEnd() + appendText + '\n';
+    const block = `\n\n## ${title}\n` + items.join('  \n') + '\n';
+    reportContent = reportContent.trimEnd() + block;
 
-    await pushReportToGitHub('📝 今日の記録を日記に反映');
+    // UIに反映
+    renderCurrentTab();
 
-    statusEl.textContent = '✅ 保存しました';
-    outputEl.classList.add('is-hidden');
-    if (commentEl) commentEl.value = '';
-    delete outputEl.dataset.reflectMd;
+    // 下書きとしてローカルに保存
+    localStorage.setItem('diary-draft', reportContent);
+
+    if (statusEl) {
+      statusEl.style.color = '#8e8e8e';
+      statusEl.textContent = '未保存の変更があります（保存ボタンを押してください）';
+    }
+    
+    const metaEl = document.getElementById('report-meta');
+    if (metaEl) {
+      metaEl.textContent = 'ローカル変更あり（未反映）';
+    }
+
+    // 日記タブに切り替えて変更を見せる
+    if (typeof switchMainTab === 'function') {
+      switchMainTab('report');
+    }
+
   } catch (e) {
-    statusEl.textContent = '保存エラー: ' + (e.message || String(e));
-  } finally {
-    if (appendBtn) appendBtn.disabled = false;
+    console.error('Failed to append to diary:', e);
+    if (statusEl) {
+      statusEl.style.color = '#cf222e';
+      statusEl.textContent = `エラー: ${e.message}`;
+    }
+    alert(`エラーが発生しました: ${e.message}`);
   }
 }
 
-window.startAutoReflect = startAutoReflect;
-window.appendAutoReflection = appendAutoReflection;
-window.startAutoReflect = startAutoReflect;
-window.appendAutoReflection = appendAutoReflection;
+async function appendDailyChecklistToReport() {
+  const items = await DiaryService.collectDailyChecklist();
+  await appendListToReport('本日のチェックリスト', items, '✅ デイリーチェックリストを日記に反映しました。');
+}
+
+async function appendTasksToReport() {
+  const items = await DiaryService.collectTasks();
+  await appendListToReport('完了したタスク', items, '✅ 完了したタスクを日記に反映しました。');
+}
+
+async function appendPillarsToReport() {
+  const items = await DiaryService.collectPillars();
+  await appendListToReport('確認事項', items, '✅ 確認事項を日記に反映しました。');
+}
+
+window.appendDailyChecklistToReport = appendDailyChecklistToReport;
+window.appendTasksToReport = appendTasksToReport;
+window.appendPillarsToReport = appendPillarsToReport;
 
 async function regenReport () {
   const token = getToken();

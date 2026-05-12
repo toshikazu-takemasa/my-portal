@@ -35,8 +35,7 @@
 
 .report-editor {
   width: 100%;
-  min-height: 500px;
-  max-height: 580px;
+  height: 300px;
   padding: 12px;
  
   border-radius: 0;

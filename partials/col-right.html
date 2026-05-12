@@ -1,0 +1,81 @@
+<!-- ===== Col 3: Right Column ===== -->
+<div class="right-col" id="col-right">
+
+  <div class="side-panel-head">
+    <button class="side-close-btn" onclick="closeMobileSideMenu()">✕ 閉じる</button>
+  </div>
+
+  <!-- チェック/Issue/確認 サブタブ (PC/スマホ共通) -->
+  <div class="side-tabs" id="side-tabs">
+    <button class="side-tab active" id="stab-checklist" onclick="switchSideTab('checklist')">チェック</button>
+    <button class="side-tab" id="stab-tasks" onclick="switchSideTab('tasks')">タスク</button>
+    <button class="side-tab" id="stab-pillars" onclick="switchSideTab('pillars')">確認</button>
+  </div>
+
+  <!-- 本日のチェックリスト（日記テンプレートから） -->
+  <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="daily-checklist-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;">
+      <h2 style="margin-bottom:0;">📋 本日のチェックリスト</h2>
+      <div style="display:flex;gap:6px;">
+        <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;" onclick="appendDailyChecklistToReport()">📝 反映</button>
+        <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;background:#f6f8fa;color:#24292f;" onclick="resetDailyChecklist()">クリア</button>
+      </div>
+    </div>
+    <div id="daily-checklist-list-right" class="daily-checklist"></div>
+  </div>
+
+  <!-- タスクウィジェット -->
+  <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="task-widget-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;">
+      <h2 style="margin-bottom:0;">📋 タスク</h2>
+      <div style="display:flex;gap:6px;">
+        <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;" onclick="appendTasksToReport()">📝 反映</button>
+        <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;background:#f6f8fa;color:#24292f;" onclick="resetTaskWidgetChecks()">クリア</button>
+        <button class="quick-memo-btn" style="padding:5px 9px;font-size:0.72rem;" onclick="fetchTaskWidget()">↻ 更新</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
+      <select id="task-filter-status" class="quick-memo-select" style="min-width:90px;flex:0 0 auto;" onchange="fetchTaskWidget()">
+        <option value="active">進行中</option>
+        <option value="all">すべて</option>
+        <option value="done">完了</option>
+      </select>
+      <input id="task-search-input" type="text" class="quick-memo-input" placeholder="タイトル検索" style="flex:1;min-width:140px;padding:7px 9px;font-size:0.8rem;" onkeydown="if(event.key==='Enter'){fetchTaskWidget();}">
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
+      <input id="task-create-title" type="text" class="quick-memo-input" placeholder="新規タスクタイトル" style="flex:1;min-width:140px;padding:7px 9px;font-size:0.8rem;" onkeydown="if(event.key==='Enter'){createTaskFromWidget();}">
+      <select id="task-create-priority" class="quick-memo-select" style="flex:0 0 auto;">
+        <option value="P2">P2</option>
+        <option value="P1">P1</option>
+        <option value="P3">P3</option>
+      </select>
+      <button class="quick-memo-btn" style="padding:7px 11px;font-size:0.76rem;" onclick="createTaskFromWidget()">追加</button>
+    </div>
+    <div class="task-widget-list" id="task-widget-list"></div>
+    <div id="task-widget-status" class="issues-status"></div>
+  </div>
+
+  <!-- 確認事項（アコーディオン） -->
+  <div class="card !bg-[var(--card-bg)] !rounded-[var(--radius-lg)] !pt-5 !pb-5 !px-[22px] !border !border-[var(--border)] !shadow-[0_2px_8px_rgba(0,0,0,0.04)] max-[768px]:!p-4 max-[768px]:!rounded-[var(--radius-md)]" id="pillars-card">
+    <div class="accordion-header" id="pillars-header" onclick="togglePillars()">
+      <div class="acc-left">
+        <h2 style="margin-bottom:0;">✅ 確認事項</h2>
+        <span class="acc-progress-chip" id="pillars-chip">0 / 7</span>
+        <button class="quick-memo-btn" style="padding:4px 8px;font-size:0.7rem;margin-left:8px;" onclick="event.stopPropagation(); appendPillarsToReport()">📝 反映</button>
+        <button class="quick-memo-btn" style="padding:4px 8px;font-size:0.7rem;margin-left:4px;background:#f6f8fa;color:#24292f;" onclick="event.stopPropagation(); resetPillars()">クリア</button>
+      </div>
+      <span class="acc-chevron" id="pillars-chevron">▼</span>
+    </div>
+
+    <div class="accordion-body" id="pillars-body">
+      <div class="accordion-body-inner">
+        <div class="checklist-group" id="pillars-list"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /right-col -->
+
+<script src="js/ui/checklist.js"></script>
+<script src="js/ui/tasks.js?v=20260510"></script>
+<script src="js/ui/daily-checklist.js?v=20260510"></script>
