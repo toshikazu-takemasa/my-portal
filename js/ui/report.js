@@ -307,14 +307,29 @@ async function appendListToReport(title, items, successMessage) {
       reportPath = diary.path;
     }
 
-    if (!items || items.length === 0) {
-      alert('完了した項目がありません。');
-      if (statusEl && statusEl.textContent === '日記を取得中…') statusEl.textContent = '';
-      return;
-    }
+    // 特定のセクション（## タイトル から次の ## の前、または末尾まで）にマッチする正規表現
+    const sectionRegex = new RegExp(`## ${title}\\n(?:[\\s\\S]*?)(?=\\n## |$)`);
 
-    const block = `\n\n## ${title}\n` + items.join('  \n') + '\n';
-    reportContent = reportContent.trimEnd() + block;
+    if (!items || items.length === 0) {
+      if (sectionRegex.test(reportContent)) {
+        // 項目が0件になった場合はセクションごと削除する
+        const removeRegex = new RegExp(`\\n*## ${title}\\n(?:[\\s\\S]*?)(?=\\n## |$)`);
+        reportContent = reportContent.replace(removeRegex, '');
+      } else {
+        alert('完了した項目がありません。');
+        if (statusEl && statusEl.textContent === '日記を取得中…') statusEl.textContent = '';
+        return;
+      }
+    } else {
+      const blockContent = items.join('  \n') + '\n';
+      if (sectionRegex.test(reportContent)) {
+        // すでに存在する場合は中身を置き換える
+        reportContent = reportContent.replace(sectionRegex, `## ${title}\n${blockContent}`);
+      } else {
+        // 存在しない場合は末尾に追記する
+        reportContent = reportContent.trimEnd() + `\n\n## ${title}\n${blockContent}`;
+      }
+    }
 
     // UIに反映
     renderCurrentTab();
