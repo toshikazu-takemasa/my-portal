@@ -7,7 +7,6 @@ window.ConfigService = {
   data: {
     links: [],
     kintaiUrl: '',
-    pillars: [],
     showCalendar: true
   },
 
@@ -54,7 +53,6 @@ window.ConfigService = {
     const map = {
       links: () => JSON.parse(localStorage.getItem('all_links_v2')),
       kintaiUrl: () => localStorage.getItem('kintai_sheet_url'),
-      pillars: () => JSON.parse(localStorage.getItem('pillars_config_v1')),
     };
 
     const result = {};
@@ -83,7 +81,6 @@ window.ConfigService = {
   _syncToLocalStorage() {
     localStorage.setItem('all_links_v2', JSON.stringify(this.data.links));
     localStorage.setItem('kintai_sheet_url', this.data.kintaiUrl);
-    localStorage.setItem('pillars_config_v1', JSON.stringify(this.data.pillars));
   },
 
   /**
@@ -111,7 +108,6 @@ window.ConfigService = {
     this.data = {
       links: JSON.parse(localStorage.getItem('all_links_v2') || '[]'),
       kintaiUrl: localStorage.getItem('kintai_sheet_url') || '',
-      pillars: JSON.parse(localStorage.getItem('pillars_config_v1') || '[]'),
       showCalendar: true
     };
     try {

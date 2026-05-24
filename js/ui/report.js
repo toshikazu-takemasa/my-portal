@@ -283,8 +283,6 @@ async function pushReportToGitHub (message) {
 
 function resetAllCheckboxes () {
   if (typeof resetDailyChecklist === 'function') resetDailyChecklist();
-  if (typeof resetPillars === 'function') resetPillars();
-  if (typeof resetTaskWidgetChecks === 'function') resetTaskWidgetChecks();
 }
 
 // =====================
@@ -367,19 +365,7 @@ async function appendDailyChecklistToReport() {
   await appendListToReport('本日のチェックリスト', items, '✅ デイリーチェックリストを日記に反映しました。');
 }
 
-async function appendTasksToReport() {
-  const items = await DiaryService.collectTasks();
-  await appendListToReport('完了したタスク', items, '✅ 完了したタスクを日記に反映しました。');
-}
-
-async function appendPillarsToReport() {
-  const items = await DiaryService.collectPillars();
-  await appendListToReport('確認事項', items, '✅ 確認事項を日記に反映しました。');
-}
-
 window.appendDailyChecklistToReport = appendDailyChecklistToReport;
-window.appendTasksToReport = appendTasksToReport;
-window.appendPillarsToReport = appendPillarsToReport;
 
 async function regenReport () {
   const token = getToken();

@@ -25,16 +25,13 @@ const todayEl = document.getElementById('today');
 if (todayEl) todayEl.textContent = dateStr;
 
 // --- localStorage キー（JST日付ベース） ---
-let todayISO    = getJstTodayISO();
-let todayKey    = 'checklist_' + todayISO;
-let PILLARS_KEY = 'pillars_' + todayISO;
+let todayISO = getJstTodayISO();
+let todayKey = 'checklist_' + todayISO;
 
 window.todayISO = todayISO;
 window.todayKey = todayKey;
-window.PILLARS_KEY = PILLARS_KEY;
 
 // 古いキーを削除
 Object.keys(localStorage)
-  .filter(k => (k.startsWith('checklist_') && k !== todayKey) ||
-               (k.startsWith('pillars_')   && k !== PILLARS_KEY))
+  .filter(k => k.startsWith('checklist_') && k !== todayKey)
   .forEach(k => localStorage.removeItem(k));

@@ -74,45 +74,10 @@ window.DiaryService = {
   },
 
   /**
-   * 完了済みタスクを収集する
-   */
-  async collectTasks() {
-    const lines = [];
-    const rows = document.querySelectorAll('#task-widget-list .task-widget-item');
-    rows.forEach(row => {
-      const cb = row.querySelector('input[type="checkbox"]');
-      if (cb && cb.checked) {
-        const titleSpan = row.querySelector('.issue-title');
-        if (titleSpan) {
-          lines.push(`- [x] ${titleSpan.textContent.trim()}`);
-        }
-      }
-    });
-    return lines;
-  },
-
-  /**
-   * 確認事項（Pillars）を収集する
-   */
-  async collectPillars() {
-    const lines = [];
-    const checkboxes = document.querySelectorAll('#pillars-list .pillar-check');
-    checkboxes.forEach(cb => {
-      if (cb.checked) {
-        const title = cb.nextElementSibling ? cb.nextElementSibling.textContent.trim() : '';
-        if (title) lines.push(`- [x] ${title}`);
-      }
-    });
-    return lines;
-  },
-
-  /**
-   * 完了した項目（チェックリスト、タスク）を収集する
+   * 完了した項目（チェックリスト）を収集する
    */
   async collectCheckedLines() {
-    const daily = await this.collectDailyChecklist();
-    const tasks = await this.collectTasks();
-    return [...daily, ...tasks];
+    return await this.collectDailyChecklist();
   },
 
   /**

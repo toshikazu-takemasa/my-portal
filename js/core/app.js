@@ -22,24 +22,16 @@ function switchBottomNav(section) {
   const colRight           = document.getElementById('col-right');
   const gcalTitle          = document.getElementById('gcal-title');
   const dailyChecklistCard = document.getElementById('daily-checklist-card');
-  const taskWidgetCard     = document.getElementById('task-widget-card');
-  const pillarsCard        = document.getElementById('pillars-card');
-  const pillarsBody        = document.getElementById('pillars-body');
-  const pillarsHeader      = document.getElementById('pillars-header');
+  const memoTabCard        = document.getElementById('memo-tab-card');
 
   if (window.innerWidth > MOBILE_BREAKPOINT) return; // PC では無効
 
-  setHidden(colCalendar, true);
-  setHidden(colMain,     true);
-  setHidden(colRight,    true);
-
+  setHidden(colCalendar,        true);
+  setHidden(colMain,            true);
+  setHidden(colRight,           true);
   setHidden(dailyChecklistCard, false);
-  setHidden(taskWidgetCard,     false);
-  setHidden(pillarsCard,        false);
+  setHidden(memoTabCard,        true);
   setHidden(gcalTitle,          false);
-  if (pillarsBody)   pillarsBody.classList.remove('open');
-  if (pillarsHeader) pillarsHeader.classList.remove('open');
-  if (typeof pillarsOpen !== 'undefined') pillarsOpen = false;
 
   if (section === 'report') {
     setHidden(colMain, false);
@@ -52,8 +44,6 @@ function switchBottomNav(section) {
     setHidden(colCalendar, false);
     setHidden(document.getElementById('side-tabs'), true);
     setHidden(dailyChecklistCard, true);
-    setHidden(taskWidgetCard,     true);
-    setHidden(pillarsCard,        true);
     setHidden(gcalTitle,          false);
   } else if (section === 'ai') {
     setHidden(colMain, false);
@@ -67,27 +57,17 @@ function switchBottomNav(section) {
 // ========== サイドタブ切り替え ==========
 function switchSideTab(tab) {
   const checklistCard = document.getElementById('daily-checklist-card');
-  const taskCard      = document.getElementById('task-widget-card');
-  const pillarsCard   = document.getElementById('pillars-card');
+  const memoCard      = document.getElementById('memo-tab-card');
   const stabChecklist = document.getElementById('stab-checklist');
-  const stabTasks     = document.getElementById('stab-tasks');
-  const stabPillars   = document.getElementById('stab-pillars');
+  const stabMemo      = document.getElementById('stab-memo');
 
   checklistCard?.classList.toggle('is-hidden', tab !== 'checklist');
-  taskCard?.classList.toggle('is-hidden',      tab !== 'tasks');
-  pillarsCard?.classList.toggle('is-hidden',   tab !== 'pillars');
+  memoCard?.classList.toggle('is-hidden',      tab !== 'memo');
 
   stabChecklist?.classList.toggle('active', tab === 'checklist');
-  stabTasks?.classList.toggle('active',     tab === 'tasks');
-  stabPillars?.classList.toggle('active',   tab === 'pillars');
+  stabMemo?.classList.toggle('active',      tab === 'memo');
 
-  if (tab === 'pillars') {
-    const pillarsBody   = document.getElementById('pillars-body');
-    const pillarsHeader = document.getElementById('pillars-header');
-    if (pillarsBody)   pillarsBody.classList.add('open');
-    if (pillarsHeader) pillarsHeader.classList.add('open');
-    if (typeof pillarsOpen !== 'undefined') pillarsOpen = true;
-  }
+  if (tab === 'memo' && typeof loadMemoTab === 'function') loadMemoTab();
 }
 
 // ========== モバイルサイドメニュー ==========
@@ -131,11 +111,10 @@ function syncResponsiveLayout() {
   if (isMobile === _syncLastIsMobile) return;
   _syncLastIsMobile = isMobile;
 
-  const colCalendar    = document.getElementById('col-calendar');
-  const colMain        = document.getElementById('col-main');
-  const colRight       = document.getElementById('col-right');
-  const taskWidgetCard = document.getElementById('task-widget-card');
-  const gcalTitle      = document.getElementById('gcal-title');
+  const colCalendar = document.getElementById('col-calendar');
+  const colMain     = document.getElementById('col-main');
+  const colRight    = document.getElementById('col-right');
+  const gcalTitle   = document.getElementById('gcal-title');
   const setHidden = (el, hidden) => el?.classList.toggle('is-hidden', hidden);
 
   if (!colCalendar || !colMain || !colRight) return;
@@ -148,12 +127,11 @@ function syncResponsiveLayout() {
   }
 
   closeMobileSideMenu();
-  setHidden(colMain,        false);
-  setHidden(colRight,       false);
+  setHidden(colMain,  false);
+  setHidden(colRight, false);
   setHidden(document.getElementById('side-tabs'), false);
   switchSideTab('checklist');
-  setHidden(taskWidgetCard, false);
-  setHidden(gcalTitle,      false);
+  setHidden(gcalTitle, false);
   applyCalendarVisibility();
 }
 
@@ -221,8 +199,7 @@ loadAllPartials().then(async () => {
   if (token) {
     await ConfigService.init();
     fetchDailyReport();
-    if (typeof fetchTaskWidget  === 'function') fetchTaskWidget();
-    if (typeof renderAllLinks   === 'function') renderAllLinks();
+    if (typeof renderAllLinks === 'function') renderAllLinks();
     const kintaiLink = document.getElementById('kintai-sheet-link');
     if (kintaiLink && getKintaiUrl()) kintaiLink.href = getKintaiUrl();
   } else {
