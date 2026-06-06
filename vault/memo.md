@@ -9,7 +9,7 @@
 - [ ] 火星の女王 ：たか
 - [ ] シークレット・オブ・シークレッツ
 
-足爪切
+手足爪切
 
 手植えイベント
 https://www.instagram.com/p/DYj5eFAknG1/?igsh=bTkybmRxZTZtMmZ4
