@@ -17,4 +17,5 @@ https://www.instagram.com/p/DYj5eFAknG1/?igsh=bTkybmRxZTZtMmZ4
 空き家情報の販売
 
 ７月クレカ
+osaka_posting@919g.co.jp
 10,296
