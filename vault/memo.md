@@ -1,4 +1,4 @@
-爪切り
+https://tinect.jp/blog/contents-easywritingpractice-method-using-newspapers/
 
 準備物チェック
 印鑑
