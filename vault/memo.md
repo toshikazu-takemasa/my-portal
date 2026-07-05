@@ -16,7 +16,7 @@ https://tinect.jp/blog/contents-easywritingpractice-method-using-newspapers/
 
 ## 小説
 - [x] アクティベイター
-- [ ] 火星の女王 ：たか
+- [ ] 火星の女王 
 - [ ] シークレット・オブ・シークレッツ
 反転領域
 
