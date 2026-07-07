@@ -26,21 +26,16 @@
     },
     {
       "id": "dt2",
-      "title": "ウォーキング",
-      "type": "daily"
-    },
-    {
-      "id": "dt3",
       "title": "会計",
       "type": "daily"
     },
     {
-      "id": "dt4",
+      "id": "dt3",
       "title": "エクササイズ",
       "type": "daily"
     },
     {
-      "id": "dt5",
+      "id": "dt4",
       "title": "読書または勉強",
       "type": "daily"
     }
