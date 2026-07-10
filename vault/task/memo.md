@@ -1,11 +1,3 @@
-https://tinect.jp/blog/contents-easywritingpractice-method-using-newspapers/
-
-あと5日　500/日
-準備物チェック
-印鑑
-キックボード？
-カバン出す
-
 ## カード
 16770
 
