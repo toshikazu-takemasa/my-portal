@@ -213,3 +213,131 @@
     font-size: 16px; /* iOS ズーム防止 */
   }
 }
+
+/* ========== メモカード（vault/memo.md の ## セクション単位・アコーディオン） ========== */
+.memo-tab-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.memo-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+  overflow: hidden;
+}
+
+.memo-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: none;
+  background: var(--section-bg);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.memo-card-title-text {
+  font-weight: 700;
+  font-size: 0.84rem;
+  color: var(--text);
+  white-space: nowrap;
+  flex-shrink: 0;
+  max-width: 55%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.memo-card-preview {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.74rem;
+  color: var(--text-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.memo-card-chev {
+  flex-shrink: 0;
+  color: var(--text-sub);
+  font-size: 0.8rem;
+  transition: transform 0.15s;
+}
+
+.memo-card.open .memo-card-chev { transform: rotate(90deg); }
+
+.memo-card-body {
+  display: none;
+  padding: 10px 12px 12px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.memo-card.open .memo-card-body { display: flex; }
+
+.memo-card-title-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  font-family: inherit;
+  background: var(--section-bg);
+  color: var(--text);
+  border: none;
+  outline: none;
+}
+
+.memo-card-title-input[readonly] { color: var(--text-sub); }
+
+.memo-card-text {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px;
+  font-size: 0.84rem;
+  font-family: inherit;
+  line-height: 1.6;
+  background: var(--section-bg);
+  color: var(--text);
+  border: none;
+  outline: none;
+  resize: vertical;
+}
+
+.memo-card-actions { display: flex; gap: 8px; }
+.memo-card-actions .quick-memo-btn { flex: 1; }
+
+.memo-card-del-btn {
+  background: var(--section-bg2);
+  color: var(--red);
+}
+
+.memo-add-row { display: flex; gap: 8px; }
+
+.memo-empty {
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  text-align: center;
+  padding: 20px 10px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* スマホ: iOS ズーム防止とタップ領域拡大 */
+@media (max-width: 768px) {
+  .memo-card-head { min-height: 48px; }
+
+  .memo-card-text,
+  .memo-card-title-input,
+  #memo-new-title,
+  #memo-tab-textarea {
+    font-size: 16px;
+  }
+}
