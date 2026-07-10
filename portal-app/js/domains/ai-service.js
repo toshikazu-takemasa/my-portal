@@ -14,7 +14,7 @@ window.AiService = {
     try {
       const diaryFiles = await GitHubStorage.listFiles('vault/diary');
       const latestDiaries = diaryFiles
-        .filter(f => f.name.endsWith('.md'))
+        .filter(f => /^\d{4}-\d{2}(-\d{2})?\.md$/.test(f.name))   // 日別・月次まとめのみ（テンプレート等を除外）
         .sort((a, b) => b.name.localeCompare(a.name))
         .slice(0, 3);
 
@@ -35,7 +35,7 @@ window.AiService = {
 
     // 3. ADR (設計意図) - 最新のもの
     try {
-      const adrFiles = await GitHubStorage.listFiles('docs/adr');
+      const adrFiles = await GitHubStorage.listFiles('vault/docs/adr');
       const latestAdr = adrFiles
         .filter(f => f.name.endsWith('.md'))
         .sort((a, b) => b.name.localeCompare(a.name))

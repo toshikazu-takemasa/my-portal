@@ -10,15 +10,17 @@ work-vault と同じ「portal-app（アプリ）+ vault（データ）」の2階
 my-portal/
 ├── portal-app/        ← 静的Webアプリ本体（index.html / css / js / partials / data / manifest.json）
 ├── vault/             ← データ集積場所
-│   ├── diary/         ← 日記（YYYY-MM-DD.md）
+│   ├── diary/         ← 日記（当月: YYYY-MM-DD.md / 過去月: YYYY-MM.md に月次まとめ）
 │   ├── knowledge/     ← ナレッジ
 │   ├── persona/       ← AI ペルソナ（persona.md / avatar.png）
 │   ├── task/          ← タスク・メモ（tasks.json / memo.md）
 │   ├── finance/       ← 家計データ（YYYY-MM.json）
+│   ├── docs/adr/      ← ADR（設計記録）
 │   └── config.json    ← アプリ設定（クイックリンク等）
-├── docs/adr/          ← ADR（設計記録）
 └── index.html         ← 旧URL → portal-app/ へのリダイレクト
 ```
+
+- **日記の月次まとめ運用**: 月が終わったら日別ファイルを `YYYY-MM.md`（`## YYYY年M月D日` 見出し・`---` 区切り）に統合し、日別ファイルは削除する。
 
 - 公開URLは `…/my-portal/portal-app/` です（旧 `…/my-portal/` からは自動転送）。ホーム画面に追加済みの場合は開き直すと転送されます。
 
