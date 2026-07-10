@@ -14,7 +14,6 @@ my-portal/
 │   ├── knowledge/     ← ナレッジ
 │   ├── persona/       ← AI ペルソナ（persona.md / avatar.png）
 │   ├── task/          ← タスク・メモ（tasks.json / memo.md）
-│   ├── finance/       ← 家計データ（YYYY-MM.json）
 │   ├── docs/adr/      ← ADR（設計記録）
 │   └── config.json    ← アプリ設定（クイックリンク等）
 └── index.html         ← 旧URL → portal-app/ へのリダイレクト

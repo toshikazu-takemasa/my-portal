@@ -49,13 +49,11 @@ window.DiaryService = {
   async generateTemplate(dateISO) {
     const checkedLines = await this.collectCheckedLines();
     const memo = this.collectMemo(dateISO);
-    const finance = this.collectFinance(dateISO);
 
     const checklistBlock = checkedLines.length > 0 ? `${checkedLines.join('  \n')}\n\n` : '';
     const memoBlock = memo ? `## 📝 メモ\n${memo}\n\n` : '';
-    const financeBlock = finance ? `## 💴 家計記録\n${finance}\n\n` : '';
 
-    return `# ${dateISO}\n\n${checklistBlock}${memoBlock}${finance}`;
+    return `# ${dateISO}\n\n${checklistBlock}${memoBlock}`;
   },
 
   /**
@@ -85,33 +83,6 @@ window.DiaryService = {
    */
   collectMemo(dateISO) {
     return (localStorage.getItem(`daily-memo_${dateISO}`) || '').trim();
-  },
-
-  /**
-   * 家計記録を収集する
-   */
-  collectFinance(dateISO) {
-    // legacy logic from report.js for now, until FinanceService is ready
-    const ym = dateISO.slice(0, 7);
-    let records = [];
-    try {
-      records = JSON.parse(localStorage.getItem(`finance-records_${ym}`) || '[]');
-    } catch { records = []; }
-
-    const todayRecords = records.filter(r => r.date === dateISO);
-    if (todayRecords.length === 0) return '';
-
-    const lines = todayRecords.map(r => {
-      const typeLabel = r.type === 'income' ? '収入' : '支出';
-      const note = r.note ? ` (${r.note})` : '';
-      return `- ${typeLabel} / ${r.category} / ${Number(r.amount).toLocaleString('ja-JP')}円${note}`;
-    });
-
-    const income = todayRecords.filter(r => r.type === 'income').reduce((s, r) => s + Number(r.amount || 0), 0);
-    const expense = todayRecords.filter(r => r.type === 'expense').reduce((s, r) => s + Number(r.amount || 0), 0);
-    lines.push(`- 合計: 収入 ${income.toLocaleString('ja-JP')}円 / 支出 ${expense.toLocaleString('ja-JP')}円`);
-
-    return `## 💴 家計記録\n${lines.join('\n')}\n`;
   },
 
   /**
