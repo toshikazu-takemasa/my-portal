@@ -19,30 +19,25 @@ jobs:
             const y    = jst.getFullYear();
             const m    = String(jst.getMonth() + 1).padStart(2, '0');
             const d    = String(jst.getDate()).padStart(2, '0');
-            const days = ['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
-            const day  = days[jst.getDay()];
-            const path = `日記/${y}-${m}-${d}_${day}_日報.md`;
+            const path = `vault/diary/${y}-${m}-${d}.md`;
 
-            const content = [
-              `# ${y}/${m}/${d}（${day}） 日報`,
-              '',
-              '## 今日やること',
-              '- [ ] ',
-              '- [ ] ',
-              '- [ ] ',
-              '',
-              '## 作業記録',
-              '',
-              '### 午前',
-              '',
-              '### 午後',
-              '',
-              '## 気づき・メモ',
-              '',
-              '## 明日やること',
-              '- [ ] ',
-              '',
-            ].join('\n');
+            // vault/diary/テンプレート.md を本文の雛形として利用（先頭見出しは日付に差し替え）
+            let templateBody = '';
+            try {
+              const { data } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                path:  'vault/diary/テンプレート.md',
+              });
+              templateBody = Buffer.from(data.content, 'base64')
+                .toString('utf8')
+                .replace(/^# .*\n/, '')
+                .trimStart();
+            } catch (e) {
+              if (e.status !== 404) throw e;
+            }
+
+            const content = `# ${y}-${m}-${d}\n\n${templateBody}`;
 
             const encoded = Buffer.from(content).toString('base64');
 

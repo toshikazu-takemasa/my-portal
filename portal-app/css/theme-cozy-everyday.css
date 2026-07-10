@@ -61,8 +61,7 @@ body.theme-cozy-everyday {
 
 /* ボタンの中などの白文字は白のままにする例外 */
 .theme-cozy-everyday [style*='color:#fff'],
-.theme-cozy-everyday button[style*='color: #fff'],
-.theme-cozy-everyday .acc-progress-chip {
+.theme-cozy-everyday button[style*='color: #fff'] {
   color: #fff !important;
 }
 
@@ -98,7 +97,6 @@ body.theme-cozy-everyday::before {
 
 .theme-cozy-everyday header h1,
 .theme-cozy-everyday .analytics-label,
-.theme-cozy-everyday .analytics-big,
 .theme-cozy-everyday h2,
 .theme-cozy-everyday h3 {
   font-family: 'Noto Sans JP', sans-serif;
@@ -116,12 +114,8 @@ body.theme-cozy-everyday::before {
 
 .theme-cozy-everyday .card,
 .theme-cozy-everyday .analytics-card,
-.theme-cozy-everyday .modal,
-.theme-cozy-everyday .issue-manager-card,
 .theme-cozy-everyday .gcal-iframe,
-.theme-cozy-everyday .gcal-placeholder,
-.theme-cozy-everyday .task-widget-item,
-.theme-cozy-everyday .issue-item {
+.theme-cozy-everyday .gcal-placeholder {
   background: #ffffff !important;
   border: 1px solid #efe9e1 !important;
   border-radius: 16px !important;
@@ -140,20 +134,17 @@ body.theme-cozy-everyday::before {
   );
 }
 
-.theme-cozy-everyday .report-tabs,
-.theme-cozy-everyday .task-filter-tabs {
+.theme-cozy-everyday .report-tabs {
   border-color: #e6dcd3 !important;
   background: #fdfaf6 !important;
   border-radius: 12px !important;
 }
 
-.theme-cozy-everyday .report-tab,
-.theme-cozy-everyday .task-filter-tab {
+.theme-cozy-everyday .report-tab {
   color: #8c7a6f !important;
 }
 
-.theme-cozy-everyday .report-tab.active,
-.theme-cozy-everyday .task-filter-tab.active {
+.theme-cozy-everyday .report-tab.active {
   color: #594a42 !important;
   border-color: #e09f96 !important;
   background: #ffffff !important;
@@ -161,7 +152,6 @@ body.theme-cozy-everyday::before {
 }
 
 .theme-cozy-everyday .quick-memo-input,
-.theme-cozy-everyday .quick-memo-select,
 .theme-cozy-everyday .token-input,
 .theme-cozy-everyday .report-editor,
 .theme-cozy-everyday textarea,
@@ -174,7 +164,6 @@ body.theme-cozy-everyday::before {
 }
 
 .theme-cozy-everyday .quick-memo-input:focus,
-.theme-cozy-everyday .quick-memo-select:focus,
 .theme-cozy-everyday .token-input:focus,
 .theme-cozy-everyday .report-editor:focus,
 .theme-cozy-everyday textarea:focus,
@@ -190,13 +179,11 @@ body.theme-cozy-everyday::before {
 .theme-cozy-everyday .quick-memo-btn,
 .theme-cozy-everyday .btn-token,
 .theme-cozy-everyday .regen-btn,
-.theme-cozy-everyday .btn-modal-close,
 .theme-cozy-everyday .settings-btn,
 .theme-cozy-everyday .chat-send-btn,
 .theme-cozy-everyday .chat-clear-btn,
 .theme-cozy-everyday .btn-form-save,
-.theme-cozy-everyday .btn-form-cancel,
-.theme-cozy-everyday .issues-btn {
+.theme-cozy-everyday .btn-form-cancel {
   border: 1px solid transparent !important;
   border-radius: 10px !important;
   color: #ffffff !important;
@@ -210,7 +197,6 @@ body.theme-cozy-everyday::before {
 /* 一部ボタンの反転色 */
 .theme-cozy-everyday button[style*='background:#fff'],
 .theme-cozy-everyday button[style*='background: #fff'],
-.theme-cozy-everyday .btn-modal-close,
 .theme-cozy-everyday .btn-form-cancel,
 .theme-cozy-everyday .chat-clear-btn {
   background: #ffffff !important;
@@ -223,19 +209,16 @@ body.theme-cozy-everyday::before {
 .theme-cozy-everyday .quick-memo-btn:hover,
 .theme-cozy-everyday .btn-token:hover,
 .theme-cozy-everyday .regen-btn:hover,
-.theme-cozy-everyday .btn-modal-close:hover,
 .theme-cozy-everyday .settings-btn:hover,
 .theme-cozy-everyday .chat-send-btn:hover,
 .theme-cozy-everyday .chat-clear-btn:hover,
 .theme-cozy-everyday .btn-form-save:hover,
-.theme-cozy-everyday .btn-form-cancel:hover,
-.theme-cozy-everyday .issues-btn:hover {
+.theme-cozy-everyday .btn-form-cancel:hover {
   filter: brightness(1.05);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(214, 152, 143, 0.3) !important;
 }
 
-.theme-cozy-everyday .progress-bar,
 .theme-cozy-everyday .analytics-progress-track {
   border-color: #efe9e1 !important;
   background: #fdfaf6 !important;
@@ -243,28 +226,14 @@ body.theme-cozy-everyday::before {
   overflow: hidden;
 }
 
-.theme-cozy-everyday .progress-fill,
 .theme-cozy-everyday .analytics-progress-fill {
   background: linear-gradient(90deg, #fadcd8 0%, #e09f96 100%) !important;
   border-radius: 8px;
 }
 
-.theme-cozy-everyday .modal-overlay {
-  background: rgba(90, 75, 66, 0.4);
-  backdrop-filter: blur(4px);
-}
-
-.theme-cozy-everyday .modal {
-  width: 440px;
-  max-width: 95vw;
-}
-
 .theme-cozy-everyday .modal-label,
-.theme-cozy-everyday .group-label,
 .theme-cozy-everyday .issues-status,
-.theme-cozy-everyday .quick-memo-status,
-.theme-cozy-everyday .modal-note,
-.theme-cozy-everyday .progress-text {
+.theme-cozy-everyday .modal-note {
   color: #9e8e85 !important;
 }
 
@@ -273,9 +242,7 @@ body.theme-cozy-everyday::before {
   color: #c47b73;
 }
 
-.theme-cozy-everyday .md-code,
-.theme-cozy-everyday .label-chip,
-.theme-cozy-everyday .acc-progress-chip {
+.theme-cozy-everyday .md-code {
   background: #f5f0ea !important;
   color: #c47b73 !important;
   border: 1px solid #e6dcd3 !important;
@@ -304,8 +271,6 @@ body.theme-cozy-everyday::before {
 
   .theme-cozy-everyday .card,
   .theme-cozy-everyday .analytics-card,
-  .theme-cozy-everyday .modal,
-  .theme-cozy-everyday .issue-manager-card,
   .theme-cozy-everyday .gcal-iframe,
   .theme-cozy-everyday .gcal-placeholder {
     border-radius: 12px !important;

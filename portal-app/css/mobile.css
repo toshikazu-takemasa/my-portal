@@ -46,107 +46,15 @@
   }
 
   #mobile-daily-checklist-anchor .daily-checklist,
-  #col-right .daily-checklist,
-  #col-right .task-widget-list {
+  #col-right .daily-checklist {
     max-height: min(42dvh, 360px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 6px;
   }
-
-  #col-right .task-widget-list {
-    overflow-x: hidden;
-  }
-
-  #col-right .accordion-body.open {
-    max-height: none;
-  }
 }
 
-/* ========== タスクウィジェット ========== */
-.task-filter-tabs {
-  display: flex;
-  gap: 2px;
-  background: var(--section-bg);
-  border-radius: 0;
-  padding: 2px;
- 
-}
-
-.task-filter-tab {
-  padding: 4px 10px;
-  border: none;
-  border-radius: 0;
-  font-size: 0.73rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: transparent;
-  color: var(--text-sub);
-  transition: all 0.15s;
-  min-height: 30px;
-}
-
-.task-filter-tab.active {
-  background: #111;
-  color: #fff;
-  box-shadow: none;
-}
-
-.task-widget-list {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  max-height: 240px;
-  overflow-y: auto;
-}
-
-.task-widget-item {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 5px;
-  padding: 7px 8px;
-  border-radius: 0;
-  background: var(--section-bg);
- 
-  text-decoration: none;
-  color: var(--text);
-  font-size: 0.82rem;
-  line-height: 1.4;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.task-widget-item:hover { background: var(--accent-light); border-color: var(--border); }
-
-.issue-labels {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  width: 100%;
-  margin-top: 2px;
-}
-
-.label-chip {
-  font-size: 0.68rem;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 0;
-  border: 2px solid currentColor;
-  background: #f2f2f2;
-  color: #111;
-  line-height: 1.25;
-  letter-spacing: 0.01em;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
-  white-space: nowrap;
-}
-
-/* ========== クイックメモ ========== */
-.quick-memo-form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
+/* ========== クイックメモ（メモタブで再利用） ========== */
 .quick-memo-input {
   width: 100%;
   padding: 9px 10px;
@@ -161,23 +69,6 @@
 }
 
 .quick-memo-input:focus { border-color: var(--accent); background: var(--card-bg); }
-
-.quick-memo-actions {
-  display: flex;
-  gap: 6px;
-}
-
-.quick-memo-select {
-  flex: 1;
-  padding: 7px 9px;
- 
-  border-radius: 0;
-  font-size: 0.78rem;
-  outline: none;
-  background: var(--section-bg);
-  color: var(--text);
-  cursor: pointer;
-}
 
 .quick-memo-btn {
   padding: 7px 14px;
@@ -196,19 +87,8 @@
 .quick-memo-btn:hover { opacity: 0.85; }
 .quick-memo-btn:disabled { opacity: 0.45; cursor: default; }
 
-.quick-memo-status {
-  font-size: 0.76rem;
-  min-height: 16px;
-  margin-top: 4px;
-}
-
 /* スマホでのタップ領域拡大 */
 @media (max-width: 768px) {
-  .task-filter-tab {
-    min-height: 36px;
-    padding: 6px 12px;
-  }
-
   .quick-memo-input {
     font-size: 16px; /* iOS ズーム防止 */
   }

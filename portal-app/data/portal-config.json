@@ -2,22 +2,6 @@
   "repo": "toshikazu-takemasa/my-portal",
   "calendarUrl": "https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Asia%2FTokyo&showPrint=0&showTabs=0&showTz=0&mode=AGENDA&src=dGFrZW1hMTk4OUBnbWFpbC5jb20&src=amEuamFwYW5lc2UjaG9saWRheUBncm91cC52LmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23039be5&color=%230b8043",
   "branch": "main",
-"links": [
-    {
-      "id": "b1",
-      "emoji": "📅",
-      "name": "Google Calendar",
-      "url": "https://calendar.google.com",
-      "category": "今日の予定"
-    },
-    {
-      "id": "b2",
-      "emoji": "📧",
-      "name": "Gmail",
-      "url": "https://mail.google.com",
-      "category": "今日の予定"
-    }
-  ],
   "dailyTasks": [
     {
       "id": "dt1",
@@ -39,40 +23,5 @@
       "title": "読書または勉強",
       "type": "daily"
     }
-  ],
-  "pillars": [
-    {
-      "id": "p1",
-      "title": "扉は朝は開けて出る"
-    },
-    {
-      "id": "p2",
-      "title": "すり足注意"
-    },
-    {
-      "id": "p4",
-      "title": "昨日の食器"
-    },
-    {
-      "id": "p5",
-      "title": "弁当"
-    },
-    {
-      "id": "p6",
-      "title": "パン"
-    },
-    {
-      "id": "p7",
-      "title": "着替え"
-    },
-    {
-      "id": "p8",
-      "title": "明日の服"
-    },
-    {
-      "id": "p10",
-      "title": "スマホしまう"
-    }
-  ],
-  "kintaiUrl": ""
+  ]
 }
