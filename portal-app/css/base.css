@@ -167,6 +167,12 @@ header h1 {
   align-items: start;
 }
 
+/* グリッドアイテムの min-width:auto によるはみ出し防止
+   （nowrap なプレビュー行や幅広テーブルがカラム幅を押し広げないように） */
+.layout > * {
+  min-width: 0;
+}
+
 .layout.calendar-hidden {
   grid-template-columns: minmax(0, 1fr) 285px;
 }
