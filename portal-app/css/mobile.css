@@ -214,7 +214,7 @@
   }
 }
 
-/* ========== メモカード（vault/memo.md の ## セクション単位・アコーディオン） ========== */
+/* ========== メモカード（vault/task/memo.md の ## セクション単位・アコーディオン） ========== */
 .memo-tab-cards {
   display: flex;
   flex-direction: column;

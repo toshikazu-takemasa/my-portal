@@ -2,6 +2,26 @@
 
 個人用ポータルサイトです。GitHub Issues を使ったタスク管理、日記（日報）の表示・編集、AI チャット（Claude）などの機能を提供します。
 
+## ディレクトリ構成
+
+work-vault と同じ「portal-app（アプリ）+ vault（データ）」の2階層構成です。
+
+```
+my-portal/
+├── portal-app/        ← 静的Webアプリ本体（index.html / css / js / partials / data / manifest.json）
+├── vault/             ← データ集積場所
+│   ├── diary/         ← 日記（YYYY-MM-DD.md）
+│   ├── knowledge/     ← ナレッジ
+│   ├── persona/       ← AI ペルソナ（persona.md / avatar.png）
+│   ├── task/          ← タスク・メモ（tasks.json / memo.md）
+│   ├── finance/       ← 家計データ（YYYY-MM.json）
+│   └── config.json    ← アプリ設定（クイックリンク等）
+├── docs/adr/          ← ADR（設計記録）
+└── index.html         ← 旧URL → portal-app/ へのリダイレクト
+```
+
+- 公開URLは `…/my-portal/portal-app/` です（旧 `…/my-portal/` からは自動転送）。ホーム画面に追加済みの場合は開き直すと転送されます。
+
 ## セットアップ
 
 1. **GitHub Personal Access Token（PAT）** を取得します（`repo` スコープ + Actions write が必要）。

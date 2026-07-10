@@ -162,7 +162,7 @@ loadAllPartials().then(async () => {
 
   // vault/persona/persona.md をロードして frontmatter をパース
   try {
-    const res = await fetch('vault/persona/persona.md');
+    const res = await fetch('../vault/persona/persona.md');
     if (res.ok) {
       const text  = await res.text();
       const fm    = {};

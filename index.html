@@ -4,65 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Private Portal</title>
+  <!-- アプリ本体は portal-app/ に移動しました（work-vault と同じ「portal-app + vault」構成）。 -->
+  <!-- 旧URL（ホーム画面追加済みのPWA等）からのアクセスを新URLへ転送する。 -->
   <script>
-    tailwind = {
-      config: {
-        theme: {
-          extend: {
-            screens: { tablet: '769px', desktop: '1101px' }
-          }
-        }
-      }
-    };
+    location.replace('portal-app/' + location.search + location.hash);
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b1322">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Portal">
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/base.css?v=20260510">
-  <link rel="stylesheet" href="css/components.css?v=20260510">
-  <link rel="stylesheet" href="css/ai-chat.css?v=20260510">
-  <link rel="stylesheet" href="css/ai-ticker.css?v=20260510">
-  <link rel="stylesheet" href="css/mobile.css?v=20260710">
-  <link rel="stylesheet" href="css/theme-game.css?v=20260510">
-  <link rel="stylesheet" href="css/theme-night-sky.css?v=20260510">
-  <link rel="stylesheet" href="css/theme-cozy-everyday.css?v=20260510">
+  <meta http-equiv="refresh" content="0; url=portal-app/">
 </head>
-<body class="persona-dashboard">
-
-<!-- テーマを描画ブロック前に適用（FOUC 防止） -->
-<script>document.body.classList.add('theme-cozy-everyday');</script>
-
-<!-- ページ全体のレイアウト（header / analytics / 3カラム / bottom-nav） -->
-<div data-partial="partials/layout.html"></div>
-
-<!-- ========== Scripts ========== -->
-<!-- Core -->
-<script src="js/core/html-loader.js"></script>
-<script src="js/core/config.js"></script>
-<script src="js/core/utils.js"></script>
-<!-- Storage Layer -->
-<script src="js/storage/github-storage.js"></script>
-<script src="js/storage/task-repository.js"></script>
-<script src="js/storage/config-repository.js"></script>
-<script src="js/storage/diary-repository.js"></script>
-<!-- Domain Layer -->
-<script src="js/domains/task-service.js"></script>
-<script src="js/domains/config-service.js"></script>
-<script src="js/domains/ai-service.js"></script>
-<script src="js/domains/diary-service.js"></script>
-<!-- Agent Layer -->
-<script src="js/agent/tool-definitions.js"></script>
-<script src="js/agent/tool-dispatcher.js"></script>
-<!-- Core / API Libs -->
-<script src="js/core/github.js?v=20260510"></script>
-<script src="js/core/gemini.js?v=20260510"></script>
-<!-- App entry point（ナビ・レイアウト・初期化） -->
-<script src="js/core/app.js"></script>
-
+<body>
+  <p style="font-family:sans-serif;padding:24px;">
+    ポータルは <a href="portal-app/">portal-app/</a> に移動しました。自動で移動しない場合はリンクをタップしてください。
+  </p>
 </body>
 </html>

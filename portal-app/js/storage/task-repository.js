@@ -3,7 +3,7 @@
  * 依存関係: js/storage/github-storage.js
  */
 
-const TASKS_PATH = 'vault/tasks.json';
+const TASKS_PATH = 'vault/task/tasks.json';
 
 window.TaskRepository = {
   /**

@@ -1,5 +1,5 @@
 // =====================
-// タスクウィジェット（ファイルベース: vault/tasks.json）
+// タスクウィジェット（ファイルベース: vault/task/tasks.json）
 // =====================
 
 function getTaskCheckedKey() {

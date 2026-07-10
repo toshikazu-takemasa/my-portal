@@ -3,7 +3,7 @@
  * 依存関係: js/storage/github-storage.js
  */
 
-const MEMO_PATH = 'vault/memo.md';
+const MEMO_PATH = 'vault/task/memo.md';
 
 window.MemoRepository = {
   async load() {

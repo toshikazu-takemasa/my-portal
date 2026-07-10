@@ -19,7 +19,7 @@ window.getGeminiKey = getGeminiKey;
 // ---- AI Persona (vault/persona/persona.md から読む) ----
 // window.AI_PERSONA = { name, userCallName, avatarUrl, body } はアプリ初期化時にセット済み
 function getAiName()   { return (window.AI_PERSONA && window.AI_PERSONA.name)      || 'AI'; }
-function getAiAvatar() { return (window.AI_PERSONA && window.AI_PERSONA.avatarUrl)  || 'docs/images/avatar.png'; }
+function getAiAvatar() { return (window.AI_PERSONA && window.AI_PERSONA.avatarUrl)  || '../docs/images/avatar.png'; }
 function getAiPrompt() {
   const p = window.AI_PERSONA || {};
   return (p.body || 'あなたは優秀なアシスタントです。').replace(/\{呼称\}/g, p.userCallName || 'ユーザー');
