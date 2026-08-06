@@ -64,7 +64,7 @@ window.ConversationLog = {
    * 1件を Markdown ブロックにする（要約せず全文）。
    * 括弧の中身は、ユーザー発話なら評価種別、AI 発話なら表情。
    *   **[14:01] ユーザー（close）:**
-   *   **[14:01] はやて（worried）:**
+   *   **[14:01] こはる（worried）:**
    */
   _render(entry) {
     const tag = entry.role === 'user' ? entry.feedback : entry.expression;
