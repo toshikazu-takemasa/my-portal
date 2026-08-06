@@ -11,6 +11,20 @@ class GitHubAuthError extends Error {
 }
 window.GitHubAuthError = GitHubAuthError;
 
+/**
+ * 楽観的ロックの照合に失敗した（＝読んでから書くまでの間に他所で更新された）。
+ * `saveFile()` に `baseSha` を渡したときだけ投げる（ADR-043）。
+ * 呼び出し側は「読み直して組み立て直す」ことが期待されている。
+ * 黙ってリトライしてはいけない——それをやったのが ADR-043 の不具合そのもの。
+ */
+class GitHubConflictError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'GitHubConflictError';
+  }
+}
+window.GitHubConflictError = GitHubConflictError;
+
 window.GitHubStorage = {
   /**
    * ファイルの内容を取得する
@@ -52,12 +66,20 @@ window.GitHubStorage = {
 
   /**
    * ファイルを保存（作成・更新）する
+   *
+   * 既定では、書き込み直前に最新 SHA を取り直して送る（＝必ず通る上書き）。
+   * `opts.baseSha` を渡すと**楽観的ロック**になり、読んだ時点から中身が変わっていれば
+   * GitHub が拒否し、`GitHubConflictError` を投げる（ADR-043）。
+   *
    * @param {string} path - 保存先のパス
    * @param {string} content - 内容
    * @param {string} message - コミットメッセージ
-   * @returns {Promise<Object>} APIレスポンス
+   * @param {{baseSha?: string|null}} [opts] - `baseSha` を渡すと楽観的ロックで書き込む。
+   *   新規作成のつもりなら `null` を渡す（既に存在していれば衝突として扱われる）。
+   * @returns {Promise<Object>} APIレスポンス（`previousSha` 付き）
+   * @throws {GitHubConflictError} `baseSha` 指定時に照合が失敗した場合
    */
-  async saveFile(path, content, message = 'Update file via Portal') {
+  async saveFile(path, content, message = 'Update file via Portal', opts = {}) {
     const token = getToken();
     const repo = getRepo();
     if (!token || !repo) throw new Error('GitHub PAT またはリポジトリが設定されていません');
@@ -65,14 +87,21 @@ window.GitHubStorage = {
     const encPath = path.split('/').map(encodeURIComponent).join('/');
     const url = `https://api.github.com/repos/${repo}/contents/${encPath}`;
     const encodedContent = encodeUtf8Base64(content);
+    const useBaseSha = Object.prototype.hasOwnProperty.call(opts, 'baseSha');
 
     const attemptSave = async () => {
-      // 毎回最新の SHA を取得（リトライ時も含む）
       let sha;
-      try {
-        const existing = await this.getFile(path);
-        if (existing) sha = existing.sha;
-      } catch (e) { /* 新規作成 */ }
+      if (useBaseSha) {
+        // 呼び出し側が「読んだときの SHA」を持っている。取り直さない。
+        // 取り直すと照合が必ず通ってしまい、古い内容で静かに上書きする（ADR-043 の不具合）。
+        sha = opts.baseSha || undefined;
+      } else {
+        // 既定の挙動: 毎回最新の SHA を取得（リトライ時も含む）
+        try {
+          const existing = await this.getFile(path);
+          if (existing) sha = existing.sha;
+        } catch (e) { /* 新規作成 */ }
+      }
 
       const res = await fetch(url, {
         method: 'PUT',
@@ -103,6 +132,23 @@ window.GitHubStorage = {
       const json = await res.json();
       return { ...json, previousSha: sha || '' };
     };
+
+    if (useBaseSha) {
+      // 楽観的ロック: 衝突は呼び出し側に返す。ここでリトライしてはいけない。
+      // 422 は「sha 未指定なのに既存ファイルがある」＝他所で作られた場合も含むため衝突として扱う。
+      try {
+        return await attemptSave();
+      } catch (e) {
+        if (e.status === 409 || e.status === 422) {
+          const conflict = new GitHubConflictError(
+            `保存先が読み込み後に更新されています（${path}）: ${e.message}`
+          );
+          conflict.status = e.status;
+          throw conflict;
+        }
+        throw e;
+      }
+    }
 
     try {
       return await attemptSave();

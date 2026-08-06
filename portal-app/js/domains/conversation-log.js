@@ -104,33 +104,60 @@ window.ConversationLog = {
     }
   },
 
+  /**
+   * 1日分のログへ追記する。
+   *
+   * 読んでから書くまでの間に他端末が書き込むと、以前は古い内容で静かに上書きしていた（ADR-043）。
+   * いまは「読んだときの SHA」で照合させ、拒否されたら**読み直して組み立て直す**。
+   * 組み立てを丸ごとやり直すのが要点で、同じ本文を再送しても取りこぼしは救えない。
+   */
   async _appendToFile(date, entries) {
     const path = this.path(date);
-    const existing = await GitHubStorage.getFile(path).catch(() => null);
+    const MAX_ATTEMPTS = 3;
 
-    let body = existing ? existing.content.replace(/\s*$/, '') : `# ${date} アバター会話ログ\n\n> 要約せず、発話をそのまま時系列で記録しています（ADR-035）。`;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const existing = await GitHubStorage.getFile(path).catch(() => null);
 
-    let lastSession = localStorage.getItem(CONV_SESSION_KEY) || '';
-    let out = '';
+      const body = existing
+        ? existing.content.replace(/\s*$/, '')
+        : `# ${date} アバター会話ログ\n\n> 要約せず、発話をそのまま時系列で記録しています（ADR-035）。`;
 
-    for (const entry of entries) {
-      // セッションが切り替わったら見出しを打つ
-      if (entry.sessionId && entry.sessionId !== lastSession) {
-        const title = entry.sessionTitle || '会話';
-        out += `\n\n## ${title}（${entry.at}〜）\n`;
-        lastSession = entry.sessionId;
+      // 試行ごとに同じ基準から組み立て直す（前回試行の値を持ち越さない）
+      let lastSession = localStorage.getItem(CONV_SESSION_KEY) || '';
+      let out = '';
+
+      for (const entry of entries) {
+        // セッションが切り替わったら見出しを打つ
+        if (entry.sessionId && entry.sessionId !== lastSession) {
+          const title = entry.sessionTitle || '会話';
+          out += `\n\n## ${title}（${entry.at}〜）\n`;
+          lastSession = entry.sessionId;
+        }
+        out += `\n${this._render(entry)}`;
       }
-      out += `\n${this._render(entry)}`;
-    }
 
-    // 既存ファイルに当該セッション見出しが無い場合（別端末で書かれた等）でも、
-    // 追記そのものは常に成立させる。見出しの重複は許容する。
-    await GitHubStorage.saveFile(
-      path,
-      `${body}${out}\n`,
-      `💬 会話ログ追記: ${date}`
-    );
-    localStorage.setItem(CONV_SESSION_KEY, lastSession);
+      try {
+        // 既存ファイルに当該セッション見出しが無い場合（別端末で書かれた等）でも、
+        // 追記そのものは常に成立させる。見出しの重複は許容する。
+        await GitHubStorage.saveFile(
+          path,
+          `${body}${out}\n`,
+          `💬 会話ログ追記: ${date}`,
+          { baseSha: existing ? existing.sha : null }
+        );
+        localStorage.setItem(CONV_SESSION_KEY, lastSession);
+        return;
+      } catch (e) {
+        const isConflict = e instanceof GitHubConflictError || e.name === 'GitHubConflictError';
+        if (!isConflict || attempt === MAX_ATTEMPTS) throw e;
+
+        console.warn(
+          `会話ログ: 他所の書き込みと衝突したため読み直します（${attempt}/${MAX_ATTEMPTS}・${date}）`
+        );
+        // 続けて衝突し続けないよう少し待つ
+        await new Promise(r => setTimeout(r, 300 * attempt));
+      }
+    }
   },
 
   /** 1往復（ユーザー発話 + AI 応答）を記録して即フラッシュする */
