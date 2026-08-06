@@ -126,6 +126,31 @@ function previewAvatarExpression(id) {
   }
 }
 
+/**
+ * APIキーとして保存してよい文字列か検査する。
+ *
+ * キーは HTTP ヘッダ（Authorization / x-goog-api-key）に載せるため、
+ * ISO-8859-1 の範囲外の文字が1つでもあると fetch が
+ * 「String contains non ISO-8859-1 code point」という TypeError を投げる。
+ * これは呼び出し箇所から遠いところで出るので、原因にたどり着けない。
+ *
+ * 実際に「トークン欄に別のテキストを貼ってしまい、全 API が落ちる」事故が起きたので、
+ * 入口で弾いて理由を伝える。
+ *
+ * @returns {string|null} 問題があればメッセージ、無ければ null
+ */
+function _validateApiKey(val, label) {
+  const bad = [...val].filter(ch => ch.codePointAt(0) > 0x7e || ch.codePointAt(0) < 0x21);
+  if (bad.length) {
+    const sample = [...new Set(bad)].slice(0, 5)
+      .map(ch => `U+${ch.codePointAt(0).toString(16).toUpperCase().padStart(4, '0')}`)
+      .join(' ');
+    return `${label}に使えない文字が ${bad.length} 個含まれています（${sample}）。\n`
+         + '全角文字や空白が混ざっていないか、貼り付けた内容を確認してください。';
+  }
+  return null;
+}
+
 // ---- GitHub PAT ----
 function showModalTokenUI() {
   const hasToken = !!getToken();
@@ -136,6 +161,8 @@ function showModalTokenUI() {
 async function saveToken() {
   const val = document.getElementById('token-input').value.trim();
   if (!val) return;
+  const invalid = _validateApiKey(val, 'GitHub PAT');
+  if (invalid) { alert(invalid); return; }
   try {
     await _writeKey(TOKEN_KEY, val);
   } catch (e) {
@@ -163,6 +190,8 @@ function showModalGeminiUI() {
 async function saveGeminiKey() {
   const val = document.getElementById('gemini-key-input').value.trim();
   if (!val) return;
+  const invalid = _validateApiKey(val, 'Gemini API キー');
+  if (invalid) { alert(invalid); return; }
   try {
     await _writeKey(GEMINI_KEY, val);
   } catch (e) {

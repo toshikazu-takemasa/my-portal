@@ -27,14 +27,36 @@ window.GitHubConflictError = GitHubConflictError;
 
 window.GitHubStorage = {
   /**
+   * 認証情報を取り出す。全メソッドの入口で使う。
+   *
+   * PAT は Authorization ヘッダに載せるため、ISO-8859-1 の範囲外の文字が
+   * 1つでもあると fetch が `String contains non ISO-8859-1 code point` という
+   * TypeError を投げる。呼び出し箇所から遠いところで出るうえ、
+   * リポジトリ設定の問題と見分けがつかないので、ここで原因の分かる形にする。
+   * （実際にトークン欄へ別のテキストを貼ってしまい、全 API が落ちる事故が起きた）
+   *
+   * @returns {{token: string, repo: string}}
+   */
+  _requireAuth() {
+    const token = getToken();
+    const repo = getRepo();
+    if (!token || !repo) throw new Error('GitHub PAT またはリポジトリが設定されていません');
+    if (/[^\x21-\x7E]/.test(token)) {
+      throw new GitHubAuthError(
+        'GitHub PAT に使用できない文字が含まれています（全角文字や空白など）。'
+        + '設定から「トークンを削除」して、入力し直してください。'
+      );
+    }
+    return { token, repo };
+  },
+
+  /**
    * ファイルの内容を取得する
    * @param {string} path - リポジトリ内のパス
    * @returns {Promise<{content: string, sha: string, path: string} | null>}
    */
   async getFile(path) {
-    const token = getToken();
-    const repo = getRepo();
-    if (!token || !repo) throw new Error('GitHub PAT またはリポジトリが設定されていません');
+    const { token, repo } = this._requireAuth();
 
     const encPath = path.split('/').map(encodeURIComponent).join('/');
     const res = await fetch(`https://api.github.com/repos/${repo}/contents/${encPath}?ref=${getBranch()}`, {
@@ -80,9 +102,7 @@ window.GitHubStorage = {
    * @throws {GitHubConflictError} `baseSha` 指定時に照合が失敗した場合
    */
   async saveFile(path, content, message = 'Update file via Portal', opts = {}) {
-    const token = getToken();
-    const repo = getRepo();
-    if (!token || !repo) throw new Error('GitHub PAT またはリポジトリが設定されていません');
+    const { token, repo } = this._requireAuth();
 
     const encPath = path.split('/').map(encodeURIComponent).join('/');
     const url = `https://api.github.com/repos/${repo}/contents/${encPath}`;
@@ -169,9 +189,7 @@ window.GitHubStorage = {
    * @returns {Promise<boolean>} 削除したら true、存在しなければ false
    */
   async deleteFile(path, message = 'Delete file via Portal') {
-    const token = getToken();
-    const repo = getRepo();
-    if (!token || !repo) throw new Error('GitHub PAT またはリポジトリが設定されていません');
+    const { token, repo } = this._requireAuth();
 
     const existing = await this.getFile(path);
     if (!existing) return false;
@@ -201,9 +219,7 @@ window.GitHubStorage = {
    * @returns {Promise<Array>}
    */
   async listFiles(directory) {
-    const token = getToken();
-    const repo = getRepo();
-    if (!token || !repo) throw new Error('GitHub PAT またはリポジトリが設定されていません');
+    const { token, repo } = this._requireAuth();
 
     const encPath = directory.split('/').map(encodeURIComponent).join('/');
     const res = await fetch(`https://api.github.com/repos/${repo}/contents/${encPath}?ref=${getBranch()}`, {
