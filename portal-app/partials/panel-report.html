@@ -1,0 +1,81 @@
+<!-- 日記パネル（初期表示は対話パネル / ADR-033 決定事項3） -->
+<div id="main-panel-report" class="is-hidden">
+
+  <p class="sheet-date" id="report-date-label"></p>
+  <div style="display:flex;align-items:baseline;gap:10px;">
+    <h3 class="sheet-heading" id="report-heading">今日の記録</h3>
+    <span style="flex:1;"></span>
+    <span id="report-meta" class="issues-status" style="margin:0;"></span>
+  </div>
+
+  <hr class="sheet-rule">
+
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <div class="report-tabs" style="flex:1;min-width:150px;">
+      <button class="report-tab tab active" id="tab-preview" onclick="switchTab('preview')">プレビュー</button>
+      <button class="report-tab tab" id="tab-edit" onclick="switchTab('edit')">編集</button>
+    </div>
+    <button class="btn-quiet" id="regen-btn" onclick="regenReport()">再生成</button>
+    <button class="btn-quiet" onclick="fetchDailyReport()">更新</button>
+  </div>
+  <div id="regen-status" class="is-hidden" style="font-size:12px;color:var(--text-faint);margin-bottom:10px;"></div>
+
+  <!-- AI振り返り（単発・軽量。押すと日記へ自動保存される / ADR-033 決定事項2） -->
+  <div class="reflect-card" style="margin-bottom:14px;">
+    <div class="reflect-card-head">
+      <!-- src は persona-loaded 後に report.js が入れる（使用中ペルソナに追従させるため / ADR-040） -->
+      <img class="reflect-card-avatar" id="reflect-avatar" src="" alt="">
+      <span>振り返り</span>
+      <span style="flex:1;"></span>
+      <span id="reflect-status" style="font-weight:400;letter-spacing:0;color:var(--text-sub);"></span>
+    </div>
+    <div id="reflect-output" class="is-hidden" style="margin-bottom:10px;">
+      <div class="reflect-result" id="reflect-ai-result"></div>
+    </div>
+    <input id="reflect-note" type="text" class="token-input" style="width:100%;box-sizing:border-box;margin-bottom:8px;"
+      placeholder="今日の感想（任意・空欄でOK）">
+    <button class="btn-primary block" id="ai-reflection-btn" onclick="requestAiReflection()">振り返りをリクエスト</button>
+  </div>
+
+  <!-- 気分・感情ログ（出来事ごとに蓄積 / ADR-033 決定事項5） -->
+  <details style="margin-bottom:14px;">
+    <summary style="font-size:12.5px;color:var(--text-sub);cursor:pointer;font-weight:700;">気分を記録する</summary>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+      <input id="emotion-event" type="text" class="token-input" style="width:100%;box-sizing:border-box;"
+        placeholder="出来事（例: 会議で指摘を受けた）">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <select id="emotion-tag" class="token-input" style="cursor:pointer;"></select>
+        <input id="emotion-tag-free" type="text" class="token-input" style="flex:1;min-width:120px;"
+          placeholder="自由記述（入力するとこちらを優先）">
+        <label style="font-size:12.5px;color:var(--text-sub);display:flex;align-items:center;gap:6px;">
+          強度
+          <select id="emotion-intensity" class="token-input" style="cursor:pointer;">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+          / 5
+        </label>
+        <button class="btn-quiet" id="emotion-submit-btn" onclick="submitEmotionLog()">記録</button>
+      </div>
+      <span id="emotion-status" style="font-size:12px;color:var(--text-faint);min-height:1.2em;"></span>
+    </div>
+  </details>
+
+  <div id="report-preview" class="report-preview">
+    <p class="md-empty">設定から PAT とリポジトリを設定すると日記を表示します</p>
+  </div>
+
+  <div id="report-edit" class="is-hidden">
+    <textarea id="report-textarea" class="report-editor" placeholder="日記を読み込んでください"></textarea>
+    <div class="report-save-bar">
+      <button class="btn-primary block" onclick="saveDailyReport()">今日の記録を保存</button>
+      <span id="save-status" style="font-size:12px;color:var(--text-faint);"></span>
+    </div>
+  </div>
+</div>
+
+<script src="js/ui/report.js?v=20260803"></script>
+<script src="js/ui/analytics.js?v=20260731c"></script>

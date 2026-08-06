@@ -1,0 +1,29 @@
+<!--
+  ナビシート（スマホ）— 対話 / 日記 / 今日 / メモ / 設定 の5項目
+  対話タブでは畳まれており、入力バーの ≡ で呼び出す。他タブでは常時表示。
+  設定はヘッダー廃止に伴いここへ移した（歯車アイコン + ラベル）。
+-->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bottom-nav-items">
+    <button class="bottom-nav-item active" data-section="talk" onclick="switchBottomNav('talk')">
+      <span class="bottom-nav-dot"></span>
+      <span class="bottom-nav-label">対話</span>
+    </button>
+    <button class="bottom-nav-item" data-section="diary" onclick="switchBottomNav('diary')">
+      <span class="bottom-nav-dot"></span>
+      <span class="bottom-nav-label">日記</span>
+    </button>
+    <button class="bottom-nav-item" data-section="today" onclick="switchBottomNav('today')">
+      <span class="bottom-nav-dot"></span>
+      <span class="bottom-nav-label">今日</span>
+    </button>
+    <button class="bottom-nav-item" data-section="memo" onclick="switchBottomNav('memo')">
+      <span class="bottom-nav-dot"></span>
+      <span class="bottom-nav-label">メモ</span>
+    </button>
+    <button class="bottom-nav-item" data-section="settings" onclick="switchBottomNav('settings')">
+      <span class="bottom-nav-dot"></span>
+      <span class="bottom-nav-label">設定</span>
+    </button>
+  </div>
+</nav>

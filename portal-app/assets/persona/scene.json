@@ -1,0 +1,66 @@
+{
+  "version": 2,
+  "comment": "アバターの表情差分と背景を宣言的に定義する（ADR-035 / Ambient Companion 改修）。表情画像が未配置でも file を解決できなければ fallback 画像＋CSS 疑似表情で動作する。各表情の bg / glow / filter / breath は舞台（背景・グロー・立ち絵フィルタ・呼吸の秒数）の値。背景設定が mood のとき bg も表情に追従し、具体的な背景（night 等）を選ぶと bg だけそちらが優先される。file / fallbackFile はこのファイルが置かれたペルソナディレクトリからの相対パス（basePath は書かない / ADR-040）。",
+  "fallbackFile": "avatar.png",
+  "defaultExpression": "neutral",
+  "defaultBackground": "mood",
+  "expressions": [
+    {
+      "id": "neutral", "label": "通常", "file": "expressions/neutral.png", "aliases": ["普通", "平常", "normal"],
+      "bg": "linear-gradient(180deg,#352838 0%,#221928 48%,#150E1A 100%)",
+      "glow": "rgba(214,152,143,.26)", "filter": "none", "breath": "7s"
+    },
+    {
+      "id": "happy", "label": "笑顔", "file": "expressions/happy.png", "aliases": ["嬉しい", "喜び", "smile", "うれしい"],
+      "bg": "linear-gradient(180deg,#4A3242 0%,#2C1E2E 48%,#170F1C 100%)",
+      "glow": "rgba(240,190,150,.42)", "filter": "brightness(1.07) saturate(1.08)", "breath": "4.6s"
+    },
+    {
+      "id": "excited", "label": "元気", "file": "expressions/excited.png", "aliases": ["テンション高", "興奮", "はしゃぎ"],
+      "bg": "linear-gradient(180deg,#53303F 0%,#331F2C 48%,#1A0F19 100%)",
+      "glow": "rgba(245,180,140,.5)", "filter": "brightness(1.12) saturate(1.16)", "breath": "3.8s"
+    },
+    {
+      "id": "gentle", "label": "優しい", "file": "expressions/gentle.png", "aliases": ["慈しみ", "いたわり", "warm", "穏やか"],
+      "bg": "linear-gradient(180deg,#3A2A3C 0%,#241A2A 48%,#150E1A 100%)",
+      "glow": "rgba(214,152,143,.32)", "filter": "none", "breath": "6.5s"
+    },
+    {
+      "id": "thinking", "label": "考え中", "file": "expressions/thinking.png", "aliases": ["思考", "悩む", "考える", "思案中"],
+      "bg": "linear-gradient(180deg,#2B2436 0%,#1B1626 48%,#120D18 100%)",
+      "glow": "rgba(150,148,200,.24)", "filter": "brightness(.9) saturate(.84)", "breath": "9s"
+    },
+    {
+      "id": "worried", "label": "心配", "file": "expressions/worried.png", "aliases": ["困り", "不安", "心配そう", "気がかり"],
+      "bg": "linear-gradient(180deg,#332A38 0%,#201826 48%,#140E19 100%)",
+      "glow": "rgba(160,140,180,.2)", "filter": "brightness(.87) saturate(.76)", "breath": "9.5s"
+    },
+    {
+      "id": "sad", "label": "しょんぼり", "file": "expressions/sad.png", "aliases": ["悲しい", "残念", "落ち込み"],
+      "bg": "linear-gradient(180deg,#2A2634 0%,#1A1724 48%,#100D16 100%)",
+      "glow": "rgba(140,145,180,.18)", "filter": "brightness(.8) saturate(.62)", "breath": "11s"
+    },
+    {
+      "id": "surprised", "label": "驚き", "file": "expressions/surprised.png", "aliases": ["びっくり", "驚く"],
+      "bg": "linear-gradient(180deg,#463850 0%,#2A2036 48%,#160F1D 100%)",
+      "glow": "rgba(230,200,220,.46)", "filter": "brightness(1.14) contrast(1.08)", "breath": "4.2s"
+    }
+  ],
+  "backgrounds": [
+    { "id": "mood",  "label": "表情に合わせる", "mood": true },
+    { "id": "auto",  "label": "時刻に合わせる", "auto": true },
+    { "id": "night", "label": "夜",             "gradient": "linear-gradient(180deg,#2A1E38 0%,#1a0b2e 48%,#0a0612 100%)" },
+    { "id": "dawn",  "label": "朝焼け",         "gradient": "linear-gradient(180deg,#4a3358 0%,#b3717a 45%,#f2b184 100%)" },
+    { "id": "day",   "label": "昼",             "gradient": "linear-gradient(180deg,#9ccbe8 0%,#dcecf7 55%,#b9c6d6 100%)" },
+    { "id": "dusk",  "label": "夕暮れ",         "gradient": "linear-gradient(180deg,#33244a 0%,#8f4f5c 55%,#d98a5c 100%)" },
+    { "id": "room",  "label": "部屋（暖色）",   "gradient": "linear-gradient(180deg,#3a2a20 0%,#231710 48%,#16100c 100%)" },
+    { "id": "plain", "label": "無地",           "gradient": "linear-gradient(180deg,#14101c 0%,#14101c 100%)" }
+  ],
+  "autoSchedule": [
+    { "untilHour": 4,  "background": "night" },
+    { "untilHour": 8,  "background": "dawn" },
+    { "untilHour": 16, "background": "day" },
+    { "untilHour": 19, "background": "dusk" },
+    { "untilHour": 24, "background": "night" }
+  ]
+}

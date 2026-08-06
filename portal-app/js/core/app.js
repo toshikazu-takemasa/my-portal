@@ -1,0 +1,304 @@
+/**
+ * app.js
+ * ナビゲーション / レスポンシブレイアウト / アプリ初期化
+ * ─ html-loader.js の loadAllPartials() 完了後に初期化を実行する。
+ *
+ * IA（Ambient Companion 改修）:
+ *   スマホは 5タブ（talk / diary / today / memo / settings）。ヘッダーは持たない。
+ *   舞台（.vn-stage）はどのタブでも「地」として残るため、AI パネルは隠さない。
+ *   日記タブは 今日 / 過去（アーカイブ）の2セグメントを内包する。
+ */
+
+const MOBILE_BREAKPOINT = 768;
+
+/** ナビシートに並ぶ5項目。 */
+const MOBILE_TABS = ['talk', 'diary', 'today', 'memo', 'settings'];
+
+let mobileTab   = 'talk';
+let diarySegment = 'today';   // today | past
+let navOpen     = false;
+
+const setHidden = (el, hidden) => { if (el) el.classList.toggle('is-hidden', hidden); };
+const byId      = (id) => document.getElementById(id);
+
+// ========== ナビシートの開閉（対話タブのみ意味を持つ） ==========
+function setNavOpen(open) {
+  navOpen = !!open;
+  document.body.classList.toggle('nav-open', navOpen);
+}
+
+function toggleNavSheet() { setNavOpen(!navOpen); }
+
+// 画面タイトル（#app-title）とヘッダー日付（#today）の描画はヘッダーの簡素化に伴い廃止。
+// 現在地はタブ行／ナビシート、日付は日記タブの日付ラベルが担う。
+
+// ========== 日記タブのセグメント（今日 / 過去） ==========
+function switchDiarySegment(seg) {
+  diarySegment = ['today', 'past'].includes(seg) ? seg : 'today';
+
+  byId('dseg-today')?.classList.toggle('active', diarySegment === 'today');
+  byId('dseg-past')?.classList.toggle('active',  diarySegment === 'past');
+
+  if (window.innerWidth > MOBILE_BREAKPOINT) return;
+  applyMobileLayout();
+}
+
+// ========== モバイルの表示状態をまとめて反映する ==========
+function applyMobileLayout() {
+  const section = mobileTab;
+  const isDiary = section === 'diary';
+
+  // 舞台（AI パネル）はどのタブでも地として残す
+  setHidden(byId('col-main'),        false);
+  setHidden(byId('main-panel-ai'),  false);
+
+  // 今日 / メモ
+  setHidden(byId('col-right'),            !(section === 'today' || section === 'memo'));
+  setHidden(byId('daily-checklist-card'), section !== 'today');
+  setHidden(byId('memo-tab-card'),        section !== 'memo');
+  setHidden(byId('side-tabs'),            true);
+
+  // 日記（今日 / 過去）
+  setHidden(byId('diary-segments'),       !isDiary);
+  setHidden(byId('main-panel-report'),    !(isDiary && diarySegment === 'today'));
+  setHidden(byId('main-panel-archive'),   !(isDiary && diarySegment === 'past'));
+
+  // 設定・リンク
+  setHidden(byId('main-panel-settings'),  section !== 'settings');
+  setHidden(byId('main-panel-links'),     true);
+
+  if (isDiary && diarySegment === 'past' && typeof initArchivePanel === 'function') initArchivePanel();
+  if (section === 'settings' && typeof initSettingsTab === 'function') initSettingsTab();
+  if (section === 'memo'     && typeof loadMemoTab === 'function')     loadMemoTab();
+}
+
+// ========== ナビ切り替え（スマホ） ==========
+function switchBottomNav(section) {
+  if (!MOBILE_TABS.includes(section)) section = 'talk';
+  mobileTab = section;
+
+  document.querySelectorAll('.bottom-nav-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.section === section);
+  });
+
+  document.body.dataset.tab = section;
+
+  // 対話タブに入ったらナビシートは自動で畳む
+  setNavOpen(false);
+
+  if (window.innerWidth > MOBILE_BREAKPOINT) return; // PC では表示制御を行わない
+  applyMobileLayout();
+}
+
+// ========== サイドタブ切り替え（デスクトップの 今日 / メモ） ==========
+function switchSideTab(tab) {
+  setHidden(byId('daily-checklist-card'), tab !== 'checklist');
+  setHidden(byId('memo-tab-card'),        tab !== 'memo');
+
+  byId('stab-checklist')?.classList.toggle('active', tab === 'checklist');
+  byId('stab-memo')?.classList.toggle('active',      tab === 'memo');
+
+  if (tab === 'memo' && typeof loadMemoTab === 'function') loadMemoTab();
+}
+
+// ========== 設定を開く（PC / スマホ共通の入口） ==========
+function openSettings() {
+  if (window.innerWidth <= MOBILE_BREAKPOINT) switchBottomNav('settings');
+  else if (typeof switchMainTab === 'function') switchMainTab('settings');
+}
+
+// ========== モバイルサイドメニュー（旧UIの名残・no-op に近い） ==========
+function toggleMobileSideMenu() {
+  const colRight = byId('col-right');
+  if (!colRight || window.innerWidth > MOBILE_BREAKPOINT) return;
+  switchBottomNav('today');
+}
+
+function closeMobileSideMenu() {
+  const overlay = byId('mobile-side-overlay');
+  overlay?.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  if (navOpen) { setNavOpen(false); return; }
+  closeMobileSideMenu();
+});
+
+// ========== レスポンシブレイアウト同期 ==========
+let _syncLastIsMobile = null;
+
+function syncResponsiveLayout() {
+  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+
+  // 幅方向のブレークポイント変化がなければスキップ
+  if (isMobile === _syncLastIsMobile) return;
+  _syncLastIsMobile = isMobile;
+
+  if (!byId('col-main')) return;
+
+  if (isMobile) {
+    setNavOpen(false);
+    switchBottomNav(mobileTab);
+    return;
+  }
+
+  // デスクトップ: 2カラムを出し、メインパネルはタブ制御へ戻す
+  setNavOpen(false);
+  setHidden(byId('col-main'),    false);
+  setHidden(byId('col-right'),   false);
+  setHidden(byId('side-tabs'),   false);
+  setHidden(byId('diary-segments'), true);
+  switchSideTab('checklist');
+
+  const activeDesktopTab = document.querySelector('.main-tab.active')?.id?.replace('mtab-', '') || 'ai';
+  if (typeof switchMainTab === 'function') switchMainTab(activeDesktopTab);
+}
+
+window.addEventListener('resize', syncResponsiveLayout);
+
+// ========== ソフトキーボード対応 ==========
+/**
+ * キーボードが覆っている高さを --kb として流し、入力バー・台詞・ナビを持ち上げる。
+ *
+ * Android Chrome は index.html の interactive-widget=resizes-content で
+ * レイアウトビューポート自体が縮むため、ここでの overlap はほぼ 0 になる。
+ * iOS Safari は interactive-widget に未対応で innerHeight が変わらないため、
+ * visualViewport との差分でこちらが効く。二重に持ち上がることはない。
+ */
+function initKeyboardInsets() {
+  const isTextField = (el) => !!el && /^(INPUT|TEXTAREA)$/.test(el.tagName);
+  let focused = false;
+
+  const sync = () => {
+    const vv = window.visualViewport;
+    const overlap = vv ? Math.max(0, window.innerHeight - vv.height - vv.offsetTop) : 0;
+    document.documentElement.style.setProperty('--kb', `${Math.round(overlap)}px`);
+
+    // Android（resizes-content）は overlap が 0 になるので、入力欄のフォーカスも判定に使う。
+    // 数 px のズレでクラスが点滅しないよう閾値を設ける。
+    const open = window.innerWidth <= MOBILE_BREAKPOINT && (focused || overlap > 60);
+    document.body.classList.toggle('kb-open', open);
+
+    // 視覚ビューポートがずらされていたら戻す（キーボード表示時の自動スクロール対策）
+    if (open && window.scrollY !== 0) window.scrollTo(0, 0);
+  };
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', sync);
+    window.visualViewport.addEventListener('scroll', sync);
+  }
+
+  document.addEventListener('focusin',  (e) => { if (isTextField(e.target)) { focused = true;  sync(); } });
+  document.addEventListener('focusout', (e) => {
+    if (!isTextField(e.target)) return;
+    focused = false;
+    // 入力欄どうしのフォーカス移動でちらつかないよう一拍おく
+    setTimeout(() => { if (!isTextField(document.activeElement)) sync(); }, 120);
+  });
+
+  sync();
+}
+
+window.switchBottomNav     = switchBottomNav;
+window.switchSideTab       = switchSideTab;
+window.switchDiarySegment  = switchDiarySegment;
+window.toggleNavSheet      = toggleNavSheet;
+window.setNavOpen          = setNavOpen;
+window.openSettings        = openSettings;
+window.toggleMobileSideMenu = toggleMobileSideMenu;
+window.closeMobileSideMenu  = closeMobileSideMenu;
+
+// ========== アプリ初期化（パーシャルロード後に実行） ==========
+loadAllPartials().then(async () => {
+  // 暗号化が有効なら、getToken() / getGeminiKey() を使う処理の前に解錠する（ADR-033 決定事項7）
+  if (typeof SecureStore !== 'undefined' && SecureStore.isEncrypted() && !SecureStore.isUnlocked()) {
+    await SecureStore.promptUnlock();
+  }
+
+  initKeyboardInsets();
+
+  syncResponsiveLayout();
+
+  // Service Worker を使用しない（キャッシュ問題回避）
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+  }
+
+  // AI チャットの Enter キー送信
+  byId('chat-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  });
+
+  // data/portal-config.json を読み込む
+  try {
+    const res = await fetch('data/portal-config.json');
+    if (res.ok) window.PORTAL_CONFIG_INLINE = await res.json();
+  } catch (e) {
+    console.warn('portal-config.json の読み込みに失敗しました:', e);
+  }
+
+  // 使用中のペルソナ（PERSONA_DIR）の persona.md をロードして frontmatter をパース
+  try {
+    const res = await fetch(`${PERSONA_DIR}persona.md`);
+    if (res.ok) {
+      const text  = await res.text();
+      const fm    = {};
+      let body    = text;
+      const match = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+      if (match) {
+        match[1].split('\n').forEach(line => {
+          const [k, ...v] = line.split(':');
+          if (k) fm[k.trim()] = v.join(':').trim();
+        });
+        body = match[2].trim();
+      }
+      window.AI_PERSONA = {
+        name: fm.name, userCallName: fm.userCallName, avatarUrl: fm.avatarUrl,
+        greeting: fm.greeting,   // 起動時の挨拶（口調は人格に属する / ADR-040）
+        // この人格が使ってはいけない語。返答を機械的に照合するために持つ（ADR-044）。
+        // 本文に「使わない」と書くだけでは守られないため、宣言を機械可読にしてある。
+        avoidWords: String(fm.avoidWords || '').split(',').map(s => s.trim()).filter(Boolean),
+        body
+      };
+    }
+  } catch (e) {
+    console.warn('persona.md の読み込みに失敗しました:', e);
+  }
+  // scene.json（表情差分・背景の定義）をロードする（ADR-035）
+  // persona.md の avatarUrl をフォールバック画像に使うため、必ず persona 読み込みの後に行う。
+  if (typeof AvatarScene !== 'undefined') {
+    await AvatarScene.load();
+  }
+
+  window.dispatchEvent(new Event('persona-loaded'));
+
+  // チェックリストの描画とリスナー登録の順序に依存しないよう、初期化時に一度計算する
+  if (typeof updateAnalyticsProgressChart === 'function') updateAnalyticsProgressChart();
+  // 日記の見出しは PAT の有無に関わらず出す（本文だけが未設定メッセージになる）
+  if (typeof renderReportHeading === 'function') renderReportHeading();
+
+  const token = getToken();
+  if (token) {
+    await ConfigService.init();
+    // 日記は裏側で先読みしておき、表示だけ対話画面を優先する（ADR-033 決定事項3）
+    fetchDailyReport();
+    // 評価履歴を会話ログから復元する（端末をまたいで傾向を共有するため / ADR-044）。
+    // await しない: 対話開始までブロックさせない。間に合わなければその回は localStorage だけで判定する。
+    if (typeof ReplyFeedback !== 'undefined') ReplyFeedback.loadFromVault();
+    if (typeof renderAllLinks === 'function') renderAllLinks();
+    const kintaiLink = byId('kintai-sheet-link');
+    if (kintaiLink && getKintaiUrl()) kintaiLink.href = getKintaiUrl();
+
+    // 起動直後の標準TOPは対話画面（デスクトップ・モバイル両方）
+    if (window.innerWidth <= MOBILE_BREAKPOINT) {
+      switchBottomNav('talk');
+    } else if (typeof switchMainTab === 'function') {
+      switchMainTab('ai');
+    }
+  } else {
+    // PAT 未設定の場合は設定画面へ
+    setTimeout(openSettings, 500);
+  }
+});

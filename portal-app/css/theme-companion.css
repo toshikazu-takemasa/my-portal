@@ -1,0 +1,1580 @@
+/* ===========================================================================
+   theme-companion.css — Ambient Companion（デザイン案 2a）
+   ---------------------------------------------------------------------------
+   立ち絵を「チャットの中の画像」から「アプリの地（背景）」へ引き上げるテーマ。
+   theme-cozy-everyday.css の色温度を継承しつつ、以下の2点を解消する:
+     1. button 要素セレクタへの一括指定を廃止し、.btn-primary / .btn-quiet / .tab の3段階へ
+     2. --text を #d1b9ac → #3A322C に変更（白地でコントラスト 4.5:1 以上）
+   ローディング順は最後。base.css / components.css / ai-chat.css / mobile.css を上書きする。
+   =========================================================================== */
+
+/* 書体は Zen Kaku Gothic New の1本だけ（等幅はコードのみ example: .md-code）。
+   明朝（Noto Serif JP）との2書体併用は、見出しと本文・UI で字面の太さと字間が揃わず
+   「まだ統一されていない」印象になるため廃止した。
+   Zen Kaku Gothic New は 600 を持たないため、600 指定は 700 に丸められる（意図どおり）。 */
+@import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
+
+/* ===========================================================================
+   1. デザイントークン
+   =========================================================================== */
+
+body.theme-companion {
+  /* --- 紙面（ライト） --- */
+  --bg:            #fdfaf6;
+  --card-bg:       #ffffff;
+  --section-bg:    #f3ece4;
+  --section-bg2:   #eadcd3;
+
+  --text:          #3a322c;   /* 旧 #d1b9ac（白地に 1.7:1）から変更 */
+  --text-weak:     #4a4039;
+  --text-sub:      #6e6259;
+  --text-faint:    #9a8b81;
+  --text-fainter:  #b0a196;
+  --date-label:    #c2a79c;
+
+  --border:        #f0e4db;
+  --border-strong: #eadcd3;
+  --hairline:      #f5ede6;
+
+  --accent:        #b9736a;
+  --accent-light:  #f7e3de;
+  --accent-dim:    #e0afa7;
+  --accent-deep:   #ce8c83;
+
+  --link:          #b9736a;
+  --link-light:    #4a4039;
+
+  --green:         #7a8c7e;
+  --green-light:   #edf0ea;
+  --red:           #c96a62;
+  --red-light:     #fbeceb;
+
+  /* --- 舞台（ダーク） --- */
+  --stage-base:    #150e1a;
+  --stage-mid:     #241a2a;
+  --stage-top:     #3a2a3c;
+  --stage-panel:   rgba(24, 16, 28, .62);
+  --stage-hair:    rgba(255, 255, 255, .14);
+  --stage-text:    #f6eff4;
+  --name-tab:      linear-gradient(135deg, #7e6690 0%, #5e4c6e 100%);
+  --accent-bright: #f0beb6;
+  --accent-check:  #e8b6ae;
+  --dot:           #f2cfc9;
+
+  /* AvatarScene が上書きする舞台変数（表情に連動 / ADR-035） */
+  --stage-bg:        linear-gradient(180deg, #3a2a3c 0%, #241a2a 48%, #150e1a 100%);
+  --stage-glow:      rgba(214, 152, 143, .32);
+  --portrait-filter: none;
+  --breath-dur:      6.5s;
+
+  /* --- 角丸 --- */
+  --radius-xl:  26px;
+  --radius-lg:  20px;
+  --radius-md:  16px;
+  --radius-sm:  12px;
+
+  /* --- 影 --- */
+  --shadow-card:    0 6px 22px rgba(155, 130, 120, .09);
+  --shadow-float:   0 10px 30px rgba(0, 0, 0, .25);
+  --shadow-dialog:  0 18px 44px rgba(0, 0, 0, .4);
+  --shadow-input:   0 12px 32px rgba(0, 0, 0, .38);
+  --shadow-primary: 0 6px 18px rgba(206, 140, 131, .3);
+  --shadow-send:    0 5px 14px rgba(199, 127, 118, .45);
+  --shadow-seg:     0 1px 3px rgba(110, 98, 89, .14);
+
+  /* --- レイアウト --- */
+  --nav-h:    78px;
+  --inset-t:  env(safe-area-inset-top, 0px);
+  --inset-b:  env(safe-area-inset-bottom, 0px);
+
+  /* --- 書体（全画面これ1つ。役割ごとの使い分けはしない） --- */
+  --font-ui:   'Zen Kaku Gothic New', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+
+  /* ネイティブのフォーム部品（チェックボックス等）を明るい配色で描画させる */
+  color-scheme: light;
+
+  font-family: var(--font-ui);
+  color: var(--text);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(224, 159, 150, .07) 0 2px, transparent 2px 100%),
+    linear-gradient(160deg, #fdfaf6 0%, #fbf4ed 40%, #f8ede5 100%);
+  background-size: 18px 18px, 100% 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* base.css の body::before（赤い斜線）を無効化 */
+body.theme-companion::before { content: none !important; }
+
+/* 書体は全要素で1つ。code / pre（等幅）だけは対象外にする。
+   base.css の `header h1`（Bebas Neue）や旧 .serif 指定もここで潰す。 */
+.theme-companion :not(code):not(pre):not(kbd):not(samp):not(.md-code) {
+  font-family: var(--font-ui);
+}
+
+/* ===========================================================================
+   2. キーフレーム
+   =========================================================================== */
+
+@keyframes breathe   { 0%, 100% { transform: translateY(0) scale(1); }  50% { transform: translateY(-6px) scale(1.008); } }
+@keyframes riseIn    { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cpFadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes blink     { 0%, 100% { opacity: .9; transform: translateY(0); } 50% { opacity: .25; transform: translateY(3px); } }
+@keyframes glowPulse { 0%, 100% { opacity: .35; } 50% { opacity: .7; } }
+@keyframes caretBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ===========================================================================
+   3. ボタン階層（3段）
+   button 要素セレクタへの一括指定は行わない。
+   =========================================================================== */
+
+.theme-companion .btn-primary {
+  padding: 12px 18px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, #e0afa7 0%, #ce8c83 100%);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-primary);
+  transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+}
+
+.theme-companion .btn-quiet {
+  padding: 9px 15px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: #8c7a6f;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(140, 122, 111, .08);
+  transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+}
+
+.theme-companion .btn-quiet.danger { color: var(--red); border-color: #eccfcc; }
+
+.theme-companion .tab {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--text-faint);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background .16s ease, color .16s ease, box-shadow .16s ease;
+}
+
+.theme-companion .tab.active {
+  background: #fff;
+  color: var(--text);
+  box-shadow: var(--shadow-seg);
+}
+
+.theme-companion .btn-primary:hover,
+.theme-companion .btn-quiet:hover,
+.theme-companion .tab:hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+
+.theme-companion .btn-primary:disabled,
+.theme-companion .btn-quiet:disabled {
+  opacity: .45;
+  cursor: default;
+  transform: none;
+}
+
+/* 主ボタンは幅いっぱいのバリエーションを持つ */
+.theme-companion .btn-primary.block,
+.theme-companion .btn-quiet.block { width: 100%; }
+
+/* セグメント（タブの外枠） */
+.theme-companion .segmented {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--section-bg);
+  border: none;
+}
+
+.theme-companion .segmented .tab { flex: 1; padding: 8px 0; }
+
+/* ===========================================================================
+   4. カード・紙面
+   =========================================================================== */
+
+.theme-companion .card {
+  background: #fff !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-card) !important;
+  clip-path: none !important;
+  padding: 20px 22px;
+}
+
+.theme-companion .card h2 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: none;
+  color: var(--text) !important;
+  margin-bottom: 16px;
+}
+
+.theme-companion h3 { color: var(--text); }
+
+.theme-companion p,
+.theme-companion label,
+.theme-companion li,
+.theme-companion td,
+.theme-companion th,
+.theme-companion strong,
+.theme-companion small,
+.theme-companion span { color: inherit; }
+
+.theme-companion .check-label { color: var(--text); }
+.theme-companion .modal-note,
+.theme-companion .issues-status,
+.theme-companion .modal-label { color: var(--text-sub) !important; }
+
+.theme-companion .modal-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: var(--accent) !important;
+}
+
+.theme-companion a,
+.theme-companion .md-link { color: var(--link); }
+
+.theme-companion .md-code {
+  background: var(--section-bg) !important;
+  color: var(--accent) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+}
+
+.theme-companion .md-h1,
+.theme-companion .md-h2 { color: var(--text); }
+.theme-companion .md-h2 { border-bottom-color: var(--border); }
+.theme-companion .md-h3,
+.theme-companion .md-h4 { color: var(--text-sub); }
+.theme-companion .md-line,
+.theme-companion .md-bullet,
+.theme-companion .md-check-text { color: var(--text-weak); }
+.theme-companion .md-done { color: var(--text-fainter); }
+.theme-companion .md-hr { border-top-color: var(--border); }
+.theme-companion .md-table th { background: var(--section-bg); }
+.theme-companion .md-table th,
+.theme-companion .md-table td { border-color: var(--border); }
+.theme-companion .md-empty { color: var(--text-faint); }
+
+/* 入力系 — iOS のズーム防止のため 16px 以上 */
+.theme-companion input,
+.theme-companion textarea,
+.theme-companion select,
+.theme-companion .token-input,
+.theme-companion .quick-memo-input,
+.theme-companion .report-editor {
+  background: #fdfaf6 !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 10px !important;
+  font-family: inherit;
+  font-size: 16px !important;
+}
+
+/* チェックボックス／ラジオはネイティブ描画に戻す（上の一括指定の対象外にする） */
+.theme-companion input[type="checkbox"] {
+  appearance: checkbox !important;
+  -webkit-appearance: checkbox !important;
+  background: #fff !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-deep);
+}
+
+.theme-companion input[type="radio"] {
+  appearance: radio !important;
+  -webkit-appearance: radio !important;
+  background: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-deep);
+}
+
+.theme-companion input:focus,
+.theme-companion textarea:focus,
+.theme-companion select:focus {
+  border-color: var(--accent-dim) !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 3px rgba(224, 159, 150, .18) !important;
+  outline: none !important;
+}
+
+/* 旧テーマの [style*='color:#111'] ハックは不要になったので持ち込まない */
+
+/* ===========================================================================
+   5. 設定ボタン
+   ヘッダー（.app-header）は廃止。設定はナビシート（スマホ）と
+   中央のタブ行（PC）の項目として開く。
+   =========================================================================== */
+
+/* base.css の .settings-btn（黒地・赤影）を殺す */
+.theme-companion .settings-btn {
+  width: auto;
+  height: auto;
+  border: 1px solid var(--border-strong);
+  background: #fff;
+  color: #8c7a6f;
+  box-shadow: 0 1px 3px rgba(140, 122, 111, .08);
+}
+
+/* ===========================================================================
+   6. 舞台（stage）— 背景 / グロー / 立ち絵 / スクリム
+   =========================================================================== */
+
+.theme-companion .vn-portrait-area,
+.theme-companion .vn-stage {
+  position: relative;
+  overflow: hidden;
+  background: var(--stage-base);
+}
+
+.theme-companion .vn-bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--stage-bg);
+  background-size: cover;
+  background-position: center;
+  transition: background-image 1s ease, filter .8s ease;
+}
+
+.theme-companion .vn-glow-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(120% 70% at 50% 12%, var(--stage-glow) 0%, transparent 62%);
+  animation: glowPulse 7s ease-in-out infinite;
+  transition: background .8s ease;
+}
+
+/* 立ち絵レイヤーはヘッダーの下から舞台の底まで。上端を切ることで、
+   縦長の立ち絵（896x1200）が contain で縮んでもスクリムに顔が沈まない。 */
+.theme-companion .vn-portrait-layer {
+  position: absolute;
+  inset: 0;
+  top: var(--portrait-top, 0px);
+  bottom: var(--portrait-bottom, 0px);
+  z-index: 2;
+  pointer-events: none;
+  animation: breathe var(--breath-dur) ease-in-out infinite;
+}
+
+.theme-companion .vn-portrait-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
+  opacity: 0;
+  mask-image: none;
+  transform: none !important;   /* breathe が transform を占有する（打ち消し防止） */
+  filter: var(--portrait-filter);
+  transition: opacity .4s ease, filter .8s ease;
+}
+
+.theme-companion .vn-portrait-img.is-active { opacity: 1; }
+.theme-companion .vn-portrait-img.no-transition { transition: none; }
+
+/* 表情差分の画像が未配置のときだけ CSS で色味をずらす（filter は舞台変数が担う） */
+.theme-companion .vn-portrait-img[data-fallback="true"] { animation: none; }
+
+.theme-companion .vn-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 58%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(21, 14, 26, 0) 0%,
+    rgba(21, 14, 26, .55) 40%,
+    rgba(21, 14, 26, .92) 100%);
+}
+
+/* ===========================================================================
+   7. 対話（Talk）— 会話ログ / 台詞ボックス / 返信候補 / 入力バー
+   =========================================================================== */
+
+/* --- 会話ログ（直近3件のユーザー発言） --- */
+.theme-companion .vn-user-log {
+  position: absolute;
+  top: 118px;
+  left: 18px;
+  right: 18px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  max-height: none;
+  overflow: visible;
+  pointer-events: none;
+  background: none;
+}
+
+.theme-companion .vn-user-entry {
+  max-width: 78%;
+  padding: 8px 14px;
+  border-radius: 16px 16px 4px 16px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #fff;
+  background: rgba(255, 255, 255, .13);
+  border: 1px solid rgba(255, 255, 255, .14);
+  backdrop-filter: blur(10px);
+  word-break: break-word;
+  transition: opacity .5s ease;
+}
+
+/* 新しいものから 1 / .5 / .24 */
+.theme-companion .vn-user-entry[data-age="0"] { opacity: 1; }
+.theme-companion .vn-user-entry[data-age="1"] { opacity: .5; }
+.theme-companion .vn-user-entry[data-age="2"] { opacity: .24; }
+
+/* --- 台詞ボックス --- */
+.theme-companion .vn-dialogue-box {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 158px;
+  top: auto;
+  z-index: 25;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+  padding: 24px 20px 18px;
+  border: 1px solid var(--stage-hair);
+  border-top: 1px solid var(--stage-hair);
+  border-radius: 24px;
+  background: var(--stage-panel);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-dialog);
+  cursor: pointer;
+  user-select: none;
+}
+
+.theme-companion .vn-dialogue-name-tab {
+  position: absolute;
+  top: -13px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: var(--name-tab);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .35);
+  clip-path: none;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: #fff;
+}
+
+.theme-companion .vn-name-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--dot);
+  animation: glowPulse 2.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.theme-companion .vn-dialogue-text {
+  margin: 6px 0 0;
+  min-height: 96px;    /* 文字送り中に高さが跳ねないため */
+  font-size: 15.5px;
+  font-weight: 400;
+  line-height: 2;
+  color: var(--stage-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: visible;
+}
+
+.theme-companion .vn-caret {
+  color: var(--accent-check);
+  margin-left: 2px;
+  animation: caretBlink 1s steps(1) infinite;
+}
+
+.theme-companion .vn-caret.is-done { opacity: 0; animation: none; }
+
+.theme-companion .vn-dialogue-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.theme-companion .vn-page-counter {
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: rgba(255, 255, 255, .4);
+}
+
+.theme-companion .vn-advance-indicator {
+  position: static;
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: rgba(255, 255, 255, .75);
+  text-shadow: none;
+  opacity: 1;
+  animation: none;
+}
+
+.theme-companion .vn-advance-indicator::after { content: none; }
+.theme-companion .vn-advance-indicator.is-done { animation: blink 1.4s ease-in-out infinite; }
+
+.theme-companion .vn-dialogue-box.thinking .vn-dialogue-text { opacity: .62; font-style: italic; }
+.theme-companion .vn-dialogue-box.thinking .vn-caret { display: none; }
+
+/* --- 返信候補（常に2つ） --- */
+.theme-companion .vn-replies {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 104px;
+  z-index: 26;
+  display: flex;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.theme-companion .vn-reply-chip {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .22);
+  background: rgba(255, 255, 255, .1);
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, .92);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+/* --- 入力バー --- */
+.theme-companion .chat-composer {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 20px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 18px;
+  border-radius: 999px;
+  background: rgba(253, 249, 244, .94);
+  border: 1px solid rgba(255, 255, 255, .65);
+  box-shadow: var(--shadow-input);
+}
+
+.theme-companion .chat-textarea {
+  flex: 1;
+  min-width: 0;
+  height: 24px;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--text) !important;
+  font-size: 16px !important;   /* iOS ズーム防止 */
+  line-height: 1.5;
+  resize: none;
+  overflow: hidden;
+}
+
+.theme-companion .chat-textarea:focus { background: transparent !important; box-shadow: none !important; }
+.theme-companion .chat-textarea::placeholder { color: #b7a79c; }
+
+.theme-companion .chat-nav-btn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid #efe3da;
+  background: #fff;
+  color: #a8968b;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.theme-companion .chat-send-btn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #e0afa7 0%, #c77f76 100%);
+  color: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-send);
+}
+
+.theme-companion .chat-send-btn:disabled { opacity: .45; cursor: default; }
+
+/* --- 舞台上部のセッションピル --- */
+.theme-companion .chat-session-bar {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: auto;
+  z-index: 28;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.theme-companion .session-select-btn,
+.theme-companion .btn-new-session {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(255, 255, 255, .1);
+  backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, .85);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.theme-companion .session-select-btn { flex: 1; min-width: 0; text-align: left; }
+.theme-companion .btn-new-session { flex-shrink: 0; }
+
+.theme-companion .session-dropdown {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-float);
+  overflow: hidden;
+}
+
+.theme-companion .session-item { border-bottom: 1px solid var(--hairline); }
+.theme-companion .session-item:hover { background: var(--section-bg); }
+.theme-companion .session-item.active { background: var(--accent-light); }
+.theme-companion .session-item-title { color: var(--text); }
+.theme-companion .session-item-meta { color: var(--text-faint); }
+
+/* --- 添付チップ（会話ログの反対側・左上に積む） --- */
+.theme-companion .file-chips {
+  position: absolute;
+  left: 18px;
+  right: auto;
+  max-width: 45%;
+  z-index: 27;
+  margin: 0;
+}
+
+.theme-companion .file-chip {
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .14);
+  border: 1px solid rgba(255, 255, 255, .18);
+  color: #fff;
+  font-size: 11px;
+}
+
+.theme-companion .file-chip-remove { color: rgba(255, 255, 255, .6); }
+
+/* ===========================================================================
+   8. ナビシート（4項目 + 会話オプション）
+   =========================================================================== */
+
+.theme-companion .bottom-nav {
+  background: linear-gradient(180deg,
+    rgba(21, 14, 26, 0) 0%,
+    rgba(21, 14, 26, .88) 40%,
+    rgba(21, 14, 26, .96) 100%) !important;
+  backdrop-filter: blur(10px);
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+.theme-companion .bottom-nav-items {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.theme-companion .bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 0;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, .45) !important;
+  cursor: pointer;
+  transition: color .25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-companion .bottom-nav-item.active { color: var(--accent-bright) !important; }
+
+.theme-companion .bottom-nav-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background .25s ease, transform .25s ease;
+}
+
+.theme-companion .bottom-nav-item.active .bottom-nav-dot {
+  background: var(--accent-bright);
+  transform: scale(1.4);
+}
+
+.theme-companion .bottom-nav-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: inherit !important;
+}
+
+/* 会話オプション（日記を含める / ナレッジを含める / 添付 / クリア）
+   デスクトップは舞台の中に常設、スマホは ≡ のメニューとして開く。 */
+.theme-companion .chat-options {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  z-index: 36;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, .82);
+}
+
+.theme-companion .chat-opt,
+.theme-companion .chat-opt-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .09);
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, .85);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.theme-companion .chat-opt input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--accent-check);
+}
+
+/* ===========================================================================
+   9. モバイルシェル（≤768px）— 舞台が地、各タブはその上のシート
+   =========================================================================== */
+
+@media (max-width: 768px) {
+
+  html, body.theme-companion {
+    height: 100%;
+    overflow: hidden;
+    /* キーボード表示時のラバーバンド・親スクロールへの伝播を止める */
+    overscroll-behavior: none;
+  }
+
+  body.theme-companion {
+    padding: 0;
+    height: 100dvh;
+    background: var(--stage-base);
+  }
+
+  /* --- 舞台をアプリの地として全画面に固定する --- */
+  .theme-companion .chat-wrap,
+  .theme-companion .chat-wrap.vn-mode { height: auto; display: block; }
+
+  .theme-companion .vn-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    height: auto;
+    flex: none;
+    border-radius: 0;
+    /* ヘッダーが無いので、ステータスバー＋上余白の直下から立ち絵を始める */
+    --portrait-top: calc(var(--inset-t) + var(--top-gutter));
+  }
+
+  /* col-main / col-right はモバイルでは枠を持たない透明な器。
+     z-index は DOM 順を無視して舞台より前に来るよう明示する。 */
+  .theme-companion #col-main,
+  .theme-companion #col-right {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    clip-path: none !important;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .theme-companion #col-main     { z-index: 22; }   /* 舞台（z0）を内包する */
+  .theme-companion #col-right    { z-index: 24; }
+
+  .theme-companion #col-main > *,
+  .theme-companion #col-right > * { pointer-events: auto; }
+
+  /* 舞台を含む AI パネルはクリックを素通しさせない */
+  .theme-companion #main-panel-ai { pointer-events: auto; }
+
+  .theme-companion .layout {
+    display: block !important;
+    gap: 0;
+    margin: 0;
+  }
+
+  /* ヘッダーを廃止したので、画面上端の固定要素はステータスバー＋この余白から始める。
+     画面上部に並ぶ固定要素はすべてこの値を基準にする。 */
+  body.theme-companion { --top-gutter: 14px; }
+
+  /* --- ナビシート --- */
+  .theme-companion .bottom-nav {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    height: auto;
+    z-index: 35;
+    padding: 18px 10px calc(14px + var(--inset-b));
+    transition: transform .38s cubic-bezier(.2, .8, .2, 1), opacity .3s ease;
+  }
+
+  /* 対話タブでは入力バーの上に出すため下余白を積み、通常は畳む */
+  .theme-companion[data-tab="talk"] .bottom-nav {
+    padding-bottom: calc(92px + var(--inset-b));
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .theme-companion[data-tab="talk"].nav-open .bottom-nav {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* 会話オプションは ≡ を押したときだけ出す。開いている間は台詞を沈める。 */
+  .theme-companion .chat-options {
+    bottom: calc(150px + var(--inset-b));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+
+  .theme-companion[data-tab="talk"].nav-open .chat-options { opacity: 1; pointer-events: auto; }
+
+  .theme-companion[data-tab="talk"].nav-open .vn-dialogue-box,
+  .theme-companion[data-tab="talk"].nav-open .vn-replies {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+
+  /* --- 対話タブ以外は舞台を沈ませ、シートの文字を読ませる --- */
+  .theme-companion:not([data-tab="talk"]) .vn-portrait-layer { opacity: .5; }
+  .theme-companion:not([data-tab="talk"]) .vn-scrim { height: 100%; }
+  .theme-companion:not([data-tab="talk"]) .vn-bg-layer { filter: brightness(.8); }
+
+  /* --- 対話タブ以外では台詞まわりを畳む --- */
+  .theme-companion:not([data-tab="talk"]) .vn-user-log,
+  .theme-companion:not([data-tab="talk"]) .vn-dialogue-box,
+  .theme-companion:not([data-tab="talk"]) .vn-replies,
+  .theme-companion:not([data-tab="talk"]) .chat-composer,
+  .theme-companion:not([data-tab="talk"]) .chat-session-bar,
+  .theme-companion:not([data-tab="talk"]) .chat-options,
+  .theme-companion:not([data-tab="talk"]) .file-chips { display: none !important; }
+
+  .theme-companion .chat-session-bar { top: calc(var(--inset-t) + var(--top-gutter)); }
+  .theme-companion .vn-user-log      { top: calc(var(--inset-t) + var(--top-gutter) + 36px); }
+  /* --kb はソフトキーボードが覆っている高さ（app.js の initKeyboardInsets が流す）。
+     Android は interactive-widget=resizes-content でビューポート自体が縮むため 0 になる。 */
+  .theme-companion .vn-dialogue-box  { bottom: calc(158px + var(--inset-b) + var(--kb, 0px)); }
+  .theme-companion .vn-replies       { bottom: calc(104px + var(--inset-b) + var(--kb, 0px)); }
+  .theme-companion .chat-composer    { bottom: calc(20px  + var(--inset-b) + var(--kb, 0px)); }
+  .theme-companion .file-chips       { top: calc(var(--inset-t) + var(--top-gutter) + 36px); }
+
+  .theme-companion .vn-dialogue-box,
+  .theme-companion .vn-replies,
+  .theme-companion .chat-composer {
+    transition: bottom .18s ease;
+  }
+
+  /* --- キーボード表示中 --- */
+  /* 返信候補を畳んで台詞を低く詰め、入力欄と直前の台詞が同時に見える状態を保つ */
+  .theme-companion.kb-open .vn-replies { display: none !important; }
+
+  .theme-companion.kb-open .vn-dialogue-box {
+    bottom: calc(96px + var(--inset-b) + var(--kb, 0px));
+    padding: 18px 18px 14px;
+  }
+
+  .theme-companion.kb-open .vn-dialogue-text { min-height: 0; max-height: 34vh; overflow-y: auto; }
+  .theme-companion.kb-open .vn-dialogue-foot { display: none; }
+  .theme-companion.kb-open .chat-session-bar { display: none; }
+
+  /* ナビシートもキーボードの上へ（開いているときだけ意味を持つ） */
+  .theme-companion[data-tab="talk"].kb-open .bottom-nav {
+    padding-bottom: calc(92px + var(--inset-b) + var(--kb, 0px));
+  }
+
+  /* 対話以外のタブでは、キーボード表示中はナビを畳んで縦を稼ぎ、
+     シートの下端をキーボードの上に合わせる（日記の編集・メモ入力のため） */
+  .theme-companion.kb-open:not([data-tab="talk"]) .bottom-nav {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .theme-companion.kb-open:not([data-tab="talk"]) #main-panel-report,
+  .theme-companion.kb-open:not([data-tab="talk"]) #main-panel-archive,
+  .theme-companion.kb-open:not([data-tab="talk"]) #main-panel-settings,
+  .theme-companion.kb-open:not([data-tab="talk"]) #main-panel-links,
+  .theme-companion.kb-open:not([data-tab="talk"]) #daily-checklist-card,
+  .theme-companion.kb-open:not([data-tab="talk"]) #memo-tab-card {
+    bottom: calc(12px + var(--inset-b) + var(--kb, 0px));
+  }
+
+  /* --- 紙のシート（日記 / 過去 / 設定 / リンク） --- */
+  .theme-companion #main-panel-report,
+  .theme-companion #main-panel-archive,
+  .theme-companion #main-panel-settings,
+  .theme-companion #main-panel-links {
+    position: fixed;
+    /* #col-main の中では舞台（z0）より後ろに来ないよう明示する
+       （panel-report / panel-links は DOM 上 panel-ai より前にあるため） */
+    z-index: 5;
+    /* 日記タブのセグメント（上端 + 38px 程度）の下に来る高さ */
+    top: calc(var(--inset-t) + var(--top-gutter) + 48px);
+    bottom: calc(var(--nav-h) + var(--inset-b));
+    left: 12px;
+    right: 12px;
+    padding: 18px 20px;
+    border-radius: 26px 26px 20px 20px;
+    background: rgba(253, 249, 244, .94);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, .6);
+    box-shadow: 0 -8px 44px rgba(0, 0, 0, .35);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: riseIn .45s cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  /* 日記セグメント（今日 / 過去） */
+  .theme-companion .diary-segments {
+    position: fixed;
+    top: calc(var(--inset-t) + var(--top-gutter));
+    left: 12px;
+    right: 12px;
+    z-index: 24;
+  }
+
+  .theme-companion .diary-segments .tab { color: #9a8b81; }
+
+  /* 今日 / メモ — 舞台の上に直接置く */
+  .theme-companion #daily-checklist-card,
+  .theme-companion #memo-tab-card {
+    position: fixed;
+    top: calc(var(--inset-t) + var(--top-gutter) + 66px);
+    bottom: calc(var(--nav-h) + var(--inset-b));
+    left: 12px;
+    right: 12px;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: riseIn .45s cubic-bezier(.2, .8, .2, 1) both;
+  }
+
+  .theme-companion #daily-checklist-card > div:first-child,
+  .theme-companion #memo-tab-card > div:first-child { padding: 0 8px 2px; }
+
+  .theme-companion #daily-checklist-card h2,
+  .theme-companion #memo-tab-card h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff !important;
+    margin: 0;
+  }
+
+  .theme-companion #daily-checklist-card .hairline,
+  .theme-companion #memo-tab-card .hairline { background: rgba(255, 255, 255, .18); }
+
+  .theme-companion #checklist-count { color: rgba(255, 255, 255, .6) !important; }
+  .theme-companion #memo-tab-status { color: rgba(255, 255, 255, .6) !important; }
+
+  /* シート上の副ボタンはガラス調に */
+  .theme-companion #daily-checklist-card .btn-quiet,
+  .theme-companion #memo-tab-card .btn-quiet {
+    border-color: rgba(255, 255, 255, .2) !important;
+    background: rgba(255, 255, 255, .08) !important;
+    color: rgba(255, 255, 255, .8) !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(10px);
+  }
+
+  .theme-companion #main-tabs { display: none; }
+  .theme-companion .side-tabs { display: none !important; }
+  .theme-companion .side-panel-head { display: none; }
+  .theme-companion .mobile-side-overlay { display: none !important; }
+  .theme-companion .analytics-band { display: none !important; }
+}
+
+/* ===========================================================================
+   10. 今日（Today）— ダークガラスのチェック項目
+   =========================================================================== */
+
+.theme-companion .daily-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.theme-companion .check-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 18px;
+  background: #fff;
+  cursor: pointer;
+  transition: background .25s ease, border-color .25s ease;
+}
+
+.theme-companion .check-item input[type="checkbox"] { display: none; }
+
+.theme-companion .check-dot {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  transition: all .25s ease;
+}
+
+.theme-companion .check-item.done .check-dot {
+  border-color: var(--accent-check);
+  background: var(--accent-check);
+}
+
+.theme-companion .check-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  transition: color .25s ease;
+}
+
+.theme-companion .check-item.done .check-label {
+  text-decoration: line-through;
+  color: var(--text-fainter);
+}
+
+.theme-companion .check-slot {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--text-fainter);
+}
+
+/* 見出し行の余白を埋める罫線 */
+.theme-companion .hairline {
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
+}
+
+/* 一言カード（.today-nudge）は廃止。声をかける役は対話画面が担う。 */
+
+@media (max-width: 768px) {
+  .theme-companion .check-item {
+    border: 1px solid rgba(255, 255, 255, .18);
+    background: rgba(24, 16, 28, .5);
+    backdrop-filter: blur(12px);
+  }
+
+  .theme-companion .check-item.done {
+    border-color: rgba(255, 255, 255, .1);
+    background: rgba(255, 255, 255, .05);
+  }
+
+  .theme-companion .check-dot { border-color: rgba(255, 255, 255, .35); }
+  .theme-companion .check-label { color: #f4edf2; }
+  .theme-companion .check-item.done .check-label { color: rgba(255, 255, 255, .4); }
+  .theme-companion .check-slot { color: rgba(255, 255, 255, .4); }
+  .theme-companion .check-label a { color: inherit; }
+}
+
+/* ===========================================================================
+   11. メモ（Memo）— 紙のカード
+   =========================================================================== */
+
+.theme-companion .memo-tab-cards { gap: 10px; }
+
+.theme-companion .memo-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.theme-companion .memo-card-head {
+  gap: 8px;
+  padding: 16px 18px;
+  background: transparent;
+  min-height: 52px;
+}
+
+.theme-companion .memo-card-title-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.theme-companion .memo-card-preview { font-size: 13px; color: var(--text-sub); }
+.theme-companion .memo-card-chev { color: var(--text-fainter); }
+.theme-companion .memo-card-body { padding: 0 18px 16px; }
+
+.theme-companion .memo-add-row { margin-top: 10px; }
+
+.theme-companion .memo-empty {
+  border: 1px dashed var(--border-strong);
+  border-radius: 18px;
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .theme-companion .memo-card {
+    background: rgba(253, 249, 244, .95);
+    border: 1px solid rgba(255, 255, 255, .6);
+    box-shadow: var(--shadow-float);
+  }
+
+  .theme-companion .memo-empty {
+    border-color: rgba(255, 255, 255, .3);
+    background: rgba(255, 255, 255, .06);
+    color: rgba(255, 255, 255, .8);
+  }
+
+  .theme-companion .memo-add-row .quick-memo-btn,
+  .theme-companion .memo-card-actions .quick-memo-btn {
+    border-color: rgba(255, 255, 255, .22) !important;
+    background: rgba(255, 255, 255, .1) !important;
+    color: rgba(255, 255, 255, .88) !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(10px);
+  }
+
+  .theme-companion .memo-add-row .quick-memo-btn { white-space: nowrap; }
+}
+
+/* quick-memo-btn は副ボタン相当に落とす（旧テーマではコーラル一色だった） */
+.theme-companion .quick-memo-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: #8c7a6f;
+  font-size: 12.5px;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(140, 122, 111, .08);
+  min-height: 40px;
+}
+
+.theme-companion .quick-memo-btn:hover { filter: brightness(1.04); opacity: 1; }
+
+.theme-companion .memo-card-del-btn {
+  background: var(--red-light) !important;
+  border-color: #eccfcc !important;
+  color: var(--red) !important;
+}
+
+/* ===========================================================================
+   11b. クイックリンク
+   =========================================================================== */
+
+.theme-companion .link-card {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--shadow-card);
+  color: var(--text);
+  min-height: 84px;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.theme-companion .link-card:hover {
+  background: #fff;
+  border-color: var(--accent-dim);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(155, 130, 120, .16);
+}
+
+.theme-companion .link-card-label { font-size: 11.5px; color: var(--text-sub); }
+.theme-companion .link-card .del-btn { color: var(--text-fainter); }
+
+.theme-companion .link-cat-label {
+  border-top: 1px solid var(--border);
+  color: var(--text-faint);
+  font-size: 11px;
+  letter-spacing: .14em;
+}
+
+.theme-companion .add-card-btn {
+  border: 1px dashed var(--border-strong);
+  border-radius: 18px;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 12px;
+  min-height: 84px;
+}
+
+.theme-companion .add-card-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+
+.theme-companion .add-form {
+  background: var(--section-bg);
+  border-radius: 18px;
+  padding: 14px;
+}
+
+/* ===========================================================================
+   12. 日記（Diary）— 紙面
+   =========================================================================== */
+
+.theme-companion .sheet-date {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  color: var(--date-label);
+  margin-bottom: 3px;
+}
+
+.theme-companion .sheet-heading {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  color: var(--text);
+  margin: 0;
+}
+
+.theme-companion .sheet-rule {
+  height: 1px;
+  border: none;
+  margin: 14px 0;
+  background: linear-gradient(90deg, #e5d6cd 0%, rgba(229, 214, 205, 0) 100%);
+}
+
+.theme-companion .report-preview {
+  font-size: 14px;
+  line-height: 2.05;
+  color: var(--text-weak);
+  max-height: none;
+}
+
+.theme-companion .report-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border: none !important;
+  border-radius: 14px !important;
+  background: var(--section-bg) !important;
+}
+
+.theme-companion .report-tab {
+  flex: 1;
+  padding: 8px 0;
+  border: none !important;
+  border-radius: 11px !important;
+  background: transparent !important;
+  color: #9a8b81 !important;
+  font-size: 12.5px;
+  font-weight: 700;
+  box-shadow: none !important;
+}
+
+.theme-companion .report-tab.active {
+  background: #fff !important;
+  color: var(--text) !important;
+  box-shadow: var(--shadow-seg) !important;
+}
+
+.theme-companion .reflect-card {
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f9efec 0%, #f6e7e2 100%);
+  border: 1px solid #f0dbd5;
+  padding: 15px 16px;
+}
+
+.theme-companion .reflect-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--accent);
+}
+
+.theme-companion .reflect-card-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--accent-dim);
+}
+
+.theme-companion .reflect-result {
+  font-size: 13.5px;
+  line-height: 1.95;
+  color: #6b5a52;
+  background: transparent;
+  padding: 0;
+  max-height: none;
+}
+
+.theme-companion .mood-tag {
+  display: inline-block;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.theme-companion .mood-tag.calm { background: var(--green-light); color: var(--green); }
+
+.theme-companion .archive-list { max-height: none; gap: 4px; }
+
+.theme-companion .archive-item {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  background: #fff;
+  color: var(--text-weak);
+  padding: 11px 14px;
+  font-size: 13px;
+}
+
+.theme-companion .archive-item:hover { background: var(--section-bg); border-color: var(--border-strong) !important; }
+
+.theme-companion .report-editor,
+.theme-companion #memo-tab-textarea,
+.theme-companion #archive-textarea {
+  border-radius: 14px !important;
+  line-height: 1.8;
+}
+
+/* ===========================================================================
+   13. デスクトップ（1101px 以上）— 3カラム
+   =========================================================================== */
+
+@media (min-width: 769px) {
+
+  .theme-companion .vn-stage {
+    height: 700px;
+    border-radius: 24px;
+    overflow: hidden;
+    /* セッションピル（top:18px）の下から台詞ボックスの手前までを立ち絵の領域にする */
+    --portrait-top: 54px;
+    --portrait-bottom: 120px;
+  }
+
+  /* 舞台内の下から: 入力バー 18 / 会話オプション 88 / 返信候補 132 / 台詞 176 */
+  .theme-companion .chat-session-bar { top: 18px; }
+  .theme-companion .vn-user-log      { top: 74px; }
+  .theme-companion .vn-dialogue-box  { left: 20px; right: 20px; bottom: 176px; }
+  .theme-companion .vn-dialogue-text { font-size: 16.5px; line-height: 2.05; }
+  .theme-companion .vn-replies       { left: 20px; right: 20px; bottom: 132px; }
+  .theme-companion .chat-options     { left: 20px; right: 20px; bottom: 88px; }
+  .theme-companion .chat-composer    { left: 20px; right: 20px; bottom: 18px; }
+  .theme-companion .file-chips       { left: 20px; top: 74px; }
+
+  /* デスクトップは ≡（ナビ呼び出し）を出さない — main-tabs があるため */
+  .theme-companion .chat-nav-btn { display: none; }
+  .theme-companion .diary-segments { display: none !important; }
+
+  .theme-companion .main-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 4px;
+    margin-bottom: 18px;
+    border-bottom: none;
+    border-radius: 14px;
+    background: var(--section-bg);
+  }
+
+  .theme-companion .main-tab {
+    flex: 1;
+    padding: 8px 0;
+    border: none;
+    border-radius: 11px;
+    background: transparent;
+    color: var(--text-faint);
+    font-size: 12.5px;
+    font-weight: 700;
+    box-shadow: none;
+    transition: background .16s ease, color .16s ease, box-shadow .16s ease;
+  }
+
+  .theme-companion .main-tab.active {
+    background: #fff;
+    color: var(--text);
+    box-shadow: var(--shadow-seg);
+  }
+
+  .theme-companion .side-tabs {
+    gap: 6px;
+    padding: 4px;
+    border-radius: 14px;
+    background: var(--section-bg);
+    margin-bottom: 12px;
+  }
+
+  .theme-companion .side-tab {
+    border-radius: 11px;
+    color: var(--text-faint);
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+
+  .theme-companion .side-tab.active {
+    background: #fff;
+    color: var(--text);
+    box-shadow: var(--shadow-seg);
+  }
+
+  /* 左: 今日の四つ ＋ メモ / 中央: 舞台と日記 */
+  .theme-companion .layout {
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .theme-companion #col-right { order: 1; }
+  .theme-companion #col-main  { order: 2; }
+
+  .theme-companion .analytics-band { display: none; }
+
+  /* 進捗バー（今日の四つのカード内） */
+  .theme-companion .progress-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: #f4ebe3;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .theme-companion .progress-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f2cfc9 0%, #d6988f 100%);
+    transition: width .6s cubic-bezier(.4, 0, .2, 1);
+  }
+}
+
+@media (max-width: 768px) {
+  .theme-companion .progress-bar { display: none; }
+}
+
+/* ===========================================================================
+   14. アニメーション抑制
+   =========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-companion .vn-portrait-layer,
+  .theme-companion .vn-glow-layer,
+  .theme-companion .vn-name-dot,
+  .theme-companion .vn-caret,
+  .theme-companion .vn-advance-indicator,
+  .theme-companion #main-panel-report,
+  .theme-companion #main-panel-archive,
+  .theme-companion #main-panel-settings,
+  .theme-companion #daily-checklist-card,
+  .theme-companion #memo-tab-card {
+    animation: none !important;
+  }
+
+  .theme-companion .vn-portrait-img,
+  .theme-companion .bottom-nav { transition: none !important; }
+}

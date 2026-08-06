@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Private Portal</title>
+  <!-- アプリ本体は portal-app/ に移動しました（work-vault と同じ「portal-app + vault」構成）。 -->
+  <!-- 旧URL（ホーム画面追加済みのPWA等）からのアクセスを新URLへ転送する。 -->
+  <script>
+    location.replace('portal-app/' + location.search + location.hash);
+  </script>
+  <meta http-equiv="refresh" content="0; url=portal-app/">
+</head>
+<body>
+  <p style="font-family:sans-serif;padding:24px;">
+    ポータルは <a href="portal-app/">portal-app/</a> に移動しました。自動で移動しない場合はリンクをタップしてください。
+  </p>
+</body>
+</html>

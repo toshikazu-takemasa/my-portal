@@ -1,0 +1,75 @@
+<!--
+  対話（Talk）パネル — 起動時の標準TOP（ADR-033 決定事項3 / Ambient Companion 改修）
+  舞台（.vn-stage）が地になり、会話ログ・台詞ボックス・返信候補・入力バーはすべてその上のレイヤー。
+  レイヤー順は z-index で表現する: 背景 0 / グロー 1 / 立ち絵 2 / スクリム 3 /
+  会話ログ 20 / 台詞 25 / 返信候補 26 / 添付チップ 27 / セッションピル 28 / 入力バー 40
+-->
+<div id="main-panel-ai">
+  <div class="chat-wrap vn-mode">
+    <div class="vn-portrait-area vn-stage" id="vn-stage">
+
+      <!-- z0: 背景（表情に連動 / scene.json） -->
+      <div class="vn-bg-layer" id="vn-bg-layer"></div>
+      <!-- z1: グロー -->
+      <div class="vn-glow-layer" id="vn-glow-layer"></div>
+      <!-- z2: 立ち絵＝表情差分（クロスフェード用に2枚重ねる） -->
+      <div class="vn-portrait-layer">
+        <img class="vn-portrait-img is-active" id="vn-portrait-a" src="" alt="">
+        <img class="vn-portrait-img" id="vn-portrait-b" src="" alt="">
+      </div>
+      <!-- z3: スクリム（下半分を沈ませて文字を読ませる） -->
+      <div class="vn-scrim"></div>
+
+      <!-- z28: セッションピル -->
+      <div class="chat-session-bar">
+        <div style="position:relative;flex:1;min-width:0;">
+          <button class="session-select-btn" onclick="toggleSessionDropdown()">
+            <span id="session-title-display">新しい会話</span> ▾
+          </button>
+          <div class="session-dropdown is-hidden" id="session-dropdown"></div>
+        </div>
+        <button class="btn-new-session" onclick="newChatSession()" title="新しい会話をはじめる">＋</button>
+      </div>
+
+      <!-- z20: 会話ログ（直近3件のユーザー発言） -->
+      <div class="vn-user-log" id="vn-user-log"></div>
+
+      <!-- z25: 台詞ボックス -->
+      <div class="vn-dialogue-box" id="vn-dialogue-box" onclick="advanceVnText()">
+        <div class="vn-dialogue-name-tab" id="vn-ai-name-tab">
+          <span class="vn-name-dot"></span>
+          <span id="vn-ai-name-label">AI</span>
+        </div>
+        <p class="vn-dialogue-text" id="vn-dialogue-text"><span id="vn-typed"></span><span class="vn-caret" id="vn-caret">▍</span></p>
+        <div class="vn-dialogue-foot">
+          <span class="vn-page-counter" id="vn-page-counter"></span>
+          <span class="vn-advance-indicator" id="vn-advance-indicator"></span>
+        </div>
+      </div>
+
+      <!-- z26: 返信候補（常に2つ） -->
+      <div class="vn-replies" id="vn-replies"></div>
+
+      <!-- z27: 添付ファイルチップ -->
+      <div class="file-chips is-hidden" id="file-chips"></div>
+
+      <!-- z36: 会話オプション（スマホでは ≡ のメニューとして開く） -->
+      <div class="chat-options" id="chat-options">
+        <label class="chat-opt"><input type="checkbox" id="include-report">日記を含める</label>
+        <label class="chat-opt"><input type="checkbox" id="include-knowledge">ナレッジを含める</label>
+        <button class="chat-opt-btn" onclick="promptFileAttach()">添付</button>
+        <button class="chat-opt-btn" onclick="clearChat()">クリア</button>
+      </div>
+
+      <!-- z40: 入力バー -->
+      <div class="chat-composer">
+        <textarea class="chat-textarea" id="chat-input" rows="1" placeholder="話しかける"></textarea>
+        <button class="chat-nav-btn" id="chat-nav-btn" onclick="toggleNavSheet()" title="メニューを開く">≡</button>
+        <button class="chat-send-btn" id="chat-send-btn" onclick="sendChat()" title="送信">↑</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/ui/ai-chat.js?v=20260805"></script>

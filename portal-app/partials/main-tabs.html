@@ -1,0 +1,11 @@
+<!--
+  メインパネル切替タブ（PC専用）
+  スマホは bottom-nav.html（ナビシート）が切替を担うため CSS で非表示にしている。
+-->
+<div class="main-tabs segmented" id="main-tabs">
+  <button class="main-tab tab active" id="mtab-ai" onclick="switchMainTab('ai')">対話</button>
+  <button class="main-tab tab" id="mtab-report" onclick="switchMainTab('report')">日記</button>
+  <button class="main-tab tab" id="mtab-archive" onclick="switchMainTab('archive')">過去</button>
+  <button class="main-tab tab" id="mtab-links" onclick="switchMainTab('links')">リンク</button>
+  <button class="main-tab tab" id="mtab-settings" onclick="switchMainTab('settings')">設定</button>
+</div>

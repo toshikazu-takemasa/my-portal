@@ -1,0 +1,573 @@
+/* Web フォントの読み込みは theme-companion.css の1本（Zen Kaku Gothic New）に集約した。
+   ここで Bebas Neue / Noto Sans JP を追加読み込みすると書体が混ざるため import しない。 */
+
+:root {
+  --bg:           #070707;
+  --card-bg:      #ffffff;
+  --accent:       #c6002b;
+  --accent-light: #ffe6eb;
+  --accent-dim:   #ffccd7;
+  --green:        #c6002b;
+  --green-light:  #ffe6eb;
+  --red:          #ff1a45;
+  --red-light:    #2a0e14;
+  --link:         #111111;
+  --link-light:   #ffffff;
+  --text:         #111111;
+  --text-sub:     #5e5e5e;
+  --border:       #111111;
+  --section-bg:   #f3f3f3;
+  --section-bg2:  #e3e3e3;
+  --radius-lg:    0px;
+  --radius-md:    0px;
+  --radius-sm:    0px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Zen Kaku Gothic New', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+  background:
+    radial-gradient(circle at 10% 15%, rgba(198, 0, 43, 0.26) 0 2px, transparent 2px 100%),
+    radial-gradient(circle at 72% 38%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 100%),
+    linear-gradient(164deg, #080808 0%, #101010 42%, #000 100%);
+  background-size: 14px 14px, 11px 11px, 100% 100%;
+  color: #f7f7f7;
+  min-height: 100vh;
+  padding: 24px 20px;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(130deg, transparent 33%, rgba(198, 0, 43, 0.14) 33.5%, rgba(198, 0, 43, 0.14) 34.2%, transparent 35%);
+  opacity: 0.75;
+  z-index: -1;
+}
+
+/* ========== Header ========== */
+header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+header h1 {
+  font-size: 2.35rem;
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: 0.1em;
+  text-shadow: 3px 3px 0 #c6002b;
+}
+
+#today {
+  font-size: 0.82rem;
+  color: #d9d9d9;
+  flex: 1;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.settings-btn {
+  width: 36px;
+  height: 36px;
+  border: 2px solid #ffffff;
+  border-radius: 0;
+  background: #111111;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 4px 4px 0 #c6002b;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.settings-btn:hover { background: #c6002b; border-color: #fff; }
+
+.analytics-band {
+  max-width: 1400px;
+  margin: 0 auto 18px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.analytics-card {
+  background: #fff;
+ 
+  padding: 12px 14px;
+  color: #111;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 8px 8px 0 #c6002b;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 4% 100%, 0 76%);
+}
+
+.analytics-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(198, 0, 43, 0.15) 1px, transparent 1px);
+  background-size: 6px 6px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.analytics-label {
+  letter-spacing: 0.14em;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.analytics-progress-track {
+  height: 22px;
+ 
+  background: repeating-linear-gradient(-45deg, #f2f2f2 0 8px, #fff 8px 16px);
+  margin-bottom: 8px;
+}
+
+.analytics-progress-fill {
+  width: 73%;
+  height: 100%;
+  background: linear-gradient(90deg, #111 0 25%, #c6002b 25% 100%);
+  clip-path: polygon(0 0, 96% 0, 100% 50%, 96% 100%, 0 100%);
+}
+
+.analytics-footnote {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-left: 10px;
+}
+
+.mobile-side-overlay {
+  display: none;
+}
+
+/* ========== Layout ========== */
+.layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 18px;
+  max-width: 1400px;
+  margin: 8px auto 0;
+  align-items: start;
+}
+
+/* グリッドアイテムの min-width:auto によるはみ出し防止
+   （nowrap なプレビュー行や幅広テーブルがカラム幅を押し広げないように） */
+.layout > * {
+  min-width: 0;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+/* ========== Card ========== */
+.card {
+  background: var(--card-bg) !important;
+  border-radius: 0 !important;
+  padding: 20px 22px;
+ 
+  box-shadow: 9px 9px 0 rgba(198, 0, 43, 0.95) !important;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 3% 100%, 0 90%);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: none;
+}
+
+.card h2 {
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #c6002b;
+  margin-bottom: 14px;
+}
+
+#col-main {
+  margin-top: 0;
+  z-index: 3;
+}
+
+.right-col {
+  margin-top: 0;
+  gap: 18px;
+  z-index: 1;
+}
+
+.side-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--section-bg);
+  padding: 4px;
+ 
+  margin-bottom: 8px;
+}
+
+.side-tab {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.side-tab.active {
+  background: #111;
+  color: #fff;
+}
+
+/* ========== Right column ========== */
+.right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.side-panel-head {
+  display: none;
+}
+
+.side-close-btn {
+ 
+  background: #fff;
+  color: #111;
+  border-radius: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  min-height: 36px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+/* ========== Quick Links (Card Grid) ========== */
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.link-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 14px 6px 12px;
+  border-radius: 0;
+  text-decoration: none;
+  color: var(--text);
+  background: var(--section-bg);
+ 
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  position: relative;
+  min-height: 76px;
+  cursor: pointer;
+}
+
+.link-card:hover {
+  background: #fff1f4;
+  border-color: #c6002b;
+  transform: translate(-3px, -3px);
+}
+
+.link-card-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.link-card-favicon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.link-card-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-align: center;
+  color: var(--text-sub);
+  line-height: 1.25;
+  word-break: break-all;
+}
+
+.link-card .del-btn {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  color: var(--border);
+  font-size: 0.62rem;
+  padding: 1px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: none;
+  line-height: 1;
+}
+
+.link-card:hover .del-btn { display: block; }
+.link-card:hover .del-btn:hover { color: var(--red); }
+
+.link-cat-label {
+  grid-column: 1 / -1;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 10px 2px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 2px;
+}
+
+.link-card.dragging { opacity: 0.3; cursor: grabbing; }
+.link-card.drag-over { outline: 2px dashed var(--accent); outline-offset: 2px; background: var(--accent-light); }
+.link-cat-label.drag-over { color: var(--accent); background: var(--accent-dim); border-radius: 4px; }
+
+.add-card-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 6px 12px;
+  border: 2px dashed #111;
+  border-radius: 0;
+  background: none;
+  color: var(--text-sub);
+  font-size: 0.68rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 76px;
+}
+
+.add-card-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.add-form {
+  background: var(--section-bg);
+  border-radius: 0;
+  padding: 12px;
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+ 
+}
+
+.add-form input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  outline: none;
+  background: var(--card-bg);
+  color: var(--text);
+}
+
+.add-form input:focus { border-color: var(--accent); }
+
+.form-emoji-row { display: flex; gap: 5px; }
+.form-emoji-row input:first-child { width: 42px; flex-shrink: 0; text-align: center; font-size: 1rem; }
+
+.form-actions { display: flex; gap: 5px; }
+
+.btn-form-save {
+  flex: 1;
+  padding: 7px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  transition: opacity 0.15s;
+}
+
+.btn-form-save:hover { opacity: 0.88; }
+
+.btn-form-cancel {
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  cursor: pointer;
+  background: var(--card-bg);
+  color: var(--text-sub);
+}
+
+/* ========== Settings ========== */
+.modal-section {
+  margin-bottom: 18px;
+}
+
+.modal-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #c6002b;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.modal-note {
+  font-size: 0.74rem;
+  color: var(--text-sub);
+  margin-top: 6px;
+}
+
+.token-row {
+  display: flex;
+  gap: 6px;
+}
+
+.token-input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  outline: none;
+  background: var(--section-bg);
+  color: var(--text);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.token-input:focus { border-color: var(--accent); background: var(--card-bg); }
+
+.btn-token {
+  padding: 8px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  min-height: 44px;
+}
+
+.btn-token:hover { opacity: 0.85; }
+.btn-token.danger { background: var(--red); }
+
+.modal-status {
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-top: 6px;
+  min-height: 18px;
+}
+
+/* ========== スマホ対応 ========== */
+@media (max-width: 768px) {
+  body {
+    padding: 10px 10px 72px; /* ボトムナビ分の下余白 */
+  }
+
+  header {
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  header h1 {
+    font-size: 1.75rem;
+  }
+
+  #today {
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+  }
+
+  .analytics-band {
+    grid-template-columns: 1fr;
+    margin-bottom: 8px;
+    gap: 10px;
+  }
+
+  .analytics-card {
+    box-shadow: 6px 6px 0 #c6002b;
+    padding: 10px 12px;
+  }
+
+  .card {
+    padding: 14px 14px;
+    border-radius: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 3% 100%, 0 92%);
+    box-shadow: 6px 6px 0 rgba(198, 0, 43, 0.95) !important;
+  }
+
+  /* タップ領域を 44px 以上に */
+  .check-item {
+    min-height: 44px;
+    padding: 11px 0;
+  }
+
+  .settings-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .mobile-side-overlay {
+    display: none !important;
+  }
+
+  .mobile-side-overlay.open {
+    display: none !important;
+  }
+
+  .right-col {
+    position: static;
+    width: auto;
+    padding: 0;
+    background: transparent;
+    z-index: 1;
+    overflow: visible;
+    transform: none;
+    transition: none;
+    box-shadow: none;
+  }
+
+  .side-panel-head {
+    display: none;
+  }
+
+  .right-col.mobile-open {
+    transform: none;
+  }
+
+  .links-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

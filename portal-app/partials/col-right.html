@@ -1,0 +1,70 @@
+<!-- ===== Col: 今日 / メモ ===== -->
+<div class="right-col" id="col-right">
+
+  <div class="side-panel-head">
+    <button class="btn-quiet side-close-btn" onclick="closeMobileSideMenu()">閉じる</button>
+  </div>
+
+  <!-- 今日 / メモ サブタブ（デスクトップのみ。スマホはナビシートが担う） -->
+  <div class="side-tabs" id="side-tabs">
+    <button class="side-tab active" id="stab-checklist" onclick="switchSideTab('checklist')">今日</button>
+    <button class="side-tab" id="stab-memo" onclick="switchSideTab('memo')">メモ</button>
+  </div>
+
+  <!-- 今日の四つ（portal-config.json の dailyTasks から生成） -->
+  <div class="card" id="daily-checklist-card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <h2 style="margin-bottom:0;">今日の四つ</h2>
+      <span class="hairline"></span>
+      <span id="checklist-count" style="font-size:11.5px;font-weight:700;letter-spacing:.1em;color:var(--date-label);">0 / 0</span>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="analytics-progress-fill" style="width:0%;"></div>
+    </div>
+
+    <div id="daily-checklist-list-right" class="daily-checklist"></div>
+
+    <!-- 一言カード（AI ティッカー）は廃止。声をかけるのは正面の対話画面が担う。 -->
+
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn-quiet" style="flex:1;" onclick="appendDailyChecklistToReport()">日記に反映</button>
+      <button class="btn-quiet" style="white-space:nowrap;" onclick="resetDailyChecklist()">クリア</button>
+    </div>
+  </div>
+
+  <!-- メモ（vault/task/memo.md の ## 見出し単位のカード） -->
+  <div class="card is-hidden" id="memo-tab-card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <h2 style="margin-bottom:0;">メモ</h2>
+      <span style="flex:1;"></span>
+      <button class="btn-quiet" style="padding:6px 11px;font-size:11.5px;" title="再読み込み" onclick="loadMemoTab(true)">再読込</button>
+      <button class="btn-quiet" id="memo-mode-toggle" style="padding:6px 11px;font-size:11.5px;" title="カード表示とMD全体編集の切替" onclick="toggleMemoRawMode()">MD</button>
+    </div>
+
+    <!-- カード一覧（アコーディオン） -->
+    <div id="memo-tab-cards" class="memo-tab-cards"></div>
+
+    <!-- 新規カード追加 -->
+    <div id="memo-add-row" class="memo-add-row">
+      <input id="memo-new-title" type="text" class="quick-memo-input" style="flex:1;min-width:0;"
+        placeholder="新しいカード（例: 読書メモ / ADR）"
+        onkeydown="if(event.key==='Enter')addMemoCard()">
+      <button class="quick-memo-btn" onclick="addMemoCard()">追加</button>
+    </div>
+
+    <!-- MD全体編集モード（フォールバック） -->
+    <textarea id="memo-tab-textarea" class="quick-memo-input is-hidden" oninput="markMemoDirty()"
+      style="width:100%;min-height:280px;resize:vertical;line-height:1.8;padding:12px;box-sizing:border-box;" placeholder="自由記述..."></textarea>
+    <div id="memo-raw-actions" class="is-hidden" style="margin-top:8px;">
+      <button class="btn-primary block" onclick="saveMemoTab()">保存</button>
+    </div>
+
+    <div id="memo-tab-status" style="font-size:11.5px;color:var(--text-faint);margin-top:8px;min-height:1.2em;"></div>
+  </div>
+
+</div><!-- /right-col -->
+
+<script src="js/ui/daily-checklist.js?v=20260731"></script>
+<script src="js/storage/memo-repository.js"></script>
+<script src="js/ui/memo-tab.js?v=20260710"></script>

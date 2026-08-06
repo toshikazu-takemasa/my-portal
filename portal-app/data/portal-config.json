@@ -1,0 +1,26 @@
+{
+  "repo": "toshikazu-takemasa/my-portal-vault",
+  "branch": "main",
+  "dailyTasks": [
+    {
+      "id": "dt1",
+      "title": "タスクチェック",
+      "type": "daily"
+    },
+    {
+      "id": "dt2",
+      "title": "会計",
+      "type": "daily"
+    },
+    {
+      "id": "dt3",
+      "title": "エクササイズ",
+      "type": "daily"
+    },
+    {
+      "id": "dt4",
+      "title": "読書または勉強",
+      "type": "daily"
+    }
+  ]
+}

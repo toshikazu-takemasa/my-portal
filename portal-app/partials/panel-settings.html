@@ -1,0 +1,113 @@
+<!-- 設定パネル -->
+<div id="main-panel-settings" class="is-hidden">
+  <p class="sheet-date">SETTINGS</p>
+  <h3 class="sheet-heading">設定</h3>
+  <hr class="sheet-rule">
+
+  <!-- GitHub PAT -->
+  <div class="modal-section" style="margin-bottom:20px;">
+    <div class="modal-label">GitHub Personal Access Token</div>
+    <div id="modal-pat-set" class="is-hidden">
+      <div style="font-size:12.5px;color:var(--green);margin-bottom:8px;font-weight:700;">PAT が設定済みです</div>
+      <button class="btn-quiet danger" onclick="clearToken()">トークンを削除</button>
+    </div>
+    <div id="modal-pat-unset">
+      <div class="token-row">
+        <input id="token-input" class="token-input" type="password" placeholder="ghp_xxxxxxxxxxxx">
+        <button class="btn-primary" onclick="saveToken()">保存</button>
+      </div>
+      <p class="modal-note">repo スコープ + Actions write が必要です。<strong>fine-grained PAT（対象リポジトリを限定したトークン）を推奨</strong>します（ADR-033）</p>
+    </div>
+    <div id="modal-status" class="modal-status"></div>
+  </div>
+
+  <!-- Gemini API Key -->
+  <div class="modal-section" style="margin-bottom:20px;">
+    <div class="modal-label">Gemini API キー</div>
+    <div id="modal-gemini-set" class="is-hidden">
+      <div style="font-size:12.5px;color:var(--green);margin-bottom:8px;font-weight:700;">APIキーが設定済みです</div>
+      <button class="btn-quiet danger" onclick="clearGeminiKey()">削除</button>
+    </div>
+    <div id="modal-gemini-unset">
+      <div class="token-row">
+        <input id="gemini-key-input" class="token-input" type="password" placeholder="AIzaSy...">
+        <button class="btn-primary" onclick="saveGeminiKey()">保存</button>
+      </div>
+      <p class="modal-note">aistudio.google.com で発行できます</p>
+    </div>
+    <div id="gemini-test-row" class="token-row" style="margin-top:8px;align-items:center;">
+      <button class="btn-quiet" onclick="testGeminiKey()" id="gemini-test-btn">接続テスト</button>
+      <span id="gemini-test-status" style="font-size:12px;margin-left:8px;"></span>
+    </div>
+  </div>
+
+  <!-- APIキーの保護（ADR-033 決定事項7） -->
+  <div class="modal-section" style="margin-bottom:20px;">
+    <div class="modal-label">APIキーの保護</div>
+
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <label style="font-size:12.5px;color:var(--text-sub);">保存先</label>
+      <select id="key-backend-select" class="token-input" style="font-size:0.8rem;cursor:pointer;" onchange="changeKeyBackend()">
+        <option value="local">localStorage（ブラウザを閉じても保持）</option>
+        <option value="session">sessionStorage（タブを閉じると破棄）</option>
+      </select>
+    </div>
+
+    <!-- 暗号化が無効なとき -->
+    <div id="key-enc-off">
+      <div class="token-row" style="margin-bottom:6px;">
+        <input id="key-pass-input" class="token-input" type="password" placeholder="パスフレーズ">
+      </div>
+      <div class="token-row" style="margin-bottom:6px;">
+        <input id="key-pass-confirm" class="token-input" type="password" placeholder="パスフレーズ（確認）">
+        <button class="btn-primary" onclick="enableKeyEncryption()">暗号化を有効にする</button>
+      </div>
+    </div>
+
+    <!-- 暗号化が有効なとき -->
+    <div id="key-enc-on" class="is-hidden">
+      <div style="font-size:12.5px;color:var(--green);margin-bottom:8px;font-weight:700;">
+        暗号化が有効です <span id="key-lock-state" style="font-weight:400;color:var(--text-sub);margin-left:6px;"></span>
+      </div>
+      <div class="token-row">
+        <button class="btn-primary" onclick="unlockKeys()">解錠する</button>
+        <button class="btn-quiet danger" onclick="disableKeyEncryption()">暗号化を解除</button>
+      </div>
+    </div>
+
+    <p class="modal-note">
+      PBKDF2（SHA-256・25万回）＋ AES-GCM でキーを暗号化して保存します。
+      <strong>XSS への防御ではありません</strong>。スクリプト実行を許した時点で解錠後の平文は読み取れます。
+      目的は端末放置時にストレージから平文を読まれるリスクを下げることに限られます。
+    </p>
+    <div id="key-protection-status" class="modal-status"></div>
+  </div>
+
+  <!-- アバターの表情・背景（ADR-035） -->
+  <div class="modal-section" style="margin-bottom:20px;">
+    <div class="modal-label">アバターの表情と舞台</div>
+
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <label style="font-size:12.5px;color:var(--text-sub);min-width:3.5em;">背景</label>
+      <select id="avatar-bg-select" class="token-input" style="cursor:pointer;" onchange="changeAvatarBackground()"></select>
+    </div>
+
+    <div style="margin-bottom:8px;">
+      <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;">表情プレビュー（クリックで切り替え）</div>
+      <div id="avatar-expr-buttons" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+    </div>
+
+    <p class="modal-note" id="avatar-scene-note"></p>
+    <div id="avatar-scene-status" class="modal-status"></div>
+  </div>
+
+  <!-- 返信候補から拾ったフィードバック（ADR-038） -->
+  <div class="modal-section" style="margin-bottom:20px;">
+    <div class="modal-label">応答スタイルの学習状況</div>
+    <p id="reply-feedback-tally" style="font-size:13px;color:var(--text-sub);line-height:1.9;margin-bottom:8px;"></p>
+    <button class="btn-quiet" onclick="resetReplyFeedback()">記録をリセット</button>
+  </div>
+
+</div>
+
+<script src="js/ui/settings.js?v=20260804b"></script>

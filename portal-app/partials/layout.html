@@ -1,0 +1,39 @@
+<!--
+  ページ全体のレイアウト（2カラム / ナビシート）
+
+  ヘッダーは廃止した。設定はスマホ＝ナビシートの「設定」、PC＝中央のタブ行の「設定」から開く。
+  以前ヘッダーに載っていた情報の行き先:
+    日付        → 日記タブの日付ラベル（2026.07.31）
+    画面タイトル → 中央のタブ行 / スマホはナビシートの選択状態
+    進捗リング   → 「今日の四つ」カードの 0/4 と進捗バー
+    表情チップ   → 立ち絵そのものが表情を語る
+  Google Calendar の埋め込み（col-calendar / 日記タブの「予定」）も撤去した。
+-->
+
+<!-- 日記タブのセグメント（スマホ専用 / 今日・過去） -->
+<div class="segmented diary-segments is-hidden" id="diary-segments">
+  <button class="tab active" id="dseg-today" onclick="switchDiarySegment('today')">今日</button>
+  <button class="tab"        id="dseg-past"  onclick="switchDiarySegment('past')">過去</button>
+</div>
+
+<div class="layout !grid !gap-4 !max-w-[1400px] !mx-auto !items-start">
+
+  <!-- ===== Col: Main Panels（中央＝舞台・日記・アーカイブ・設定） ===== -->
+  <div class="card" id="col-main">
+    <div data-partial="partials/main-tabs.html"></div>
+    <div data-partial="partials/panel-report.html"></div>
+    <div data-partial="partials/panel-links.html"></div>
+    <div data-partial="partials/panel-ai.html"></div>
+    <div data-partial="partials/panel-archive.html"></div>
+    <div data-partial="partials/panel-settings.html"></div>
+  </div>
+
+  <!-- ===== Col: 今日 / メモ ===== -->
+  <div data-partial="partials/col-right.html"></div>
+
+</div><!-- /layout -->
+
+<div class="mobile-side-overlay" id="mobile-side-overlay" onclick="closeMobileSideMenu()"></div>
+
+<!-- ナビシート -->
+<div data-partial="partials/bottom-nav.html"></div>

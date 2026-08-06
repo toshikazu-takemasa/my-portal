@@ -1,0 +1,177 @@
+/* ==========================================================================
+   AI Chat — 構造のみ
+   --------------------------------------------------------------------------
+   舞台（背景 / グロー / 立ち絵 / スクリム）と台詞まわりの見た目は
+   theme-companion.css が持つ。ここには構造と、テーマに依存しない部品だけを置く。
+   ========================================================================== */
+
+.chat-wrap,
+.chat-wrap.vn-mode {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+}
+
+/* ===== ステージ（背景 z0 / グロー z1 / 立ち絵 z2 / スクリム z3）ADR-035 ===== */
+.vn-portrait-area {
+  width: 100%;
+  overflow: hidden;
+  position: relative;   /* absolute 子要素の基準 */
+  background: #150e1a;  /* 背景レイヤーが未適用でも黒く落ちないための下敷き */
+}
+
+.vn-bg-layer      { position: absolute; inset: 0; z-index: 0; }
+.vn-glow-layer    { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.vn-portrait-layer{ position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+
+.vn-portrait-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.vn-portrait-img.is-active { opacity: 1; }
+.vn-portrait-img.no-transition { transition: none; }
+
+/* 考え中は背景をわずかに沈ませて「間」を作る */
+.vn-stage[data-expr="thinking"] .vn-bg-layer { filter: brightness(0.9); }
+
+/* ===== ユーザー発言ログ ===== */
+.vn-user-log {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.vn-user-entry { word-break: break-word; }
+
+/* ===== 台詞ボックス ===== */
+.vn-dialogue-box {
+  position: absolute;
+  z-index: 25;
+  box-sizing: border-box;
+  cursor: pointer;
+  user-select: none;
+}
+
+.vn-dialogue-name-tab { position: absolute; z-index: 4; }
+
+.vn-dialogue-text {
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* ---- Session bar ---- */
+.chat-session-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.session-select-btn {
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.btn-new-session { cursor: pointer; white-space: nowrap; }
+
+.session-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.session-item { padding: 11px 14px; cursor: pointer; }
+
+.session-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-item-meta {
+  font-size: 11.5px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.session-del { cursor: pointer; transition: color 0.15s; }
+.session-del:hover { color: var(--red); }
+
+/* ---- File chips ---- */
+.file-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.file-chip-remove { cursor: pointer; font-size: 10px; }
+
+/* ---- Apply block ---- */
+.apply-block {
+  margin: 8px 0;
+  padding: 12px 14px;
+  background: var(--accent-light);
+  border-radius: 14px;
+}
+
+.apply-path { font-size: 12.5px; font-weight: 600; color: var(--green); margin-bottom: 4px; }
+.apply-summary { font-size: 12px; color: var(--link); cursor: pointer; }
+
+.apply-preview {
+  font-size: 12px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 8px 10px;
+  max-height: 160px;
+  overflow-y: auto;
+  margin: 5px 0 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ========== Reflection ========== */
+.reflect-q { margin-bottom: 10px; }
+
+.reflect-q label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-sub);
+  margin-bottom: 5px;
+}
+
+.reflect-q textarea {
+  width: 100%;
+  padding: 10px 12px;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+}
+
+.reflect-result { overflow-y: auto; }
