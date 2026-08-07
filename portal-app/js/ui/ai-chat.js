@@ -556,6 +556,13 @@ ${typeof AvatarScene !== 'undefined' ? AvatarScene.promptGuide() : ''}
 
 ${typeof ReplyFeedback !== 'undefined' ? ReplyFeedback.promptGuide(chatHistory) : ''}
 
+${typeof PersonaState !== 'undefined' ? PersonaState.promptGuide() : ''}
+
+## 覚えておくこと
+- **「覚えといて」「これ覚えておいて」と明示的に頼まれたときだけ** remember_about_user を使ってください。
+- 頼まれていないのに勝手に記録しないでください。何を覚えられたかユーザーが把握できなくなります。
+- 記録したら「何を・どのセクションに」を1行で伝えてください。
+
 ## ツール選択の指針
 - 「今日のタスク」「今日やること」など当日のリマインドを聞かれた場合は get_today_reminders を優先してください。
 - get_tasks は長期バックログ（P1〜P3）用です。明示的にバックログを尋ねられた場合のみ使用してください。

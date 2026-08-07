@@ -143,6 +143,11 @@ window.ToolDispatcher = {
           return { ok: true, task, message: `タスク ${id} を更新しました` };
         }
 
+        case 'remember_about_user':
+          // profile.md（以降の対話に効く）と当日の日記（いつ・何を根拠にそうなったか）の両方に書く。
+          // 片方だけだと、あとで振る舞いが変わった理由を追えない（ADR-041 決定6 と同じ考え方）。
+          return await PersonaState.remember(args.fact, args.section);
+
         case 'merge_journals':
           return await DiaryService.getMergedJournal(args.days || 7);
 
