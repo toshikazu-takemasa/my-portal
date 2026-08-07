@@ -239,32 +239,36 @@ loadAllPartials().then(async () => {
     console.warn('portal-config.json の読み込みに失敗しました:', e);
   }
 
-  // 使用中のペルソナ（PERSONA_DIR）の persona.md をロードして frontmatter をパース
+  // 使用中のペルソナ（PERSONA_DIR）の card.json をロードする。
+  //
+  // 以前は persona.md の frontmatter を自前でパースしていたが、その実装には穴があった:
+  //   - 正規表現が `\n` 決め打ちで、CRLF のファイルでは frontmatter が丸ごと本文に落ちる
+  //   - `line.split(':')` なので、値の中にコロンがあると壊れる（例: greeting に時刻）
+  // JSON にすればブラウザ標準のパーサが使えるので、この2つが構造的に消える。
+  //
+  // ここに置くのは「作者が書く人格」だけ。対話で変化するユーザー像や関係の記憶は
+  // vault 側に置く（成長するのはそちらで、card.json ではない）。
   try {
-    const res = await fetch(`${PERSONA_DIR}persona.md`);
+    const res = await fetch(`${PERSONA_DIR}card.json`);
     if (res.ok) {
-      const text  = await res.text();
-      const fm    = {};
-      let body    = text;
-      const match = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-      if (match) {
-        match[1].split('\n').forEach(line => {
-          const [k, ...v] = line.split(':');
-          if (k) fm[k.trim()] = v.join(':').trim();
-        });
-        body = match[2].trim();
-      }
+      const card = await res.json();
       window.AI_PERSONA = {
-        name: fm.name, userCallName: fm.userCallName, avatarUrl: fm.avatarUrl,
-        greeting: fm.greeting,   // 起動時の挨拶（口調は人格に属する / ADR-040）
+        name: card.name,
+        userCallName: card.userCallName,
+        avatarUrl: card.avatarUrl,   // 任意。省略時は PERSONA_DIR の avatar.png
+        greeting: card.greeting,     // 起動時の挨拶（口調は人格に属する / ADR-040）
         // この人格が使ってはいけない語。返答を機械的に照合するために持つ（ADR-044）。
         // 本文に「使わない」と書くだけでは守られないため、宣言を機械可読にしてある。
-        avoidWords: String(fm.avoidWords || '').split(',').map(s => s.trim()).filter(Boolean),
-        body
+        avoidWords: Array.isArray(card.avoidWords) ? card.avoidWords : [],
+        intro:       card.intro || '',
+        sections:    Array.isArray(card.sections)    ? card.sections    : [],
+        // 会話履歴の後ろに置く指示。前に置くより強く効くため、破られやすい規律の
+        // 移動先として用意してある（現状は未使用）。
+        postHistory: Array.isArray(card.postHistory) ? card.postHistory : []
       };
     }
   } catch (e) {
-    console.warn('persona.md の読み込みに失敗しました:', e);
+    console.warn('card.json の読み込みに失敗しました:', e);
   }
   // scene.json（表情差分・背景の定義）をロードする（ADR-035）
   // persona.md の avatarUrl をフォールバック画像に使うため、必ず persona 読み込みの後に行う。

@@ -29,7 +29,7 @@
  *
  * 禁止語（ADR 044 / 045）
  *
- * persona.md の frontmatter `avoidWords:` に「この人格が使ってはいけない語」を宣言する。
+ * card.json の `avoidWords` に「この人格が使ってはいけない語」を宣言する。
  * 平時は語を並べた1行、破ったら名指しで強く止める、の2段構え。
  * 本文に「使わない」と書くだけでは守られなかった（実例: 人格が京都弁「どす」を使った）。
  */
@@ -207,7 +207,7 @@ window.ReplyFeedback = {
 
   // ---------- 禁止語の検出（ADR 044） ----------
 
-  /** persona.md の frontmatter `avoidWords:` に宣言された語 */
+  /** card.json の `avoidWords` に宣言された語 */
   avoidWords() {
     return (window.AI_PERSONA && window.AI_PERSONA.avoidWords) || [];
   },

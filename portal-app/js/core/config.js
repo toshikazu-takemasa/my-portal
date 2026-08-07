@@ -11,7 +11,7 @@ window.getBranch = getBranch;
 // =====================
 // ペルソナ（ADR-040）
 // =====================
-// 使用中のアバター一式（persona.md / scene.json / avatar.png / expressions/）の置き場。
+// 使用中のアバター一式（card.json / scene.json / avatar.png / expressions/）の置き場。
 // 静的サイトはディレクトリ一覧を取得できないため、読む場所は 1つに固定する。
 //
 // ADR-048: vault は private リポジトリへ分離したため、Pages から相対 fetch できるのは

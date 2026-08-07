@@ -4,7 +4,7 @@
 const SESSIONS_KEY = 'chat_sessions';
 
 /**
- * 起動時の挨拶。口調は人格に属するので persona.md の frontmatter `greeting:` から読む（ADR-040）。
+ * 起動時の挨拶。口調は人格に属するので card.json の `greeting` から読む（ADR-040）。
  * 未指定のときだけコード側の既定文を使う。AI 生成はしない（ADR-037）。
  */
 const DEFAULT_WELCOME = 'おかえり。今日はどうする？';

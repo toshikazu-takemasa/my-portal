@@ -81,7 +81,7 @@ window.AvatarScene = {
       this.manifest = { ...FALLBACK_MANIFEST };
     }
 
-    // persona.md の avatarUrl が指定されていればフォールバック画像として優先する
+    // card.json の avatarUrl が指定されていればフォールバック画像として優先する
     const personaAvatar = window.AI_PERSONA && window.AI_PERSONA.avatarUrl;
     if (personaAvatar) this.manifest.personaAvatarUrl = personaAvatar;
 
@@ -124,7 +124,7 @@ window.AvatarScene = {
     ) || null;
   },
 
-  /** フォールバック画像の URL（persona.md の avatarUrl ＞ manifest.fallbackFile） */
+  /** フォールバック画像の URL（card.json の avatarUrl ＞ manifest.fallbackFile） */
   fallbackSrc() {
     const m = this._m();
     return m.personaAvatarUrl || `${m.basePath || ''}${m.fallbackFile || 'avatar.png'}`;
@@ -460,7 +460,7 @@ window.AvatarScene = {
   }
 };
 
-// persona.md が読めた後にフォールバック画像を確定させたいので、マニフェストは app.js から load() する。
+// card.json が読めた後にフォールバック画像を確定させたいので、マニフェストは app.js から load() する。
 // 設定同期後に背景の保存値が入る場合があるため、config ロード完了でも再適用する。
 window.addEventListener('portal-config-loaded', () => {
   if (window.AvatarScene && window.AvatarScene.manifest) {

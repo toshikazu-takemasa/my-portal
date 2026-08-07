@@ -57,11 +57,11 @@ my-portal-vault/               ← データリポジトリ（private・Contents
 - 📝 **メモ** — `vault/task/memo.md` を主題ごとのカード（`## 見出し` 単位）で管理。「MD」ボタンで全文編集にも切替可
 - 📌 **タスク** — `vault/task/tasks.json` をAIチャットのツール（get_tasks / add_task / update_task）経由で管理
 - 🔗 **クイックリンク** — よく使うサービスへのショートカット（並び替え・追加対応、`vault/config.json` に保存）
-- 🤖 **AI チャット** — Gemini（Function Calling 対応）を使ったコーチング・秘書機能。ペルソナは `portal-app/assets/persona/persona.md` で定義
+- 🤖 **AI チャット** — Gemini（Function Calling 対応）を使ったコーチング・秘書機能。ペルソナは `portal-app/assets/persona/card.json` で定義
 - 🎭 **アバターの表情・背景**（ADR-035） — 立ち絵の表情差分と背景を独立レイヤーで管理。定義は `portal-app/assets/persona/scene.json`。
   AI は返答に `[表情:happy]` タグを入れて表情を切り替える。表情画像は `portal-app/assets/persona/expressions/` に置く
   （未配置でも avatar.png + CSS の疑似表情で動作。生成画像の背景透過・軽量化は `tools/remove-generated-background.js`）
-- 🔄 **アバターの切り替え**（ADR-040 / 048） — 人格一式（persona.md / scene.json / 画像）を1ディレクトリにまとめ、
+- 🔄 **アバターの切り替え**（ADR-040 / 048） — 人格一式（card.json / scene.json / 画像）を1ディレクトリにまとめ、
   **使用中は `portal-app/assets/persona/`、控えは `_名前/`** で置く。切り替えはディレクトリのリネーム2回だけ
   （`git mv assets/persona assets/_old && git mv assets/_new assets/persona`）。
   読み先は `js/core/config.js` の `PERSONA_DIR` に集約している

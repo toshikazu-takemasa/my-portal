@@ -23,14 +23,27 @@ function getGeminiKey() { return _readKey(GEMINI_KEY); }
 window.getToken     = getToken;
 window.getGeminiKey = getGeminiKey;
 
-// ---- AI Persona (PERSONA_DIR の persona.md から読む / ADR-040) ----
-// window.AI_PERSONA = { name, userCallName, avatarUrl, body } はアプリ初期化時にセット済み
+// ---- AI Persona (PERSONA_DIR の card.json から読む / ADR-040) ----
+// window.AI_PERSONA = { name, userCallName, avatarUrl, greeting, avoidWords, intro, sections, postHistory }
+// は app.js の初期化時にセット済み。
 // avatarUrl は任意。省略時はペルソナディレクトリの avatar.png を使う（セットを持ち運べるようにするため）
 function getAiName()   { return (window.AI_PERSONA && window.AI_PERSONA.name)      || 'AI'; }
 function getAiAvatar() { return (window.AI_PERSONA && window.AI_PERSONA.avatarUrl)  || `${PERSONA_DIR}avatar.png`; }
+
+/**
+ * card.json のセクションを、プロンプトに載せる1本のテキストへ組み立てる。
+ * 見出しの順序は card.json の配列順がそのまま効く（順序をデータで持つため）。
+ */
 function getAiPrompt() {
   const p = window.AI_PERSONA || {};
-  return (p.body || 'あなたは優秀なアシスタントです。').replace(/\{呼称\}/g, p.userCallName || 'ユーザー');
+  const blocks = [];
+  if (p.intro) blocks.push(p.intro);
+  (p.sections || []).forEach(s => {
+    if (!s || !s.heading) return;
+    blocks.push(`【${s.heading}】\n${(s.lines || []).join('\n')}`);
+  });
+  const body = blocks.join('\n\n') || 'あなたは優秀なアシスタントです。';
+  return body.replace(/\{呼称\}/g, p.userCallName || 'ユーザー');
 }
 
 // ---- 初期化 ----
@@ -94,10 +107,9 @@ function initAvatarSceneUI() {
   if (note) {
     note.innerHTML = AvatarScene.hasDedicatedImages()
       ? '表情差分の画像を読み込んでいます。AI は返答に <code>[表情:happy]</code> のようなタグを入れて表情を切り替えます。'
-      : `表情差分の画像がまだ配置されていません。<code>vault/persona/avatar/expressions/</code> に
+      : `表情差分の画像がまだ配置されていません。<code>${PERSONA_DIR}expressions/</code> に
          <code>${AvatarScene.expressions().map(e => e.id + '.png').join(' / ')}</code>
-         を置くと自動的に本物の表情差分に切り替わります。それまでは avatar.png ＋ CSS の疑似表情で代用します
-         （生成用プロンプトは <code>vault/knowledge/表情画像生成プロンプト.md</code>）。`;
+         を置くと自動的に本物の表情差分に切り替わります。それまでは avatar.png ＋ CSS の疑似表情で代用します。`;
   }
 }
 
