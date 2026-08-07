@@ -103,5 +103,94 @@ console.log('\n=== filledSections / promptGuide ===');
   check('空セクションは載せない', !g.includes('### 呼び方と距離感'), g);
 }
 
+// ==========================================================================
+// remember() の統合検証。GitHub 側だけ差し替えて、本物のコードを走らせる。
+// 純関数のテストでは「2ファイルに書く」「片方が失敗しても片方は成功扱い」が見えない。
+// ==========================================================================
+
+/** 疑似 GitHub。saveFile は commit を返し、内容をメモリに持つ */
+function fakeGitHub(opts = {}) {
+  const files = new Map(Object.entries(opts.initial || {}));
+  return {
+    files,
+    async getFile(path) {
+      return files.has(path) ? { content: files.get(path), sha: 'sha-' + path, path } : null;
+    },
+    async saveFile(path, content) {
+      if (opts.failPaths && opts.failPaths.includes(path)) throw new Error(`書き込み失敗: ${path}`);
+      files.set(path, content);
+      return { commit: { sha: 'c1' }, content: { sha: 'blob' }, previousSha: '' };
+    },
+  };
+}
+
+console.log('\n=== remember()（profile と日記の両方に書く） ===');
+{
+  const gh = fakeGitHub();
+  ctx.GitHubStorage = gh;
+  PS._profile = null;
+
+  const r = await PS.remember('前置きが長いと読み飛ばす', '応答の好み');
+  const profile = gh.files.get('vault/persona-state/profile.md') || '';
+  const diary   = gh.files.get('vault/diary/2026-08-07.md') || '';
+
+  check('ok が返る', r.ok === true, JSON.stringify(r));
+  check('profile.md が新規作成される', profile.includes('# ユーザー像'));
+  check('指定セクションへ入る', PS.parseSections(profile)['応答の好み'].join(',') === '前置きが長いと読み飛ばす');
+  check('日記にも書かれる', diary.includes('🧠 覚えたこと') && diary.includes('前置きが長いと読み飛ばす'), diary);
+  check('日記に時刻とセクション名が入る', /- \d{2}:\d{2} .+ → 応答の好み/.test(diary), diary);
+  check('日記の日付見出しが作られる', diary.startsWith('# 2026-08-07'), diary);
+  check('diaryRecorded が true', r.diaryRecorded === true);
+  check('_profile が更新される', PS._profile === profile);
+}
+{
+  // 未知のセクションは弾く（AI が enum を外したとき）
+  ctx.GitHubStorage = fakeGitHub();
+  const r = await PS.remember('なにか', '好きな食べ物');
+  check('未知のセクションは拒否する', r.ok === false && r.error.includes('呼び方と距離感'), JSON.stringify(r));
+}
+{
+  ctx.GitHubStorage = fakeGitHub();
+  const r = await PS.remember('   ', '応答の好み');
+  check('空の内容は拒否する', r.ok === false);
+}
+{
+  // 上限を超えたら古いものが落ち、そのことが戻り値に出る
+  const gh = fakeGitHub();
+  ctx.GitHubStorage = gh;
+  PS._profile = null;
+  let last;
+  for (const v of ['1つめ', '2つめ', '3つめ', '4つめ']) last = await PS.remember(v, '呼び方と距離感');
+  const items = PS.parseSections(gh.files.get('vault/persona-state/profile.md'))['呼び方と距離感'];
+  check('上限3を超えない', items.length === 3, JSON.stringify(items));
+  check('落ちた行が戻り値に出る', last.dropped.join(',') === '1つめ', JSON.stringify(last.dropped));
+  check('メッセージに落ちたことが書かれる', last.message.includes('落としました'), last.message);
+}
+{
+  // 日記への書き込みが失敗しても profile は成功扱い（記録が主、根拠が従）
+  const gh = fakeGitHub({ failPaths: ['vault/diary/2026-08-07.md'] });
+  ctx.GitHubStorage = gh;
+  PS._profile = null;
+  const r = await PS.remember('日記だけ失敗する場合', '応答の好み');
+  check('profile は成功する', r.ok === true, JSON.stringify(r));
+  check('diaryRecorded が false になる', r.diaryRecorded === false);
+  check('メッセージに失敗が出る', r.message.includes('日記への記録は失敗'), r.message);
+  check('profile には書かれている',
+    PS.parseSections(gh.files.get('vault/persona-state/profile.md'))['応答の好み'].join(',') === '日記だけ失敗する場合');
+}
+{
+  // 既存の日記を壊さない
+  const gh = fakeGitHub({ initial: {
+    'vault/diary/2026-08-07.md': '# 2026-08-07\n\n- [x] タスクチェック\n\n## 📝 メモ\n既存のメモ\n'
+  }});
+  ctx.GitHubStorage = gh;
+  PS._profile = null;
+  await PS.remember('既存を壊さない', '応答の好み');
+  const diary = gh.files.get('vault/diary/2026-08-07.md');
+  check('既存のチェックリストが残る', diary.includes('- [x] タスクチェック'), diary);
+  check('既存のメモ節が残る', PS.parseSections(diary)['📝 メモ'] !== undefined || diary.includes('既存のメモ'), diary);
+  check('覚えたこと節が足される', diary.includes('## 🧠 覚えたこと'), diary);
+}
+
 console.log(`\n===== ${fail === 0 ? 'PASS' : 'FAIL'}  (${pass} passed / ${fail} failed) =====`);
 process.exit(fail === 0 ? 0 : 1);
