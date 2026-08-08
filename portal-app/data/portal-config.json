@@ -21,6 +21,11 @@
       "id": "dt4",
       "title": "読書または勉強",
       "type": "daily"
+    },
+    {
+      "id": "dt5",
+      "title": "ブラッシング",
+      "type": "daily"
     }
   ]
 }

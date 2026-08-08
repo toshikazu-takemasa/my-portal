@@ -212,11 +212,6 @@ window.closeMobileSideMenu  = closeMobileSideMenu;
 
 // ========== アプリ初期化（パーシャルロード後に実行） ==========
 loadAllPartials().then(async () => {
-  // 暗号化が有効なら、getToken() / getGeminiKey() を使う処理の前に解錠する（ADR-033 決定事項7）
-  if (typeof SecureStore !== 'undefined' && SecureStore.isEncrypted() && !SecureStore.isUnlocked()) {
-    await SecureStore.promptUnlock();
-  }
-
   initKeyboardInsets();
 
   syncResponsiveLayout();

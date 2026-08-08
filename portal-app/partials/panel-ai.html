@@ -58,7 +58,26 @@
         <label class="chat-opt"><input type="checkbox" id="include-report">日記を含める</label>
         <label class="chat-opt"><input type="checkbox" id="include-knowledge">ナレッジを含める</label>
         <button class="chat-opt-btn" onclick="promptFileAttach()">添付</button>
+        <button class="chat-opt-btn" onclick="openRememberForm()" title="ユーザー像に覚えさせる">🧠 覚えて</button>
         <button class="chat-opt-btn" onclick="clearChat()">クリア</button>
+      </div>
+
+      <!--
+        z45: 覚えるフォーム（ADR-052）
+        AI のツール選択に任せると発火しないことがあったので、UI から直接 PersonaState.remember() を呼ぶ。
+      -->
+      <div class="remember-panel is-hidden" id="remember-panel">
+        <div class="modal-label">ユーザー像に覚えさせる</div>
+        <textarea id="remember-text" class="token-input" rows="2"
+                  placeholder="今後の振る舞いに効く形で1行（例: 前置きが長いと読み飛ばす）"></textarea>
+        <div class="token-row" style="margin-top:8px;">
+          <select id="remember-section" class="token-input" style="cursor:pointer;"></select>
+        </div>
+        <div class="token-row" style="margin-top:8px;">
+          <button class="btn-primary" onclick="submitRemember()" id="remember-save-btn">覚える</button>
+          <button class="btn-quiet" onclick="closeRememberForm()">閉じる</button>
+        </div>
+        <div id="remember-status" class="modal-status"></div>
       </div>
 
       <!-- z40: 入力バー -->
@@ -72,4 +91,5 @@
   </div>
 </div>
 
-<script src="js/ui/ai-chat.js?v=20260807"></script>
+<script src="js/ui/ai-chat.js?v=20260808"></script>
+<script src="js/ui/remember-panel.js?v=20260808"></script>

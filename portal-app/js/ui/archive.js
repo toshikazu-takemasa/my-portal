@@ -9,7 +9,9 @@
 
 const ARCHIVE_ROOTS = [
   { key: 'diary',     label: '📔 日記',     path: 'vault/diary' },
-  { key: 'knowledge', label: '📚 ナレッジ', path: 'vault/knowledge' }
+  { key: 'knowledge', label: '📚 ナレッジ', path: 'vault/knowledge' },
+  // ユーザー像と観察ログ（ADR-052）。プロンプトに載る内容なので、目で見て直せる場所が要る
+  { key: 'persona',   label: '🧠 記憶',     path: 'vault/persona-state' }
 ];
 
 let archiveEditor  = null;

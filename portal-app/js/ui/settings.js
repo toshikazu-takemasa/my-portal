@@ -9,12 +9,38 @@ window.TOKEN_KEY  = TOKEN_KEY;
 window.GEMINI_KEY = GEMINI_KEY;
 
 // ---- 基本取得関数 ----
-// 保存先の切り替え・暗号化は SecureStore が担う（ADR-033 決定事項7）。
-// SecureStore 未ロード時は従来どおり localStorage を直接見る（後方互換）。
+// ADR-033 決定事項7 のパスフレーズ暗号化（SecureStore）は 2026-08-08 に廃止した。
+// 起動のたびに解錠を求める運用が続かないため、改善ではなく機能ごと外している。
+// もともと XSS への防御にはなっておらず、守れていたのは「端末放置時に
+// ストレージビューアから平文を読まれる」場合だけだった。
 function _readKey(name) {
-  if (typeof SecureStore !== 'undefined') return SecureStore.get(name);
   return localStorage.getItem(name);
 }
+
+/**
+ * 旧 SecureStore が残した状態を掃除する（実質1回だけ効く）。
+ * 暗号文はもう復号できないので捨てる。キーは設定から入れ直してもらう。
+ */
+(function migrateFromSecureStore() {
+  try {
+    const wasEncrypted = localStorage.getItem('key_encryption_enabled') === '1';
+    const useSession   = localStorage.getItem('key_storage_backend') === 'session';
+    ['gh_pat', 'gemini_api_key'].forEach(k => {
+      // sessionStorage に置いていた平文は localStorage へ移す
+      if (useSession) {
+        const v = sessionStorage.getItem(k);
+        if (v !== null) { localStorage.setItem(k, v); sessionStorage.removeItem(k); }
+      }
+      localStorage.removeItem(`${k}_enc`);
+      sessionStorage.removeItem(`${k}_enc`);
+    });
+    localStorage.removeItem('key_encryption_enabled');
+    localStorage.removeItem('key_storage_backend');
+    if (wasEncrypted) {
+      console.warn('APIキーの暗号化を廃止しました。PAT と Gemini キーを設定から入れ直してください。');
+    }
+  } catch (e) { /* 掃除できなくても動作に影響しない */ }
+})();
 
 function getToken()     { return _readKey(TOKEN_KEY); }
 function getGeminiKey() { return _readKey(GEMINI_KEY); }
@@ -50,7 +76,6 @@ function getAiPrompt() {
 function initSettingsTab() {
   showModalTokenUI();
   showModalGeminiUI();
-  initKeyProtectionUI();
   initAvatarSceneUI();
   renderReplyFeedbackTally();
 
@@ -216,96 +241,10 @@ async function saveGeminiKey() {
 
 function clearGeminiKey() { _removeKey(GEMINI_KEY); showModalGeminiUI(); }
 
-// =====================
-// APIキーの保護（保存先切替・暗号化） ADR-033 決定事項7
-// =====================
-
-async function _writeKey(name, value) {
-  if (typeof SecureStore !== 'undefined') return await SecureStore.set(name, value);
-  localStorage.setItem(name, value);
-}
-
-function _removeKey(name) {
-  if (typeof SecureStore !== 'undefined') return SecureStore.remove(name);
-  localStorage.removeItem(name);
-}
-
-function _keyProtStatus(msg, color) {
-  const el = document.getElementById('key-protection-status');
-  if (!el) return;
-  el.style.color = color || 'var(--text-sub)';
-  el.textContent = msg;
-}
-
-function initKeyProtectionUI() {
-  if (typeof SecureStore === 'undefined') return;
-
-  const backendSel = document.getElementById('key-backend-select');
-  if (backendSel) backendSel.value = SecureStore.backendName();
-
-  const enabled = SecureStore.isEncrypted();
-  document.getElementById('key-enc-on')?.classList.toggle('is-hidden', !enabled);
-  document.getElementById('key-enc-off')?.classList.toggle('is-hidden', enabled);
-
-  const lockState = document.getElementById('key-lock-state');
-  if (lockState) {
-    lockState.textContent = !enabled
-      ? ''
-      : (SecureStore.isUnlocked() ? '🔓 解錠済み' : '🔒 ロック中');
-  }
-  _keyProtStatus('');
-}
-
-function changeKeyBackend() {
-  const sel = document.getElementById('key-backend-select');
-  if (!sel || typeof SecureStore === 'undefined') return;
-  SecureStore.setBackend(sel.value);
-  _keyProtStatus(
-    sel.value === 'session'
-      ? '✅ sessionStorage に切り替えました（タブを閉じるとキーは破棄されます）'
-      : '✅ localStorage に切り替えました',
-    '#1a7f37'
-  );
-}
-
-async function enableKeyEncryption() {
-  const p1 = document.getElementById('key-pass-input')?.value || '';
-  const p2 = document.getElementById('key-pass-confirm')?.value || '';
-  if (!p1) { _keyProtStatus('パスフレーズを入力してください', '#cf222e'); return; }
-  if (p1 !== p2) { _keyProtStatus('パスフレーズが一致しません', '#cf222e'); return; }
-
-  _keyProtStatus('暗号化しています…');
-  try {
-    await SecureStore.enableEncryption(p1);
-    document.getElementById('key-pass-input').value = '';
-    document.getElementById('key-pass-confirm').value = '';
-    initKeyProtectionUI();
-    _keyProtStatus('✅ 暗号化を有効にしました。次回起動時にパスフレーズを求められます', '#1a7f37');
-  } catch (e) {
-    _keyProtStatus(`❌ ${e.message}`, '#cf222e');
-  }
-}
-
-async function disableKeyEncryption() {
-  if (!confirm('暗号化を解除して平文保存に戻します。よろしいですか？')) return;
-  try {
-    if (!SecureStore.isUnlocked()) {
-      const ok = await SecureStore.promptUnlock();
-      if (!ok) { _keyProtStatus('解錠できなかったため中止しました', '#cf222e'); return; }
-    }
-    await SecureStore.disableEncryption();
-    initKeyProtectionUI();
-    _keyProtStatus('✅ 暗号化を解除しました', '#1a7f37');
-  } catch (e) {
-    _keyProtStatus(`❌ ${e.message}`, '#cf222e');
-  }
-}
-
-async function unlockKeys() {
-  const ok = await SecureStore.promptUnlock();
-  initKeyProtectionUI();
-  if (ok) location.reload();
-}
+// ---- APIキーの書き込み ----
+// 呼び出し側は await している。Promise を返さなくても await は通るのでそのままでよい。
+function _writeKey(name, value) { localStorage.setItem(name, value); }
+function _removeKey(name)       { localStorage.removeItem(name); }
 
 // ---- Kintai URL ----
 function getKintaiUrl() { return ConfigService.data.kintaiUrl || ''; }
@@ -332,16 +271,11 @@ window.clearToken = clearToken;
 window.saveGeminiKey = saveGeminiKey;
 window.clearGeminiKey = clearGeminiKey;
 window.saveKintaiUrl = saveKintaiUrl;
-window.initKeyProtectionUI = initKeyProtectionUI;
 window.renderReplyFeedbackTally = renderReplyFeedbackTally;
 window.resetReplyFeedback = resetReplyFeedback;
 window.initAvatarSceneUI = initAvatarSceneUI;
 window.changeAvatarBackground = changeAvatarBackground;
 window.previewAvatarExpression = previewAvatarExpression;
-window.changeKeyBackend = changeKeyBackend;
-window.enableKeyEncryption = enableKeyEncryption;
-window.disableKeyEncryption = disableKeyEncryption;
-window.unlockKeys = unlockKeys;
 window.testGeminiKey = async function() {
   const key = document.getElementById('gemini-key-input')?.value || getGeminiKey();
   const statusEl = document.getElementById('gemini-test-status');
