@@ -47,7 +47,8 @@ const FALLBACK_MANIFEST = {
     { id: 'mood',  label: '表情に合わせる', mood: true },
     { id: 'night', label: '夜', gradient: 'linear-gradient(180deg,#2A1E38 0%,#1a0b2e 48%,#0a0612 100%)' }
   ],
-  autoSchedule: []
+  autoSchedule: [],
+  inference: []   // タグ無し応答の表情推定語彙。人格の口調に依存するためパック側（scene.json）が持つ
 };
 
 window.AvatarScene = {
@@ -421,21 +422,22 @@ window.AvatarScene = {
   /**
    * タグが無い応答向けの簡易推定。文面の記号・語彙から表情を当てる。
    * 精度より「無表情のまま固まらないこと」を優先する。
+   *
+   * 語彙はコードに持たず scene.json の `inference` から読む。
+   * 推定語彙は人格の口調に依存する（関西弁の「ええやん」等）ため、
+   * パック側に置かないと別口調・別言語のペルソナが作れない。
    */
   inferExpression(text) {
     if (!text) return this._m().defaultExpression || 'neutral';
     const t = String(text);
-    const rules = [
-      { id: 'sad',       re: /(ごめん|申し訳|残念|しんど|つら|悲し|しょんぼり)/ },
-      { id: 'worried',   re: /(心配|大丈夫\?|大丈夫？|不安|気をつけ|無理せ|エラー|失敗)/ },
-      { id: 'surprised', re: /(え[!！?？]|ほんま[!？?]|びっくり|まさか|なんと)/ },
-      { id: 'excited',   re: /(すご[いくっ]|やった|最高|めっちゃ|頑張|ファイト|いける|✨|🔥|💪)/ },
-      { id: 'thinking',  re: /(どうやろ|かな[?？]|考え|悩|う[ーん]ん|検討|整理)/ },
-      { id: 'happy',     re: /(ええやん|嬉し|よかった|ありがと|楽しみ|うれし|😊|🌸|🌙|笑)/ },
-      { id: 'gentle',    re: /(ゆっくり|無理せんと|休[みん]|寄り添|そばに|一緒やから)/ }
-    ];
-    for (const r of rules) {
-      if (r.re.test(t) && this.findExpression(r.id)) return r.id;
+    for (const rule of (this._m().inference || [])) {
+      if (!rule || !rule.expression || !Array.isArray(rule.patterns) || !rule.patterns.length) continue;
+      if (!this.findExpression(rule.expression)) continue;
+      if (!rule._re) {
+        try { rule._re = new RegExp(rule.patterns.join('|')); }
+        catch (e) { rule._re = /$^/; console.warn(`inference の正規表現が不正です（${rule.expression}）:`, e); }
+      }
+      if (rule._re.test(t)) return rule.expression;
     }
     return this._m().defaultExpression || 'neutral';
   },

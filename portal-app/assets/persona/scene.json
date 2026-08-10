@@ -1,6 +1,7 @@
 {
-  "version": 2,
-  "comment": "アバターの表情差分と背景を宣言的に定義する（ADR-035 / Ambient Companion 改修）。表情画像が未配置でも file を解決できなければ fallback 画像＋CSS 疑似表情で動作する。各表情の bg / glow / filter / breath は舞台（背景・グロー・立ち絵フィルタ・呼吸の秒数）の値。背景設定が mood のとき bg も表情に追従し、具体的な背景（night 等）を選ぶと bg だけそちらが優先される。file / fallbackFile はこのファイルが置かれたペルソナディレクトリからの相対パス（basePath は書かない / ADR-040）。",
+  "spec": "portal-persona",
+  "specVersion": 1,
+  "comment": "アバターの表情差分と背景を宣言的に定義する（ADR-035 / Ambient Companion 改修）。表情画像が未配置でも file を解決できなければ fallback 画像＋CSS 疑似表情で動作する。各表情の bg / glow / filter / breath は舞台（背景・グロー・立ち絵フィルタ・呼吸の秒数）の値。背景設定が mood のとき bg も表情に追従し、具体的な背景（night 等）を選ぶと bg だけそちらが優先される。file / fallbackFile はこのファイルが置かれたペルソナディレクトリからの相対パス（basePath は書かない / ADR-040）。inference はタグ無し応答の表情推定ルール（上から順に照合・patterns は正規表現）。この人格の語彙に合わせて書く。",
   "fallbackFile": "avatar.png",
   "defaultExpression": "neutral",
   "defaultBackground": "mood",
@@ -45,6 +46,15 @@
       "bg": "linear-gradient(180deg,#463850 0%,#2A2036 48%,#160F1D 100%)",
       "glow": "rgba(230,200,220,.46)", "filter": "brightness(1.14) contrast(1.08)", "breath": "4.2s"
     }
+  ],
+  "inference": [
+    { "expression": "sad",       "patterns": ["ごめん", "申し訳", "残念", "しんど", "つら", "悲し", "しょんぼり"] },
+    { "expression": "worried",   "patterns": ["心配", "大丈夫[?？]", "不安", "気をつけ", "無理せ", "エラー", "失敗"] },
+    { "expression": "surprised", "patterns": ["え[!！?？]", "ほんま[!？?]", "びっくり", "まさか", "なんと"] },
+    { "expression": "excited",   "patterns": ["すご[いくっ]", "やった", "最高", "めっちゃ", "頑張", "ファイト", "いける", "✨", "🔥", "💪"] },
+    { "expression": "thinking",  "patterns": ["どうやろ", "かな[?？]", "考え", "悩", "う[ーん]ん", "検討", "整理"] },
+    { "expression": "happy",     "patterns": ["ええやん", "嬉し", "よかった", "ありがと", "楽しみ", "うれし", "😊", "🌸", "🌙", "笑"] },
+    { "expression": "gentle",    "patterns": ["ゆっくり", "無理せんと", "休[みん]", "寄り添", "そばに", "一緒やから"] }
   ],
   "backgrounds": [
     { "id": "mood",  "label": "表情に合わせる", "mood": true },

@@ -250,6 +250,9 @@ loadAllPartials().then(async () => {
       window.AI_PERSONA = {
         name: card.name,
         userCallName: card.userCallName,
+        // ペルソナの言語（persona-pack-spec §2 の予約フィールド）。
+        // v1 のランタイム注入文（表情タグ案内等）は日本語のみで、この値はまだ参照しない。
+        language: card.language || 'ja',
         avatarUrl: card.avatarUrl,   // 任意。省略時は PERSONA_DIR の avatar.png
         greeting: card.greeting,     // 起動時の挨拶（口調は人格に属する / ADR-040）
         // この人格が使ってはいけない語。返答を機械的に照合するために持つ（ADR-044）。

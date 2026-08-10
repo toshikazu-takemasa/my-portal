@@ -4,6 +4,7 @@
   "_note": "控えの人格。使用中に切り替えるときは assets/persona/ とディレクトリ名を入れ替える（ADR-040）。",
 
   "id": "komaru",
+  "language": "ja",
   "name": "こまる",
   "userCallName": "きみ",
   "greeting": "ヤッ。きょうも いっしょに いよ",

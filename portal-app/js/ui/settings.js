@@ -69,7 +69,8 @@ function getAiPrompt() {
     blocks.push(`【${s.heading}】\n${(s.lines || []).join('\n')}`);
   });
   const body = blocks.join('\n\n') || 'あなたは優秀なアシスタントです。';
-  return body.replace(/\{呼称\}/g, p.userCallName || 'ユーザー');
+  // {呼称} と {userCallName} は同義（後者は非日本語ペルソナ向けの表記 / persona-pack-spec §2）
+  return body.replace(/\{呼称\}|\{userCallName\}/g, p.userCallName || 'ユーザー');
 }
 
 // ---- 初期化 ----
