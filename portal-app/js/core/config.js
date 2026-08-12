@@ -26,6 +26,16 @@ const PERSONA_DIR = 'assets/persona/';
 window.PERSONA_DIR = PERSONA_DIR;
 
 // =====================
+// デモモード
+// =====================
+// URL に ?demo を付けて開くと、PAT・Gemini APIキーなしで体験できるデモモードになる。
+// AI の返答をペルソナパックの demo.json（台本）に差し替えるだけで、
+// 表情タグ・背景タグ・返信候補の解析／描画は本番と同じパイプラインを通す。
+// デモ中は GitHub への書き込み・セッション保存を一切行わない（js/domains/demo-script.js）。
+const DEMO_MODE = new URLSearchParams(location.search).has('demo');
+window.DEMO_MODE = DEMO_MODE;
+
+// =====================
 // 日付初期化（JST）
 // =====================
 function getJstTodayISO() {

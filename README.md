@@ -43,6 +43,14 @@ my-portal-vault/               ← データリポジトリ（private・Contents
 
 - 公開URLは `…/my-portal/portal-app/` です（旧 `…/my-portal/` からは自動転送）。ホーム画面に追加済みの場合は開き直すと転送されます。
 
+## デモ（セットアップ不要）
+
+公開URLに `?demo` を付けて開くと、**PAT・APIキーなし**でアバターとの対話を体験できます
+（表情・背景の切り替え、返信候補ボタンでの会話送り）。
+
+- デモの会話は台本（`portal-app/assets/persona/demo.json`）で、**データはどこにも保存されません**
+- 台本はペルソナパックの一部です。仕様は `docs/persona-pack-spec.md` §3.5 を参照
+
 ## セットアップ
 
 1. **GitHub Personal Access Token（PAT）** を取得します。**データリポジトリ（`my-portal-vault`）に対する** `Contents: write` と、日報生成に使う `Actions: write` が必要です（classic なら `repo` + `workflow`）。
