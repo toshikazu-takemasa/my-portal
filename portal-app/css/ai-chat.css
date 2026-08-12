@@ -176,9 +176,9 @@
 
 .reflect-result { overflow-y: auto; }
 
-/* ===== 覚えるフォーム（ADR-052） =====
+/* ===== 日記に書くフォーム（旧・覚えるフォーム / ADR-052） =====
    入力バー(z40)より上、セッションドロップダウン(z200)より下に置く。 */
-.remember-panel {
+.diary-note-panel {
   position: absolute;
   left: 12px;
   right: 12px;
@@ -192,6 +192,5 @@
   box-shadow: 0 8px 28px rgba(0, 0, 0, .45);
 }
 
-.remember-panel .modal-label { margin-bottom: 8px; }
-.remember-panel textarea     { width: 100%; box-sizing: border-box; resize: vertical; }
-.remember-panel select       { width: 100%; }
+.diary-note-panel .modal-label { margin-bottom: 8px; }
+.diary-note-panel textarea     { width: 100%; box-sizing: border-box; resize: vertical; }
