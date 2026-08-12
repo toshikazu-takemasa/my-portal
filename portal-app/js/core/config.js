@@ -21,10 +21,8 @@ window.getBranch = getBranch;
 // 切り替えは assets/ 配下のディレクトリをリネームして行う（ADR-040 の規約は据え置き）:
 //   git mv portal-app/assets/persona portal-app/assets/_persona-old
 //   git mv portal-app/assets/_persona-new portal-app/assets/persona
-// `_` で始まるディレクトリはパスが一致しないので読まれない。
-const PERSONA_DIR = 'assets/persona/';
-window.PERSONA_DIR = PERSONA_DIR;
-
+// `_` で始まるディレクトリはパスが一致しないので読まれない
+// （例外: デモモードは DEMO_PERSONA_DIR で `_` 配下のパックを明示的に読む）。
 // =====================
 // デモモード
 // =====================
@@ -34,6 +32,13 @@ window.PERSONA_DIR = PERSONA_DIR;
 // デモ中は GitHub への書き込み・セッション保存を一切行わない（js/domains/demo-script.js）。
 const DEMO_MODE = new URLSearchParams(location.search).has('demo');
 window.DEMO_MODE = DEMO_MODE;
+
+// デモの顔はこまる。使用中ペルソナ（assets/persona/ = 個人用）とは独立に、
+// 公開デモではこのパックを丸ごと使う（立ち絵・card.json・demo.json のすべて）。
+const DEMO_PERSONA_DIR = 'assets/_komaru/';
+
+const PERSONA_DIR = DEMO_MODE ? DEMO_PERSONA_DIR : 'assets/persona/';
+window.PERSONA_DIR = PERSONA_DIR;
 
 // =====================
 // 日付初期化（JST）

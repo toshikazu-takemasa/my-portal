@@ -48,7 +48,8 @@ my-portal-vault/               ← データリポジトリ（private・Contents
 公開URLに `?demo` を付けて開くと、**PAT・APIキーなし**でアバターとの対話を体験できます
 （表情・背景の切り替え、返信候補ボタンでの会話送り）。
 
-- デモの会話は台本（`portal-app/assets/persona/demo.json`）で、**データはどこにも保存されません**
+- デモの案内役は専用ペルソナ「こまる」（`portal-app/assets/_komaru/`）。使用中のペルソナとは独立です
+- デモの会話は台本（パック内の `demo.json`）で、**データはどこにも保存されません**
 - 台本はペルソナパックの一部です。仕様は `docs/persona-pack-spec.md` §3.5 を参照
 
 ## セットアップ
