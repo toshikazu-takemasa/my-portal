@@ -4,12 +4,12 @@
 
 ## リポジトリ構成
 
-**アプリ（公開）とデータ（非公開）を別リポジトリに分けています**（ADR-048）。
+**アプリ（公開）とデータ（非公開）を別リポジトリに分けています**。
 
 | リポジトリ | 可視性 | 中身 |
 |---|---|---|
 | `my-portal`（このリポジトリ） | public | 静的Webアプリのコード |
-| `my-portal-vault` | private | 日記・ナレッジ・会話ログ・タスク・ADR |
+| `my-portal-vault` | private | 日記・ナレッジ・会話ログ・タスク・設計ドキュメント |
 
 アプリは実行時に GitHub Contents API（PAT 付き）でデータリポジトリを読み書きします。ビルド工程はありません。
 
@@ -18,7 +18,8 @@ my-portal/                     ← このリポジトリ（public）
 ├── portal-app/                ← 静的Webアプリ本体
 │   ├── index.html / css / js / partials / manifest.json
 │   ├── data/portal-config.json  ← 参照先リポジトリ・ブランチ・デイリータスク
-│   └── assets/persona/          ← AI ペルソナ一式（ADR-040 / 048）
+│   └── assets/persona/          ← AI ペルソナ一式（仕様は docs/persona-pack-spec.md）
+├── docs/architecture/         ← 設計ドキュメント（テーマ別ハンドブック）。入口は README.md、決定の時系列は decisions.md
 ├── tools/                     ← 画像下処理スクリプト（アプリからは呼ばない）
 └── index.html                 ← 旧URL → portal-app/ へのリダイレクト
 
@@ -28,15 +29,14 @@ my-portal-vault/               ← データリポジトリ（private・Contents
     ├── conversations/         ← アバターとの会話ログ（自動追記）
     ├── knowledge/             ← ナレッジ
     ├── task/                  ← タスク・メモ（tasks.json / memo.md）
-    ├── docs/adr/              ← ADR（設計記録）。索引は docs/adr/INDEX.md
     └── config.json            ← アプリ設定（クイックリンク等）
 ```
 
 > **ペルソナだけは公開リポジトリ側にあります。** 静的サイトはディレクトリ一覧を取得できないため
-> Pages からの相対 fetch で読んでおり、private リポジトリには置けないためです（ADR-048）。
+> Pages からの相対 fetch で読んでおり、private リポジトリには置けないためです。
 > したがって **公開しても差し支えないペルソナだけを `portal-app/assets/persona/` に置く**こと。
 
-- **日記の月次まとめ運用**（ADR-035）: 月が終わったら日別ファイルを暦年ディレクトリ配下の
+- **日記の月次まとめ運用**: 月が終わったら日別ファイルを暦年ディレクトリ配下の
   `YYYY/YYYY-MM.md`（`# YYYY年M月` + `## YYYY年M月D日` 見出し・`---` 区切り）へ統合する。
   AI チャットに「2026年6月の日記をまとめて」と頼めば `rollup_diary_month` ツールが実行される
   （日別ファイルの削除は明示的に依頼したときのみ）。
@@ -67,15 +67,15 @@ my-portal-vault/               ← データリポジトリ（private・Contents
 - 📌 **タスク** — `vault/task/tasks.json` をAIチャットのツール（get_tasks / add_task / update_task）経由で管理
 - 🔗 **クイックリンク** — よく使うサービスへのショートカット（並び替え・追加対応、`vault/config.json` に保存）
 - 🤖 **AI チャット** — Gemini（Function Calling 対応）を使ったコーチング・秘書機能。ペルソナは `portal-app/assets/persona/card.json` で定義
-- 🎭 **アバターの表情・背景**（ADR-035） — 立ち絵の表情差分と背景を独立レイヤーで管理。定義は `portal-app/assets/persona/scene.json`。
+- 🎭 **アバターの表情・背景** — 立ち絵の表情差分と背景を独立レイヤーで管理。定義は `portal-app/assets/persona/scene.json`。
   AI は返答に `[表情:happy]` タグを入れて表情を切り替える。表情画像は `portal-app/assets/persona/expressions/` に置く
   （未配置でも avatar.png + CSS の疑似表情で動作。生成画像の背景透過・軽量化は `tools/remove-generated-background.js`）
-- 🔄 **アバターの切り替え**（ADR-040 / 048） — 人格一式（card.json / scene.json / 画像）を1ディレクトリにまとめ、
+- 🔄 **アバターの切り替え** — 人格一式（card.json / scene.json / 画像）を1ディレクトリにまとめ、
   **使用中は `portal-app/assets/persona/`、控えは `_名前/`** で置く。切り替えはディレクトリのリネーム2回だけ
   （`git mv assets/persona assets/_old && git mv assets/_new assets/persona`）。
   読み先は `js/core/config.js` の `PERSONA_DIR` に集約している
 - 💬 **会話ログ** — アバターとの会話を1往復ごとに要約せず `vault/conversations/YYYY-MM-DD_アバター会話.md` へ自動追記
-- 🗂 **過去の記録**（ADR-039） — `vault/diary` / `vault/knowledge` を一覧・閲覧・編集。
+- 🗂 **過去の記録** — `vault/diary` / `vault/knowledge` を一覧・閲覧・編集。
   一覧上部の入力欄から **表示中のディレクトリへ新規ファイルを追加**できる
   （`.md` は省略可、`YYYY-MM-DD` / `YYYY-MM` は日記の見出し規約で雛形を生成、同名があれば上書きせず開く）
 - 📔 **振り返り** — 日報をもとに AI が振り返りコメントを生成

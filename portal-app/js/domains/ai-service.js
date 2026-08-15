@@ -29,20 +29,16 @@ window.AiService = {
       contextParts.push(`### アクティブなタスク:\n${taskStr || 'なし'}`);
     } catch (e) { console.warn('Task context fetch error:', e); }
 
-    // 3. ADR (設計意図) - 最新のもの
+    // 3. アーキテクチャ全体像（ハンドブックの overview。2026-08-15 に ADR 運用を廃止し、
+    //    「最新ADR先頭300字」の注入をやめた——最新の1件だけでは全体像にならないため）。
+    //    ドキュメントは本リポジトリ docs/architecture/ にあるので、PAT 不要の相対 fetch で読む
     try {
-      const adrFiles = await GitHubStorage.listFiles('vault/docs/adr');
-      const latestAdr = adrFiles
-        // 連番のADRのみ（INDEX.md のような索引を「最新の決定」と誤認しないため）
-        .filter(f => /^\d{3}.*\.md$/.test(f.name))
-        .sort((a, b) => b.name.localeCompare(a.name))
-        .slice(0, 1);
-      
-      if (latestAdr.length > 0) {
-        const result = await GitHubStorage.getFile(latestAdr[0].path);
-        contextParts.push(`### 最新の設計決定(ADR):\n${result.content.slice(0, 300)}...`);
+      const res = await fetch('../docs/architecture/README.md');
+      if (res.ok) {
+        const text = await res.text();
+        contextParts.push(`### アプリの全体像（設計ドキュメントの抜粋）:\n${text.slice(0, 1200)}...`);
       }
-    } catch (e) { }
+    } catch (e) { console.warn('Architecture context fetch error:', e); }
 
     return contextParts.join('\n\n');
   }
