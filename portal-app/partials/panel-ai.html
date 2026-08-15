@@ -58,24 +58,8 @@
         <label class="chat-opt"><input type="checkbox" id="include-report">日記を含める</label>
         <label class="chat-opt"><input type="checkbox" id="include-knowledge">ナレッジを含める</label>
         <button class="chat-opt-btn" onclick="promptFileAttach()">添付</button>
-        <button class="chat-opt-btn" onclick="openDiaryNoteForm()" title="今日の日記に追記する">📝 日記に書く</button>
+        <button class="chat-opt-btn" onclick="requestDiaryWrite()" title="今の話を今日の日記に書いてもらう">📝 日記に書く</button>
         <button class="chat-opt-btn" onclick="clearChat()">クリア</button>
-      </div>
-
-      <!--
-        z45: 日記に書くフォーム
-        AI のツール選択に任せると発火しないことがあったので、UI から直接今日の日記へ追記する。
-        （旧・覚えてフォームの置き換え。ユーザー像への記録は remember_about_user ツールに一本化）
-      -->
-      <div class="diary-note-panel is-hidden" id="diary-note-panel">
-        <div class="modal-label">今日の日記に書く</div>
-        <textarea id="diary-note-text" class="token-input" rows="2"
-                  placeholder="日記に残す形で（例: ○○の設計方針が決まった）"></textarea>
-        <div class="token-row" style="margin-top:8px;">
-          <button class="btn-primary" onclick="submitDiaryNote()" id="diary-note-save-btn">日記に書く</button>
-          <button class="btn-quiet" onclick="closeDiaryNoteForm()">閉じる</button>
-        </div>
-        <div id="diary-note-status" class="modal-status"></div>
       </div>
 
       <!-- z40: 入力バー -->
@@ -89,6 +73,5 @@
   </div>
 </div>
 
-<script src="js/ui/ai-chat.js?v=20260812"></script>
+<script src="js/ui/ai-chat.js?v=20260815"></script>
 <script src="js/domains/demo-script.js?v=20260812"></script>
-<script src="js/ui/diary-note-panel.js?v=20260812"></script>

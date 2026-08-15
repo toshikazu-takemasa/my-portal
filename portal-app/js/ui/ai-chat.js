@@ -295,6 +295,19 @@ function pickVnReply(text) {
   sendChat({ fromChip: true });
 }
 
+/**
+ * 「📝 日記に書く」= アバターに「日記に書いて」と言う手間の省略（ADR-056）。
+ * フォームから直接書き込む方式（旧 diary-note-panel）は廃止した。
+ * 何を書くかは会話の文脈から AI が決め、append_to_file で追記する。
+ */
+function requestDiaryWrite() {
+  const input = document.getElementById('chat-input');
+  if (!input) return;
+  input.value = '日記に書いて';
+  sendChat({ viaButton: true });
+  if (typeof setNavOpen === 'function') setNavOpen(false);
+}
+
 // ---- Session management ----
 function getSessions() { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); }
 function saveSessions(s) { localStorage.setItem(SESSIONS_KEY, JSON.stringify(s.slice(0, 30))); }
@@ -429,6 +442,22 @@ function renderFileChips() {
  * AI の返答を台詞ボックスへ載せる。
  * 返信候補タグを先に切り出し、残りを表情タグ付きのページ配列にする。
  */
+/**
+ * 返答を作れなかったときの表示。文字送りせず、失敗が起きたことを台詞ボックスに直接出す。
+ * 以前は空返答（ツール往復の上限到達・空のcandidates）のとき「考えています…」のまま
+ * 黙って止まり、ユーザーには何も起きていないように見えていた（ADR-056 所見）。
+ */
+function showChatFailure(text) {
+  if (typeof AvatarScene !== 'undefined') AvatarScene.setExpression('worried');
+  if (vnTypingTimer) clearTimeout(vnTypingTimer);
+  vnIsTyping = false;
+  vnPages = [{ text, expression: null, background: null }];
+  vnCurrentPage = 0;
+  const textEl = document.getElementById('vn-typed');
+  if (textEl) textEl.textContent = text;
+  renderVnFooter(false);
+}
+
 function showAiReply(rawText) {
   const box = document.getElementById('vn-dialogue-box');
   if (box) box.classList.remove('thinking');
@@ -468,7 +497,11 @@ function appendChatBubble(role, text) {
 }
 
 // ---- Agentic Send Chat ----
-/** @param {{fromChip?: boolean}} opts fromChip:true は返信候補のタップ経由（記録済み） */
+/**
+ * @param {{fromChip?: boolean, viaButton?: boolean}} opts
+ *   fromChip:true は返信候補のタップ経由（記録済み）。
+ *   viaButton:true は「📝 日記に書く」等のボタン経由（定型文なので候補評価に数えない / ADR-056）。
+ */
 async function sendChat(opts = {}) {
   // デモモードは台本（DemoScript）が答えるため API キー不要
   if (!window.DEMO_MODE && !getGeminiKey()) {
@@ -481,7 +514,7 @@ async function sendChat(opts = {}) {
   if (!text) return;
 
   // 候補を使わず自分で書いた = 候補が的外れだったという評価として記録する（ADR-038）
-  if (!opts.fromChip && typeof ReplyFeedback !== 'undefined') ReplyFeedback.record('free', text);
+  if (!opts.fromChip && !opts.viaButton && typeof ReplyFeedback !== 'undefined') ReplyFeedback.record('free', text);
 
   const btn = document.getElementById('chat-send-btn');
   btn.disabled = true; input.value = '';
@@ -502,9 +535,11 @@ async function sendChat(opts = {}) {
       role: 'user',
       speaker: 'ユーザー',
       text,
-      feedback: typeof ReplyFeedback !== 'undefined'
-        ? ReplyFeedback.kindOf(opts.fromChip ? 'chip' : 'free', text)
-        : '',
+      feedback: opts.viaButton
+        ? 'ボタン'   // 定型文の送信。評価集計の対象外（parseLog が close/more/free/other 以外を読まないことに依る）
+        : (typeof ReplyFeedback !== 'undefined'
+            ? ReplyFeedback.kindOf(opts.fromChip ? 'chip' : 'free', text)
+            : ''),
       sessionId: currentSession ? currentSession.id : '',
       sessionTitle: currentSession ? currentSession.title : ''
     });
@@ -545,10 +580,16 @@ ${getJstNowContext()}
 - 台詞は1ページずつ表示されるため、**1回の返答は3文以内**に収めてください。前置き・言い換え・要約の繰り返しをしない。
 - 共感や励ましを添える場合も1文だけにしてください（言葉選びは人格設定に従う）。
 - 同じ入り方・同じ締め方を続けて使わないでください。毎回同じ言葉で締めない。
+- 「〜のメリットは？」のように情報や選択肢を求められたら、**まず内容で答えて**ください。質問を質問で返さない。
+- 掘り下げの問いかけは連続2回までにしてください。2回で答えが出なければ、あなたから案を出して選んでもらう。
+- ユーザーが「ありがとう」など会話を閉じる言葉を送ったら、直前の質問を蒸し返さず短く締めてください。
 
 ## 記録の書き込み方（この節は最優先で守る）
 - **「日記に書いといて」「追記して」と言われたら append_to_file を使ってください。**
   既存の内容はアプリが保持するので、追記したい文章だけを渡せば済みます。
+- 対象を言わずに「日記に書いて」「記録して」とだけ頼まれたら、**何を書くか聞き返さず**、
+  直前の話題から残す価値のある内容を1〜3行にまとめて書いてください。何を書いたかは報告で伝わります。
+  直前の話題がどうしても特定できないときだけ、候補を挙げて確認してください。
 - **save_file はファイルを丸ごと置き換えます。**既存の内容は消えます。
   置き換えが必要な場合だけ使い、必ず先に read_file で現在の中身を取得して、
   残したい部分を含めた全文を渡してください。
@@ -670,18 +711,15 @@ ${typeof PersonaState !== 'undefined' ? PersonaState.promptGuide() : ''}
         });
         ConversationLog.flush().catch(err => console.warn('会話ログの保存に失敗しました:', err));
       }
+    } else {
+      // 空返答（ツール往復の上限・candidates なし）。黙って止めず、失敗として見せる
+      showChatFailure('返事を作れませんでした。もう一度、言い直して送ってみてください。');
+      chatHistory.pop();
     }
   } catch (e) {
     console.error('Chat Error:', e);
     if (thinking) thinking.classList.remove('thinking');
-    if (typeof AvatarScene !== 'undefined') AvatarScene.setExpression('worried');
-    if (vnTypingTimer) clearTimeout(vnTypingTimer);
-    vnIsTyping = false;
-    vnPages = [{ text: `エラー: ${e.message}`, expression: null, background: null }];
-    vnCurrentPage = 0;
-    const textEl = document.getElementById('vn-typed');
-    if (textEl) textEl.textContent = vnPages[0].text;
-    renderVnFooter(false);
+    showChatFailure(`エラー: ${e.message}`);
     chatHistory.pop();
   } finally { btn.disabled = false; input.focus(); }
 }
@@ -732,6 +770,7 @@ window.toggleSessionDropdown = toggleSessionDropdown;
 window.advanceVnText = advanceVnText;
 window.promptFileAttach = promptFileAttach;
 window.pickVnReply = pickVnReply;
+window.requestDiaryWrite = requestDiaryWrite;
 window.initChat = function() { renderChatPanel(); };
 
 // ペルソナ読み込み後に名前・プレースホルダ・表情チップを整える

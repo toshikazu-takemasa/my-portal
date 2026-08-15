@@ -99,7 +99,7 @@ function renderMemoCards(preamble, sections) {
   if (!container.children.length) {
     const empty = document.createElement('div');
     empty.className = 'memo-empty';
-    empty.textContent = 'カードがありません。下の入力欄から主題（例: 読書メモ / ADR）を追加できます。';
+    empty.textContent = 'カードがありません。下の入力欄から主題（例: 読書メモ / 買い物リスト）を追加できます。';
     container.appendChild(empty);
   } else if (container.children.length === 1) {
     container.firstElementChild.classList.add('open');   // 1枚だけなら開いておく

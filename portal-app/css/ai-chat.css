@@ -175,22 +175,3 @@
 }
 
 .reflect-result { overflow-y: auto; }
-
-/* ===== 日記に書くフォーム（旧・覚えるフォーム / ADR-052） =====
-   入力バー(z40)より上、セッションドロップダウン(z200)より下に置く。 */
-.diary-note-panel {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 72px;
-  z-index: 45;
-  box-sizing: border-box;
-  padding: 14px;
-  border-radius: 12px;
-  background: var(--card, #1d1526);
-  border: 1px solid rgba(255, 255, 255, .14);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, .45);
-}
-
-.diary-note-panel .modal-label { margin-bottom: 8px; }
-.diary-note-panel textarea     { width: 100%; box-sizing: border-box; resize: vertical; }
