@@ -286,8 +286,8 @@ window.testGeminiKey = async function() {
   }
   if (statusEl) statusEl.textContent = '⏳ テスト中...';
   try {
-    // キーはヘッダーで送る（ADR-033 決定事項7）
-    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
+    // キーはヘッダーで送る（ADR-033 決定事項7）。モデルは gemini.js の定義に合わせる
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${window.GEMINI_MODEL}:generateContent`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
       body: JSON.stringify({ contents: [{ parts: [{ text: 'Hello' }] }] })

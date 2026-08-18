@@ -496,6 +496,24 @@ function appendChatBubble(role, text) {
   return document.getElementById('vn-user-log');
 }
 
+/**
+ * 返答を作れなかった事実も会話ログへ残す。
+ * ユーザー発話だけ記録されて AI 発話が欠けたログからは「生成に失敗した」のか
+ * 「書き込みに失敗した」のかを切り分けられなかったため（8/17・8/18 の「日記に書いて」で実発生）。
+ * 括弧の中身が close/more/free/other でない行は parseLog が読まないので、評価集計は汚さない。
+ */
+function logChatFailure(reason) {
+  if (window.DEMO_MODE || typeof ConversationLog === 'undefined') return;
+  ConversationLog.enqueue({
+    role: 'ai',
+    speaker: 'システム',
+    text: `（返答を作れませんでした: ${reason || '不明'}）`,
+    sessionId: currentSession ? currentSession.id : '',
+    sessionTitle: currentSession ? currentSession.title : ''
+  });
+  ConversationLog.flush().catch(err => console.warn('会話ログの保存に失敗しました:', err));
+}
+
 // ---- Agentic Send Chat ----
 /**
  * @param {{fromChip?: boolean, viaButton?: boolean}} opts
@@ -656,15 +674,24 @@ ${typeof PersonaState !== 'undefined' ? PersonaState.promptGuide() : ''}
     let loop = true;
     let maxIter = 5;
     let finalReply = "";
+    let failReason = '';
 
     while (loop && maxIter-- > 0) {
       const data = await callGeminiRaw(currentContents, sys, ToolDefinitions);
-      const message = data.candidates?.[0]?.content;
-      if (!message) break;
+      const candidate = data.candidates?.[0];
+      const message   = candidate?.content;
+
+      // 思考トークンが出力枠を使い切ると parts の無い content が返る（finishReason: MAX_TOKENS）。
+      // 以前はここで message.parts.filter が例外になり、失敗理由がどこにも残らなかった。
+      const parts = Array.isArray(message?.parts) ? message.parts : [];
+      if (parts.length === 0) {
+        failReason = candidate?.finishReason || '応答が空でした';
+        break;
+      }
 
       currentContents.push(message);
 
-      const toolCalls = message.parts.filter(p => p.functionCall);
+      const toolCalls = parts.filter(p => p.functionCall);
       if (toolCalls.length > 0) {
         const responses = [];
         for (const call of toolCalls) {
@@ -679,9 +706,10 @@ ${typeof PersonaState !== 'undefined' ? PersonaState.promptGuide() : ''}
         currentContents.push({ role: 'user', parts: responses });
       } else {
         loop = false;
-        finalReply = message.parts.map(p => p.text).join('') || '';
+        finalReply = parts.map(p => p.text || '').join('');
       }
     }
+    if (!finalReply && !failReason) failReason = 'ツール往復が上限に達しました';
     
     if (thinking) thinking.classList.remove('thinking');
     if (finalReply) {
@@ -712,15 +740,17 @@ ${typeof PersonaState !== 'undefined' ? PersonaState.promptGuide() : ''}
         ConversationLog.flush().catch(err => console.warn('会話ログの保存に失敗しました:', err));
       }
     } else {
-      // 空返答（ツール往復の上限・candidates なし）。黙って止めず、失敗として見せる
-      showChatFailure('返事を作れませんでした。もう一度、言い直して送ってみてください。');
-      chatHistory.pop();
+      // 空返答（思考トークン切れ・ツール往復の上限など）。黙って止めず、失敗として見せる。
+      // 依頼したユーザー発話は履歴に残す。消すと「も一回」と言われたとき何の話か分からなくなる（8/18 実発生）
+      console.warn('Chat 空返答:', failReason);
+      showChatFailure('返事を作れませんでした。「もう一回」と送ってもらえたら、続きから試します。');
+      logChatFailure(failReason);
     }
   } catch (e) {
     console.error('Chat Error:', e);
     if (thinking) thinking.classList.remove('thinking');
     showChatFailure(`エラー: ${e.message}`);
-    chatHistory.pop();
+    logChatFailure(e.message);
   } finally { btn.disabled = false; input.focus(); }
 }
 
