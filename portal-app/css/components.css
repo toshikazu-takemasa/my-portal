@@ -124,40 +124,6 @@
   margin-top: 8px;
 }
 
-/* ========== Checklist ========== */
-.check-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  padding: 7px 0;
-  border-bottom: 1px dashed #d0d0d0;
-  cursor: pointer;
-}
-
-.check-item:last-child { border-bottom: none; }
-
-.check-item input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
-  margin-top: 2px;
-  accent-color: var(--accent);
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.check-label {
-  font-size: 0.84rem;
-  color: var(--text);
-  line-height: 1.45;
-  user-select: none;
-  flex: 1;
-}
-
-.check-item.done .check-label {
-  text-decoration: line-through;
-  color: var(--text-sub);
-}
-
 .issues-status { font-size: 0.73rem; color: var(--text-sub); margin-top: 8px; text-align: right; }
 
 .btn-new { background: var(--green); color: #fff; }

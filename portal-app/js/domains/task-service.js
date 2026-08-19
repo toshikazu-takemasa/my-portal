@@ -7,38 +7,19 @@ window.TaskService = {
   /**
    * 「今日のリマインド」を取得する（ADR-033 決定事項1）
    *
-   * デイリーチェックリストの未完了項目と vault/task/memo.md の未チェック行のみを返す。
+   * vault/task/memo.md の未チェック行のみを返す。
+   * デイリーチェックリストは 2026-08-19 に機能ごと削除した。
    * tasks.json の P1〜P3 バックログは意図的に含めない（そちらは getActiveTasks が担当）。
    * 「今日のタスクは？」に積み残しバックログが混入するのを防ぐのが目的。
    */
   async getTodayReminders() {
-    const [checklist, memo] = [this.getUncheckedDailyTasks(), await this.getUncheckedMemoLines()];
+    const memo = await this.getUncheckedMemoLines();
     return {
-      checklist,
       memo,
-      note: checklist.length === 0 && memo.length === 0
-        ? '今日のチェックリスト・メモの積み残しはありません'
+      note: memo.length === 0
+        ? '今日のメモの積み残しはありません'
         : undefined
     };
-  },
-
-  /**
-   * デイリーチェックリストの未完了項目（当日の localStorage チェック状態を参照）
-   */
-  getUncheckedDailyTasks() {
-    let tasks = [];
-    if (typeof dailyTasks !== 'undefined' && Array.isArray(dailyTasks) && dailyTasks.length > 0) {
-      tasks = dailyTasks;                                   // daily-checklist.js がロード済みの値
-    } else if (window.PORTAL_CONFIG_INLINE && window.PORTAL_CONFIG_INLINE.dailyTasks) {
-      tasks = window.PORTAL_CONFIG_INLINE.dailyTasks;
-    } else if (typeof ConfigService !== 'undefined' && ConfigService.data && ConfigService.data.dailyTasks) {
-      tasks = ConfigService.data.dailyTasks;
-    }
-
-    // work-vault 形式 (label) と my-portal 形式 (title) の両方に対応
-    return tasks
-      .map(t => ((t.label || t.title) || '').trim())
-      .filter(title => title && localStorage.getItem(`daily-task-${title}`) !== 'true');
   },
 
   /**

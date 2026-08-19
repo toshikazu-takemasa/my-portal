@@ -206,7 +206,7 @@ function showVnPage(idx) {
 
   // ページに紐づく表情・背景を先に反映してから喋らせる（ADR-035）
   if (typeof AvatarScene !== 'undefined') {
-    if (page.background) AvatarScene.setBackground(page.background, { persist: false });
+    if (page.background) AvatarScene.setBackground(page.background);
     if (page.expression) AvatarScene.setExpression(page.expression);
   }
 

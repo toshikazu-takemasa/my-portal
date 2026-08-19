@@ -1001,7 +1001,6 @@ body.theme-companion::before { content: none !important; }
   .theme-companion.kb-open:not([data-tab="talk"]) #main-panel-archive,
   .theme-companion.kb-open:not([data-tab="talk"]) #main-panel-settings,
   .theme-companion.kb-open:not([data-tab="talk"]) #main-panel-links,
-  .theme-companion.kb-open:not([data-tab="talk"]) #daily-checklist-card,
   .theme-companion.kb-open:not([data-tab="talk"]) #memo-tab-card {
     bottom: calc(12px + var(--inset-b) + var(--kb, 0px));
   }
@@ -1042,8 +1041,7 @@ body.theme-companion::before { content: none !important; }
 
   .theme-companion .diary-segments .tab { color: #9a8b81; }
 
-  /* 今日 / メモ — 舞台の上に直接置く */
-  .theme-companion #daily-checklist-card,
+  /* メモ — 舞台の上に直接置く */
   .theme-companion #memo-tab-card {
     position: fixed;
     top: calc(var(--inset-t) + var(--top-gutter) + 66px);
@@ -1059,10 +1057,8 @@ body.theme-companion::before { content: none !important; }
     animation: riseIn .45s cubic-bezier(.2, .8, .2, 1) both;
   }
 
-  .theme-companion #daily-checklist-card > div:first-child,
   .theme-companion #memo-tab-card > div:first-child { padding: 0 8px 2px; }
 
-  .theme-companion #daily-checklist-card h2,
   .theme-companion #memo-tab-card h2 {
     font-size: 16px;
     font-weight: 600;
@@ -1070,119 +1066,26 @@ body.theme-companion::before { content: none !important; }
     margin: 0;
   }
 
-  .theme-companion #daily-checklist-card .hairline,
-  .theme-companion #memo-tab-card .hairline { background: rgba(255, 255, 255, .18); }
-
-  .theme-companion #checklist-count { color: rgba(255, 255, 255, .6) !important; }
   .theme-companion #memo-tab-status { color: rgba(255, 255, 255, .6) !important; }
 
-  /* シート上の副ボタンはガラス調に */
-  .theme-companion #daily-checklist-card .btn-quiet,
+  /* シート上の副ボタンはガラス調に。
+     白ガラス（白文字＋半透明白）は明るい背景で文字が同化して読めなくなったため、
+     暗色ガラスに変更（明暗どちらの立ち絵背景でも白文字の可読性が保てる / 2026-08-19） */
   .theme-companion #memo-tab-card .btn-quiet {
-    border-color: rgba(255, 255, 255, .2) !important;
-    background: rgba(255, 255, 255, .08) !important;
-    color: rgba(255, 255, 255, .8) !important;
+    border-color: rgba(255, 255, 255, .35) !important;
+    background: rgba(52, 44, 38, .45) !important;
+    color: #fff !important;
     box-shadow: none !important;
     backdrop-filter: blur(10px);
   }
 
   .theme-companion #main-tabs { display: none; }
-  .theme-companion .side-tabs { display: none !important; }
   .theme-companion .side-panel-head { display: none; }
   .theme-companion .mobile-side-overlay { display: none !important; }
   .theme-companion .analytics-band { display: none !important; }
 }
 
-/* ===========================================================================
-   10. 今日（Today）— ダークガラスのチェック項目
-   =========================================================================== */
-
-.theme-companion .daily-checklist {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.theme-companion .check-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 16px 18px;
-  border: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  border-radius: 18px;
-  background: #fff;
-  cursor: pointer;
-  transition: background .25s ease, border-color .25s ease;
-}
-
-.theme-companion .check-item input[type="checkbox"] { display: none; }
-
-.theme-companion .check-dot {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  border: 1.5px solid var(--border-strong);
-  background: transparent;
-  transition: all .25s ease;
-}
-
-.theme-companion .check-item.done .check-dot {
-  border-color: var(--accent-check);
-  background: var(--accent-check);
-}
-
-.theme-companion .check-label {
-  flex: 1;
-  min-width: 0;
-  font-size: 14.5px;
-  font-weight: 500;
-  line-height: 1.5;
-  transition: color .25s ease;
-}
-
-.theme-companion .check-item.done .check-label {
-  text-decoration: line-through;
-  color: var(--text-fainter);
-}
-
-.theme-companion .check-slot {
-  flex-shrink: 0;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  color: var(--text-fainter);
-}
-
-/* 見出し行の余白を埋める罫線 */
-.theme-companion .hairline {
-  flex: 1;
-  height: 1px;
-  background: var(--hairline);
-}
-
-/* 一言カード（.today-nudge）は廃止。声をかける役は対話画面が担う。 */
-
-@media (max-width: 768px) {
-  .theme-companion .check-item {
-    border: 1px solid rgba(255, 255, 255, .18);
-    background: rgba(24, 16, 28, .5);
-    backdrop-filter: blur(12px);
-  }
-
-  .theme-companion .check-item.done {
-    border-color: rgba(255, 255, 255, .1);
-    background: rgba(255, 255, 255, .05);
-  }
-
-  .theme-companion .check-dot { border-color: rgba(255, 255, 255, .35); }
-  .theme-companion .check-label { color: #f4edf2; }
-  .theme-companion .check-item.done .check-label { color: rgba(255, 255, 255, .4); }
-  .theme-companion .check-slot { color: rgba(255, 255, 255, .4); }
-  .theme-companion .check-label a { color: inherit; }
-}
+/* セクション10「今日（Today）」のチェック項目スタイルは 2026-08-19 の機能削除に伴い撤去 */
 
 /* ===========================================================================
    11. メモ（Memo）— 紙のカード
@@ -1237,16 +1140,24 @@ body.theme-companion::before { content: none !important; }
     color: rgba(255, 255, 255, .8);
   }
 
-  .theme-companion .memo-add-row .quick-memo-btn,
-  .theme-companion .memo-card-actions .quick-memo-btn {
-    border-color: rgba(255, 255, 255, .22) !important;
-    background: rgba(255, 255, 255, .1) !important;
-    color: rgba(255, 255, 255, .88) !important;
+  /* 立ち絵の上に直接載る「追加」ボタンは暗色ガラス（白ガラスは明るい背景で同化した / 2026-08-19） */
+  .theme-companion .memo-add-row .quick-memo-btn {
+    border-color: rgba(255, 255, 255, .35) !important;
+    background: rgba(52, 44, 38, .45) !important;
+    color: #fff !important;
     box-shadow: none !important;
     backdrop-filter: blur(10px);
+    white-space: nowrap;
   }
 
-  .theme-companion .memo-add-row .quick-memo-btn { white-space: nowrap; }
+  /* ほぼ白のメモカードの上に載る操作ボタンは、白文字だと常に同化する。
+     デスクトップと同じ「白地＋濃色文字」に戻す（2026-08-19） */
+  .theme-companion .memo-card-actions .quick-memo-btn {
+    border-color: var(--border-strong) !important;
+    background: #fff !important;
+    color: #6b5e55 !important;
+    box-shadow: 0 1px 3px rgba(140, 122, 111, .08) !important;
+  }
 }
 
 /* quick-memo-btn は副ボタン相当に落とす（旧テーマではコーラル一色だった） */
@@ -1504,28 +1415,7 @@ body.theme-companion::before { content: none !important; }
     box-shadow: var(--shadow-seg);
   }
 
-  .theme-companion .side-tabs {
-    gap: 6px;
-    padding: 4px;
-    border-radius: 14px;
-    background: var(--section-bg);
-    margin-bottom: 12px;
-  }
-
-  .theme-companion .side-tab {
-    border-radius: 11px;
-    color: var(--text-faint);
-    font-size: 12.5px;
-    font-weight: 700;
-  }
-
-  .theme-companion .side-tab.active {
-    background: #fff;
-    color: var(--text);
-    box-shadow: var(--shadow-seg);
-  }
-
-  /* 左: 今日の四つ ＋ メモ / 中央: 舞台と日記 */
+  /* 左: メモ / 中央: 舞台と日記 */
   .theme-companion .layout {
     grid-template-columns: 300px minmax(0, 1fr);
     gap: 20px;
@@ -1535,26 +1425,6 @@ body.theme-companion::before { content: none !important; }
   .theme-companion #col-main  { order: 2; }
 
   .theme-companion .analytics-band { display: none; }
-
-  /* 進捗バー（今日の四つのカード内） */
-  .theme-companion .progress-bar {
-    height: 6px;
-    border-radius: 999px;
-    background: #f4ebe3;
-    overflow: hidden;
-    margin-bottom: 16px;
-  }
-
-  .theme-companion .progress-bar-fill {
-    height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #f2cfc9 0%, #d6988f 100%);
-    transition: width .6s cubic-bezier(.4, 0, .2, 1);
-  }
-}
-
-@media (max-width: 768px) {
-  .theme-companion .progress-bar { display: none; }
 }
 
 /* ===========================================================================
@@ -1570,7 +1440,6 @@ body.theme-companion::before { content: none !important; }
   .theme-companion #main-panel-report,
   .theme-companion #main-panel-archive,
   .theme-companion #main-panel-settings,
-  .theme-companion #daily-checklist-card,
   .theme-companion #memo-tab-card {
     animation: none !important;
   }

@@ -83,14 +83,8 @@ function getJstNowContext() {
 }
 window.getJstNowContext = getJstNowContext;
 
-// --- localStorage キー（JST日付ベース） ---
-let todayISO = getJstTodayISO();
-let todayKey = 'checklist_' + todayISO;
-
-window.todayISO = todayISO;
-window.todayKey = todayKey;
-
-// 古いキーを削除
+// --- 削除済み機能（2026-08-19: チェックリスト・背景の永続化）が残した localStorage キーの掃除 ---
 Object.keys(localStorage)
-  .filter(k => k.startsWith('checklist_') && k !== todayKey)
+  .filter(k => k.startsWith('checklist_') || k.startsWith('daily-task-')
+            || k === 'daily-checklist-date' || k === 'avatar_background')
   .forEach(k => localStorage.removeItem(k));

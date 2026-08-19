@@ -25,8 +25,8 @@
 // このファイルが config.js より先に読まれる構成でも壊れないよう既定値を持たせる。
 const PERSONA_BASE       = (typeof PERSONA_DIR !== 'undefined' ? PERSONA_DIR : 'assets/persona/');
 const SCENE_MANIFEST_URL = `${PERSONA_BASE}scene.json`;
-const BG_CONFIG_KEY      = 'avatarBackground';   // vault/config.json 側のキー
-const BG_LOCAL_KEY       = 'avatar_background';  // PAT 未設定時のローカル保存
+// 背景の永続化（BG_CONFIG_KEY / BG_LOCAL_KEY）は 2026-08-19 に設定UIと共に削除。
+// 起動時はペルソナの defaultBackground から始まり、対話中の [背景:] タグでのみ変わる。
 
 // 舞台の既定値（scene.json に bg / glow / filter / breath が無い表情のフォールバック）
 const DEFAULT_SCENE = {
@@ -196,7 +196,7 @@ window.AvatarScene = {
   apply(opts = {}) {
     if (!this._loaded) return;
     if (!document.querySelector('.vn-stage')) return;
-    this.setBackground(this.currentBackground || this.savedBackground() || this._m().defaultBackground, { persist: false });
+    this.setBackground(this.currentBackground || this._m().defaultBackground);
     this.setExpression(this.currentExpression || this._m().defaultExpression, { immediate: !opts.fade });
   },
 
@@ -303,9 +303,8 @@ window.AvatarScene = {
   /**
    * 背景を切り替える。
    * @param {string} backgroundId  'mood' なら表情に追従、'auto' なら時刻から自動決定
-   * @param {{persist?: boolean}} opts persist:true で vault/config.json に保存
    */
-  setBackground(backgroundId, opts = {}) {
+  setBackground(backgroundId) {
     // 表情と同じ理由でマニフェスト確定前は描かない（暫定マニフェストの背景が一瞬出る）
     if (!this._loaded) {
       if (backgroundId) this.currentBackground = backgroundId;
@@ -337,8 +336,6 @@ window.AvatarScene = {
 
     const stage = document.querySelector('.vn-stage');
     if (stage) stage.dataset.bg = def ? def.id : '';
-
-    if (opts.persist) this._persistBackground(requested);
   },
 
   /** 'auto' を JST の時刻から具体的な背景 id に解決する */
@@ -356,21 +353,6 @@ window.AvatarScene = {
     return 'night';
   },
 
-  /** 保存済みの背景設定を読む（vault/config.json ＞ localStorage） */
-  savedBackground() {
-    if (typeof ConfigService !== 'undefined' && ConfigService.data && ConfigService.data[BG_CONFIG_KEY]) {
-      return ConfigService.data[BG_CONFIG_KEY];
-    }
-    return localStorage.getItem(BG_LOCAL_KEY) || null;
-  },
-
-  _persistBackground(id) {
-    localStorage.setItem(BG_LOCAL_KEY, id);
-    if (typeof ConfigService !== 'undefined' && typeof ConfigService.updateConfig === 'function') {
-      ConfigService.updateConfig({ [BG_CONFIG_KEY]: id }, '🎨 アバター背景を変更')
-        .catch(e => console.warn('背景設定の保存に失敗しました:', e));
-    }
-  },
 
   // ---------- AI 応答のタグ解析 ----------
 
@@ -463,10 +445,4 @@ window.AvatarScene = {
 };
 
 // card.json が読めた後にフォールバック画像を確定させたいので、マニフェストは app.js から load() する。
-// 設定同期後に背景の保存値が入る場合があるため、config ロード完了でも再適用する。
-window.addEventListener('portal-config-loaded', () => {
-  if (window.AvatarScene && window.AvatarScene.manifest) {
-    const saved = window.AvatarScene.savedBackground();
-    if (saved) window.AvatarScene.setBackground(saved, { persist: false });
-  }
-});
+// 背景の保存値の再適用（portal-config-loaded リスナー）は永続化の削除に伴い撤去した（2026-08-19）。

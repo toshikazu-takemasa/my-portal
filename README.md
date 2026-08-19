@@ -1,6 +1,6 @@
 # My Portal
 
-個人用ポータルサイトです。日記（日報）の表示・編集、チェックリスト、メモ、AI チャット（Gemini）などの機能を提供します。タスクは `vault/task/tasks.json` でファイル管理し、AI チャットのツール経由で操作します。
+個人用ポータルサイトです。日記（日報）の表示・編集、メモ、AI チャット（Gemini）などの機能を提供します。タスクは `vault/task/tasks.json` でファイル管理し、AI チャットのツール経由で操作します。
 
 ## リポジトリ構成
 
@@ -17,7 +17,7 @@
 my-portal/                     ← このリポジトリ（public）
 ├── portal-app/                ← 静的Webアプリ本体
 │   ├── index.html / css / js / partials / manifest.json
-│   ├── data/portal-config.json  ← 参照先リポジトリ・ブランチ・デイリータスク
+│   ├── data/portal-config.json  ← 参照先リポジトリ・ブランチ
 │   └── assets/persona/          ← AI ペルソナ一式（仕様は docs/persona-pack-spec.md）
 ├── docs/architecture/         ← 設計ドキュメント（テーマ別ハンドブック）。入口は README.md、決定の時系列は decisions.md
 ├── tools/                     ← 画像下処理スクリプト（アプリからは呼ばない）
@@ -62,7 +62,6 @@ my-portal-vault/               ← データリポジトリ（private・Contents
 ## 機能
 
 - 📄 **日報** — 当日の日記ファイル（`vault/diary/YYYY-MM-DD.md`）を表示・編集。「↻ 日記を再生成」で GitHub Actions（daily-report.yml）からテンプレート付きで生成
-- ✅ **デイリーチェックリスト** — `portal-app/data/portal-config.json` の `dailyTasks` を毎日のチェックリストとして表示し、日記に反映
 - 📝 **メモ** — `vault/task/memo.md` を主題ごとのカード（`## 見出し` 単位）で管理。「MD」ボタンで全文編集にも切替可
 - 📌 **タスク** — `vault/task/tasks.json` をAIチャットのツール（get_tasks / add_task / update_task）経由で管理
 - 🔗 **クイックリンク** — よく使うサービスへのショートカット（並び替え・追加対応、`vault/config.json` に保存）

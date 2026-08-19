@@ -4,15 +4,16 @@
  * ─ html-loader.js の loadAllPartials() 完了後に初期化を実行する。
  *
  * IA（Ambient Companion 改修）:
- *   スマホは 5タブ（talk / diary / today / memo / settings）。ヘッダーは持たない。
+ *   スマホは 4タブ（talk / diary / memo / settings）。ヘッダーは持たない。
  *   舞台（.vn-stage）はどのタブでも「地」として残るため、AI パネルは隠さない。
  *   日記タブは 今日 / 過去（アーカイブ）の2セグメントを内包する。
+ *   デイリーチェックリスト「今日の四つ」（today タブ）は 2026-08-19 に機能ごと削除した。
  */
 
 const MOBILE_BREAKPOINT = 768;
 
-/** ナビシートに並ぶ5項目。 */
-const MOBILE_TABS = ['talk', 'diary', 'today', 'memo', 'settings'];
+/** ナビシートに並ぶ4項目。 */
+const MOBILE_TABS = ['talk', 'diary', 'memo', 'settings'];
 
 let mobileTab   = 'talk';
 let diarySegment = 'today';   // today | past
@@ -52,11 +53,9 @@ function applyMobileLayout() {
   setHidden(byId('col-main'),        false);
   setHidden(byId('main-panel-ai'),  false);
 
-  // 今日 / メモ
-  setHidden(byId('col-right'),            !(section === 'today' || section === 'memo'));
-  setHidden(byId('daily-checklist-card'), section !== 'today');
-  setHidden(byId('memo-tab-card'),        section !== 'memo');
-  setHidden(byId('side-tabs'),            true);
+  // メモ
+  setHidden(byId('col-right'),     section !== 'memo');
+  setHidden(byId('memo-tab-card'), section !== 'memo');
 
   // 日記（今日 / 過去）
   setHidden(byId('diary-segments'),       !isDiary);
@@ -90,17 +89,6 @@ function switchBottomNav(section) {
   applyMobileLayout();
 }
 
-// ========== サイドタブ切り替え（デスクトップの 今日 / メモ） ==========
-function switchSideTab(tab) {
-  setHidden(byId('daily-checklist-card'), tab !== 'checklist');
-  setHidden(byId('memo-tab-card'),        tab !== 'memo');
-
-  byId('stab-checklist')?.classList.toggle('active', tab === 'checklist');
-  byId('stab-memo')?.classList.toggle('active',      tab === 'memo');
-
-  if (tab === 'memo' && typeof loadMemoTab === 'function') loadMemoTab();
-}
-
 // ========== 設定を開く（PC / スマホ共通の入口） ==========
 function openSettings() {
   if (window.innerWidth <= MOBILE_BREAKPOINT) switchBottomNav('settings');
@@ -111,7 +99,7 @@ function openSettings() {
 function toggleMobileSideMenu() {
   const colRight = byId('col-right');
   if (!colRight || window.innerWidth > MOBILE_BREAKPOINT) return;
-  switchBottomNav('today');
+  switchBottomNav('memo');
 }
 
 function closeMobileSideMenu() {
@@ -148,9 +136,9 @@ function syncResponsiveLayout() {
   setNavOpen(false);
   setHidden(byId('col-main'),    false);
   setHidden(byId('col-right'),   false);
-  setHidden(byId('side-tabs'),   false);
+  setHidden(byId('memo-tab-card'), false);
   setHidden(byId('diary-segments'), true);
-  switchSideTab('checklist');
+  if (typeof loadMemoTab === 'function') loadMemoTab();
 
   const activeDesktopTab = document.querySelector('.main-tab.active')?.id?.replace('mtab-', '') || 'ai';
   if (typeof switchMainTab === 'function') switchMainTab(activeDesktopTab);
@@ -202,7 +190,6 @@ function initKeyboardInsets() {
 }
 
 window.switchBottomNav     = switchBottomNav;
-window.switchSideTab       = switchSideTab;
 window.switchDiarySegment  = switchDiarySegment;
 window.toggleNavSheet      = toggleNavSheet;
 window.setNavOpen          = setNavOpen;
@@ -276,8 +263,6 @@ loadAllPartials().then(async () => {
 
   window.dispatchEvent(new Event('persona-loaded'));
 
-  // チェックリストの描画とリスナー登録の順序に依存しないよう、初期化時に一度計算する
-  if (typeof updateAnalyticsProgressChart === 'function') updateAnalyticsProgressChart();
   // 日記の見出しは PAT の有無に関わらず出す（本文だけが未設定メッセージになる）
   if (typeof renderReportHeading === 'function') renderReportHeading();
 

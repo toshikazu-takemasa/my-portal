@@ -130,20 +130,6 @@ header h1 {
   margin-bottom: 8px;
 }
 
-.analytics-progress-track {
-  height: 22px;
- 
-  background: repeating-linear-gradient(-45deg, #f2f2f2 0 8px, #fff 8px 16px);
-  margin-bottom: 8px;
-}
-
-.analytics-progress-fill {
-  width: 73%;
-  height: 100%;
-  background: linear-gradient(90deg, #111 0 25%, #c6002b 25% 100%);
-  clip-path: polygon(0 0, 96% 0, 100% 50%, 96% 100%, 0 100%);
-}
-
 .analytics-footnote {
   display: inline-block;
   font-size: 0.7rem;
@@ -214,32 +200,6 @@ header h1 {
   margin-top: 0;
   gap: 18px;
   z-index: 1;
-}
-
-.side-tabs {
-  display: flex;
-  gap: 4px;
-  background: var(--section-bg);
-  padding: 4px;
- 
-  margin-bottom: 8px;
-}
-
-.side-tab {
-  flex: 1;
-  padding: 8px 10px;
-  border: none;
-  background: transparent;
-  color: var(--text-sub);
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.side-tab.active {
-  background: #111;
-  color: #fff;
 }
 
 /* ========== Right column ========== */
@@ -526,12 +486,6 @@ header h1 {
     border-radius: 0;
     clip-path: polygon(0 0, 100% 0, 100% 100%, 3% 100%, 0 92%);
     box-shadow: 6px 6px 0 rgba(198, 0, 43, 0.95) !important;
-  }
-
-  /* タップ領域を 44px 以上に */
-  .check-item {
-    min-height: 44px;
-    padding: 11px 0;
   }
 
   .settings-btn {

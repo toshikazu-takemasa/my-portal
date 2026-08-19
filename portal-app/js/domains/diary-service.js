@@ -45,38 +45,12 @@ window.DiaryService = {
 
   /**
    * 日記のテンプレートを生成する
+   * （デイリーチェックリストのブロックは 2026-08-19 の機能削除に伴い廃止）
    */
   async generateTemplate(dateISO) {
-    const checkedLines = await this.collectCheckedLines();
     const memo = this.collectMemo(dateISO);
-
-    const checklistBlock = checkedLines.length > 0 ? `${checkedLines.join('  \n')}\n\n` : '';
     const memoBlock = memo ? `## 📝 メモ\n${memo}\n\n` : '';
-
-    return `# ${dateISO}\n\n${checklistBlock}${memoBlock}`;
-  },
-
-  /**
-   * デイリーチェックリストを収集する
-   */
-  async collectDailyChecklist() {
-    const lines = [];
-    // 行の構造は daily-checklist.js が組む: input.daily-task-check + .check-dot + .check-label
-    const checkboxes = document.querySelectorAll('#daily-checklist-list-right .daily-task-check');
-    checkboxes.forEach(cb => {
-      if (!cb.checked) return;
-      const label = cb.closest('.check-item')?.querySelector('.check-label');
-      const title = label ? label.textContent.trim() : '';
-      if (title) lines.push(`- [x] ${title}`);
-    });
-    return lines;
-  },
-
-  /**
-   * 完了した項目（チェックリスト）を収集する
-   */
-  async collectCheckedLines() {
-    return await this.collectDailyChecklist();
+    return `# ${dateISO}\n\n${memoBlock}`;
   },
 
   /**

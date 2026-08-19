@@ -61,7 +61,7 @@ window.ToolDefinitions = [
       },
       {
         name: "get_today_reminders",
-        description: "「今日のタスク」「今日やること」を聞かれたときに使用します。デイリーチェックリストの未完了項目と、当日メモ（memo.md）の未チェック行だけを返します。長期バックログは含まれません。",
+        description: "「今日のタスク」「今日やること」を聞かれたときに使用します。当日メモ（memo.md）の未チェック行だけを返します。長期バックログは含まれません。",
         parameters: { type: "OBJECT", properties: {} }
       },
       {

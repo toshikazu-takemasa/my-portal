@@ -14,24 +14,20 @@
 - プレビュー上のチェックボックスはクリックでトグルでき、未保存の変更として扱う。
 - 「更新」ボタンで当日ファイルを手動再取得する（`fetchDailyReport()`）。取得は `cache: 'no-store'`——GitHub API は `max-age=60` を返すため、既定キャッシュのままだと書き込み直後の再取得が最大60秒古い内容を返していた（2026-08-19 修正）。
 - AI チャットのツール（append_to_file / save_file）が今日の日記へ書き込むと `vault-file-written` イベント経由で自動再読込する（2026-08-19）。未保存のローカル編集（diary-draft）があるときは上書きせず、更新がある旨をメタ表示で知らせるだけに留める。それ以外のリモート変更（他端末での編集等）の自動検知はない。
-- 「再生成」ボタンはブラウザ側の `DiaryService.generateTemplate()` で当日テンプレート（チェック済み項目＋当日メモ）を生成して上書きする。これとは別に、vault リポジトリ側に手動起動の GitHub Actions（daily-report.yml）があり、テンプレート.md から当日ファイルを生成・再生成できる。生成経路は2本ある。
-- 保存ボタンでの保存成功時にデイリーチェックリストをリセットする。AI振り返り・感情ログの保存は `DiaryService.saveDiary()` 直呼びで、この副作用を避けている。
+- 「再生成」ボタンはブラウザ側の `DiaryService.generateTemplate()` で当日テンプレート（当日メモ）を生成して上書きする。これとは別に、vault リポジトリ側に手動起動の GitHub Actions（daily-report.yml）があり、テンプレート.md から当日ファイルを生成・再生成できる。生成経路は2本ある。
 
 ### セクション upsert と重複防止
-- `upsertSectionInContent(content, title, body)`（report.js）: `## タイトル` から次の `## ` の前（または末尾）までを丸ごと置換し、無ければ末尾に追記する。チェックリスト反映・AI振り返りが使う。
+- `upsertSectionInContent(content, title, body)`（report.js）: `## タイトル` から次の `## ` の前（または末尾）までを丸ごと置換し、無ければ末尾に追記する。AI振り返りが使う。
 - `appendLineToSectionInContent()`: セクション末尾に1行足す蓄積用。感情ログが使う。
 - `String.replace` は関数形式で渡し、本文中の `$&` 等が置換パターンとして解釈される事故を防いでいる。
 
-### デイリーチェックリスト
-- 定義は `portal-app/data/portal-config.json` の `dailyTasks` が100%正。ブラッシング（dt5）もここの1項目。
-- 完了状態は localStorage の `daily-task-<タイトル>` キー。日付が変わると全キーを削除して未完了に戻す（daily-checklist.js）。
-- 行全体が `<label>` のタップ領域（44px以上）。チェックボックスはCSSで隠し丸ドットで表す。項目の `url` / `links[]` は `<a>` として描画され、リンククリックはトグルを奪わない。
-- 「日記に反映」はチェック済み項目を `## 本日のチェックリスト` セクションへ upsert する。0件になったらセクションごと削除。反映はドラフト化までで、コミットは手動保存。
+### デイリーチェックリスト（2026-08-19 削除済み）
+- 「今日の四つ」チェックリスト（`dailyTasks`・今日タブ・進捗バー・日記に反映）は 2026-08-19 に機能ごと削除した。関連の localStorage キー（`checklist_*` / `daily-task-*` / `daily-checklist-date`）は起動時に掃除される（config.js）。
 
 ### タスク
 - `vault/task/tasks.json` が主ストレージ。キーは id / title / status（todo・doing・done・archived）/ priority（P1〜P3）/ labels / createdAt / updatedAt（＋任意で closedAt・dueDate・description）、ルートに lastSync。
 - AIチャットのツール `get_tasks`（長期バックログ取得）/ `add_task` / `update_task` で操作する。
-- 「今日のタスクは？」には `get_today_reminders` を使う。返すのはデイリーチェックリストの未完了項目と memo.md の未チェック行（`- [ ]`）のみで、tasks.json の P1〜P3 バックログは意図的に含めない。AIティッカーの文脈も同じツールに統一している。
+- 「今日のタスクは？」には `get_today_reminders` を使う。返すのは memo.md の未チェック行（`- [ ]`）のみで、tasks.json の P1〜P3 バックログは意図的に含めない（チェックリスト分は 2026-08-19 の機能削除で消えた）。
 
 ### メモ
 - `vault/task/memo.md`。行頭 `## ` 単位でセクション分割し、1セクション＝1カードのアコーディオンUI（memo-tab.js）。最初の `## ` より前は「冒頭メモ」カード（改名・削除不可）。どのカードの保存からでも全カードをまとめて1コミットする。
@@ -51,6 +47,7 @@
 
 ## 変遷
 
+- 2026-08-19: デイリーチェックリスト「今日の四つ」を機能ごと削除（今日タブ・進捗バー・日記に反映・dailyTasks・analytics.js・daily-checklist.js）。スマホは4タブ（対話/日記/メモ/設定）になり、右カラムはメモ専用に。日記テンプレートからチェック済み項目ブロックを廃止
 - 2026-08-19: 「日記に書いて」の結果が日記画面にすぐ映らない問題を修正。原因は2つ——(1) GitHub API 取得がブラウザ既定キャッシュ（max-age=60）で最大60秒古い内容を返す → `getFile`/`listFiles` を `cache: 'no-store'` に、(2) AI ツールの書き込みを画面が知らない → `vault-file-written` イベントで当日日記を自動再読込（未保存編集があれば通知のみ）。未使用の `getCurrentDailyReportSha` を削除
 - 2026-08-08: ブラッシングを dailyTasks（dt5）として追加。専用の習慣トラッカーは要望がなく作らなかった（決定は2026-05-01、実装は2026-08-08）。(旧ADR-025)
 - 2026-08-03: 過去の記録パネルに新規作成の口を追加。作成先セレクタ・`prompt()` 入力・当日日記の二重作成経路は採らなかった。(旧ADR-039)

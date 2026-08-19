@@ -147,7 +147,7 @@ function buildSectionRegex (title) {
 
 /**
  * セクションの中身を丸ごと置き換える（無ければ末尾に追加）。
- * appendListToReport と同じ重複防止パターン。
+ * セクション見出しの重複を防ぐため、置換してから無ければ追記する。
  * replace は関数形式で渡す（本文の $& 等が置換パターンとして解釈されるのを防ぐ）。
  */
 function upsertSectionInContent (content, title, body) {
@@ -419,92 +419,12 @@ async function pushReportToGitHub (message) {
     if (saveEl) { saveEl.style.color = '#1a7f37'; saveEl.textContent = '✅ 保存しました'; }
     const now = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
     metaEl.textContent = `保存完了 ${now}（git pull で同期）`;
-
-    // 保存成功時にチェックボックスをリセット
-    resetAllCheckboxes();
   } catch (e) {
     if (saveEl) { saveEl.style.color = '#cf222e'; saveEl.textContent = `保存失敗: ${e.message}`; }
   }
 }
 
-function resetAllCheckboxes () {
-  if (typeof resetDailyChecklist === 'function') resetDailyChecklist();
-}
-
-// =====================
-// 今日の記録を日記に反映
-// =====================
-
-async function appendListToReport(title, items, successMessage) {
-  const statusEl = document.getElementById('save-status');
-
-  try {
-    // 日記データがまだ読み込まれていない場合のみ取得
-    if (!reportContent) {
-      if (statusEl) {
-        statusEl.style.color = '#888';
-        statusEl.textContent = '日記を取得中…';
-      }
-      const diary = await DiaryService.getTodayDiary();
-      reportContent = diary.content;
-      reportSha = diary.sha;
-      reportPath = diary.path;
-    }
-
-    // 特定のセクション（## タイトル から次の ## の前、または末尾まで）にマッチする正規表現
-    const sectionRegex = buildSectionRegex(title);
-
-    if (!items || items.length === 0) {
-      if (sectionRegex.test(reportContent)) {
-        // 項目が0件になった場合はセクションごと削除する
-        const removeRegex = new RegExp(`\\n*## ${title}\\n(?:[\\s\\S]*?)(?=\\n## |$)`);
-        reportContent = reportContent.replace(removeRegex, '');
-      } else {
-        alert('完了した項目がありません。');
-        if (statusEl && statusEl.textContent === '日記を取得中…') statusEl.textContent = '';
-        return;
-      }
-    } else {
-      reportContent = upsertSectionInContent(reportContent, title, items.join('  \n'));
-    }
-
-    // UIに反映
-    renderCurrentTab();
-
-    // 下書きとしてローカルに保存
-    localStorage.setItem('diary-draft', reportContent);
-
-    if (statusEl) {
-      statusEl.style.color = '#8e8e8e';
-      statusEl.textContent = '未保存の変更があります（保存ボタンを押してください）';
-    }
-    
-    const metaEl = document.getElementById('report-meta');
-    if (metaEl) {
-      metaEl.textContent = 'ローカル変更あり（未反映）';
-    }
-
-    // 日記タブに切り替えて変更を見せる
-    if (typeof switchMainTab === 'function') {
-      switchMainTab('report');
-    }
-
-  } catch (e) {
-    console.error('Failed to append to diary:', e);
-    if (statusEl) {
-      statusEl.style.color = '#cf222e';
-      statusEl.textContent = `エラー: ${e.message}`;
-    }
-    alert(`エラーが発生しました: ${e.message}`);
-  }
-}
-
-async function appendDailyChecklistToReport() {
-  const items = await DiaryService.collectDailyChecklist();
-  await appendListToReport('本日のチェックリスト', items, '✅ デイリーチェックリストを日記に反映しました。');
-}
-
-window.appendDailyChecklistToReport = appendDailyChecklistToReport;
+// デイリーチェックリスト「今日の四つ」と「日記に反映」（appendListToReport）は 2026-08-19 に機能ごと削除。
 
 async function regenReport () {
   const token = getToken();

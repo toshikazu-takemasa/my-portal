@@ -77,7 +77,6 @@ function getAiPrompt() {
 function initSettingsTab() {
   showModalTokenUI();
   showModalGeminiUI();
-  initAvatarSceneUI();
   renderReplyFeedbackTally();
 
   const statusEl = document.getElementById('modal-status');
@@ -110,59 +109,8 @@ function resetReplyFeedback() {
   renderReplyFeedbackTally();
 }
 
-// ---- アバターの表情・背景（ADR-035） ----
-function initAvatarSceneUI() {
-  if (typeof AvatarScene === 'undefined' || !AvatarScene.manifest) return;
-
-  const sel = document.getElementById('avatar-bg-select');
-  if (sel) {
-    sel.innerHTML = AvatarScene.backgrounds()
-      .map(b => `<option value="${b.id}">${escapeHtml(b.label || b.id)}</option>`)
-      .join('');
-    sel.value = AvatarScene.currentBackground || AvatarScene.savedBackground() || AvatarScene.manifest.defaultBackground || 'mood';
-  }
-
-  const btns = document.getElementById('avatar-expr-buttons');
-  if (btns) {
-    btns.innerHTML = AvatarScene.expressions()
-      .map(e => `<button class="btn-quiet" style="font-size:11.5px;padding:6px 12px;" onclick="previewAvatarExpression('${e.id}')">${escapeHtml(e.label || e.id)}</button>`)
-      .join('');
-  }
-
-  const note = document.getElementById('avatar-scene-note');
-  if (note) {
-    note.innerHTML = AvatarScene.hasDedicatedImages()
-      ? '表情差分の画像を読み込んでいます。AI は返答に <code>[表情:happy]</code> のようなタグを入れて表情を切り替えます。'
-      : `表情差分の画像がまだ配置されていません。<code>${PERSONA_DIR}expressions/</code> に
-         <code>${AvatarScene.expressions().map(e => e.id + '.png').join(' / ')}</code>
-         を置くと自動的に本物の表情差分に切り替わります。それまでは avatar.png ＋ CSS の疑似表情で代用します。`;
-  }
-}
-
-function changeAvatarBackground() {
-  const sel = document.getElementById('avatar-bg-select');
-  if (!sel || typeof AvatarScene === 'undefined') return;
-  AvatarScene.setBackground(sel.value, { persist: true });
-
-  const st = document.getElementById('avatar-scene-status');
-  if (st) {
-    st.style.color = '#1a7f37';
-    st.textContent = `✅ 背景を「${sel.options[sel.selectedIndex].textContent}」にしました`;
-    setTimeout(() => { st.textContent = ''; }, 2000);
-  }
-}
-
-function previewAvatarExpression(id) {
-  if (typeof AvatarScene === 'undefined') return;
-  AvatarScene.setExpression(id);
-
-  const st = document.getElementById('avatar-scene-status');
-  if (st) {
-    const def = AvatarScene.findExpression(id);
-    st.style.color = 'var(--text-sub)';
-    st.textContent = `表情: ${def ? (def.label || def.id) : id}（対話タブで舞台の変化を確認できます）`;
-  }
-}
+// 設定画面の「アバターの表情と舞台」UI（背景セレクタ・表情プレビュー）は 2026-08-19 に削除。
+// 表情・背景の切り替えは対話中の [表情:]/[背景:] タグ経由でのみ行う（avatar-scene.js）。
 
 /**
  * APIキーとして保存してよい文字列か検査する。
@@ -274,9 +222,6 @@ window.clearGeminiKey = clearGeminiKey;
 window.saveKintaiUrl = saveKintaiUrl;
 window.renderReplyFeedbackTally = renderReplyFeedbackTally;
 window.resetReplyFeedback = resetReplyFeedback;
-window.initAvatarSceneUI = initAvatarSceneUI;
-window.changeAvatarBackground = changeAvatarBackground;
-window.previewAvatarExpression = previewAvatarExpression;
 window.testGeminiKey = async function() {
   const key = document.getElementById('gemini-key-input')?.value || getGeminiKey();
   const statusEl = document.getElementById('gemini-test-status');
