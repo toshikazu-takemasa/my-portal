@@ -15,6 +15,17 @@ function toolFailure(message) {
   return { ok: false, error: String(message || '不明なエラー') };
 }
 
+/**
+ * AI がファイルへ書き込んだことを画面側へ知らせる。
+ * 日記パネル（report.js）はこれを受けて、表示中の今日の日記を再読込する。
+ * 「日記に書いて」と頼んでも開いている日記画面に反映されない問題への対処（2026-08-19）。
+ */
+function notifyVaultWrite(path) {
+  try {
+    window.dispatchEvent(new CustomEvent('vault-file-written', { detail: { path } }));
+  } catch (e) { /* 通知できなくても書き込み自体は成功している */ }
+}
+
 /** 日記のパスから 'YYYY-MM-DD' を取り出す（見出しの自動生成用） */
 function diaryDateOf(path) {
   const m = String(path || '').match(/vault\/diary\/(\d{4}-\d{2}-\d{2})\.md$/);
@@ -58,6 +69,7 @@ window.ToolDispatcher = {
           );
           if (!saved || !saved.commit) return toolFailure(`${args.path} への追記が確認できませんでした`);
 
+          notifyVaultWrite(args.path);
           return {
             ok: true, path: args.path, appended: text.length,
             created: !existing,
@@ -102,6 +114,7 @@ window.ToolDispatcher = {
                    + 'まず read_file で現在の中身を取得し、そこへ追記した全文を content に渡してください。'
             };
           }
+          notifyVaultWrite(args.path);
           return {
             ok: true, changed: true, path: args.path,
             bytes: (args.content || '').length,

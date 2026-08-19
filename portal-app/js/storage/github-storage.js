@@ -59,8 +59,11 @@ window.GitHubStorage = {
     const { token, repo } = this._requireAuth();
 
     const encPath = path.split('/').map(encodeURIComponent).join('/');
+    // GitHub API は Cache-Control: max-age=60 を返すため、既定の fetch だと
+    // 書き込み直後の再取得が最大60秒古い内容を返す（「更新を押しても反映されない」の原因）。
     const res = await fetch(`https://api.github.com/repos/${repo}/contents/${encPath}?ref=${getBranch()}`, {
-      headers: { 
+      cache: 'no-store',
+      headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github+json'
       }
@@ -223,7 +226,8 @@ window.GitHubStorage = {
 
     const encPath = directory.split('/').map(encodeURIComponent).join('/');
     const res = await fetch(`https://api.github.com/repos/${repo}/contents/${encPath}?ref=${getBranch()}`, {
-      headers: { 
+      cache: 'no-store',   // getFile と同じ理由（max-age=60 の古い一覧を掴まない）
+      headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github+json'
       }

@@ -18,28 +18,6 @@ function getDailyReportPath () {
   return reportPath || getDailyReportPaths()[0];
 }
 
-async function getCurrentDailyReportSha (token, repo) {
-  const path = getDailyReportPath();
-  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
-  const apiUrl = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
-
-  const res = await fetch(apiUrl, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github+json',
-    },
-  });
-
-  if (res.status === 404) return null;  // 新規作成
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(`sha 取得失敗 (${res.status}): ${err.message || ''}`);
-  }
-
-  const data = await res.json();
-  return data.sha || null;
-}
-
 /** 日記シートの日付ラベルと見出し（例「7月31日の記録」）を描画する。
     漢数字は日付をひと目で読み取れないため算用数字に統一した。 */
 function renderReportHeading () {
@@ -571,6 +549,23 @@ window.submitEmotionLog = submitEmotionLog;
 window.upsertSectionInContent = upsertSectionInContent;
 window.appendLineToSectionInContent = appendLineToSectionInContent;
 window.extractSectionBody = extractSectionBody;
+
+/**
+ * AI チャットのツールが今日の日記へ書き込んだら、開いている日記画面へ即反映する
+ * （tool-dispatcher.js の notifyVaultWrite が発火 / 2026-08-19）。
+ * 未保存のローカル編集（diary-draft）があるときは上書きせず、更新がある旨だけ知らせる。
+ */
+window.addEventListener('vault-file-written', e => {
+  const path = e.detail && e.detail.path;
+  if (path !== getDailyReportPaths()[0]) return;
+
+  if (localStorage.getItem('diary-draft') !== null) {
+    const metaEl = document.getElementById('report-meta');
+    if (metaEl) metaEl.textContent = 'AIが日記を更新しました（未保存の編集があるため「更新」で読込）';
+    return;
+  }
+  fetchDailyReport();
+});
 
 /** 振り返りカードのアイコンを使用中ペルソナの立ち絵に合わせる（ADR-040） */
 function applyReflectAvatar() {
