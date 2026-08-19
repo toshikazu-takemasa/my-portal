@@ -5,9 +5,11 @@
 
 /**
  * 使用モデル。settings.js の接続テストもこれを参照する（2箇所で食い違わせない）。
- * 2026-08-18: gemini-2.5-flash → gemini-3.7-flash（2026-08-13 リリースの最新 Flash）
+ * 2026-08-18: gemini-2.5-flash → gemini-3.7-flash（最新 Flash）
+ * 2026-08-19: → gemini-3.5-flash-lite。月額試算 約¥190 と最もコスパが良く、
+ *             予算上限（月¥1,000）に対して十分な余裕があるため。
  */
-const GEMINI_MODEL = 'gemini-3.7-flash';
+const GEMINI_MODEL = 'gemini-3.5-flash-lite';
 
 /**
  * Gemini API を呼び出す
