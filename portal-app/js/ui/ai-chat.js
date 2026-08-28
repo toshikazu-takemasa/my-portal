@@ -653,7 +653,7 @@ ${typeof PersonaState !== 'undefined' ? PersonaState.promptGuide() : ''}
 - ファイル名の YYYY-MM-DD には上記「現在日時」の値を使い、「今日の〜」のような日付が特定できない名前は付けないでください。`;
 
   if (includeReport || includeKnowledge) {
-    const latest = await AiService.getLatestContext();
+    const latest = await AiService.getLatestContext({ includeKnowledge });
     sys += `\n\n## 現在のコンテキスト\n${latest}`;
   }
   
