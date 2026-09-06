@@ -4,12 +4,38 @@
 const SESSIONS_KEY = 'chat_sessions';
 
 /**
- * 起動時の挨拶。口調は人格に属するので card.json の `greeting` から読む（ADR-040）。
- * 未指定のときだけコード側の既定文を使う。AI 生成はしない（ADR-037）。
+ * 時間帯（朝・昼・夜）を取得する。
+ * 朝: 5:00 - 10:59 / 昼: 11:00 - 17:59 / 夜: 18:00 - 4:59
  */
-const DEFAULT_WELCOME = 'おかえり。今日はどうする？';
+function getTimeOfDay(date = new Date()) {
+  const hour = date.getHours();
+  if (hour >= 5 && hour < 11) return 'morning';
+  if (hour >= 11 && hour < 18) return 'noon';
+  return 'night';
+}
+
+/**
+ * 起動時の挨拶。口調は人格に属するので card.json の `greeting` から読む（ADR-040）。
+ * 時間帯（朝・昼・夜）に応じた挨拶に対応。
+ */
+const DEFAULT_WELCOME = {
+  morning: 'おはよう！今日も無理せんとこな🍀 今日の体調や気分、コンディションはどう？',
+  noon: 'こんにちは！調子はどう？午後も無理せずいこうな🍀',
+  night: '今日もおつかれさま！ゆっくり休んでな🍀 何か話したいことある？'
+};
+
 function welcomeMsg() {
-  return (window.AI_PERSONA && window.AI_PERSONA.greeting) || DEFAULT_WELCOME;
+  const tod = getTimeOfDay();
+  const personaGreeting = window.AI_PERSONA && window.AI_PERSONA.greeting;
+  if (personaGreeting) {
+    if (typeof personaGreeting === 'object' && personaGreeting[tod]) {
+      return personaGreeting[tod];
+    }
+    if (typeof personaGreeting === 'string') {
+      return personaGreeting;
+    }
+  }
+  return DEFAULT_WELCOME[tod] || DEFAULT_WELCOME.morning;
 }
 
 /** 文字送りの間隔（ms）。デザイン指定値。 */
@@ -18,8 +44,17 @@ const TYPE_INTERVAL = 42;
 const BACKLOG_MAX = 3;
 /** 返信候補が取れなかったときの既定文言（何か答えてもらった直後を想定） */
 const DEFAULT_REPLIES = ['もう少し詳しく', 'ありがとう'];
-/** 起動時の挨拶に対する既定文言。挨拶に「もう少し詳しく」は噛み合わないため分けている。 */
-const WELCOME_REPLIES = ['今日もよろしく', '聞いてほしいことがある'];
+/** 起動時の挨拶に対する既定文言（時間帯別）。 */
+const WELCOME_REPLIES = {
+  morning: ['体調・気分はバッチリ！', 'ちょっと疲れ気味かも'],
+  noon: ['順調だよ', '少し休憩する'],
+  night: ['今日もおつかれさま', '聞いてほしいことがある']
+};
+
+function getWelcomeReplies() {
+  const tod = getTimeOfDay();
+  return WELCOME_REPLIES[tod] || WELCOME_REPLIES.morning;
+}
 
 let chatHistory   = [];
 let reflectResult = '';
@@ -464,7 +499,7 @@ function showAiReply(rawText) {
 
   const { text, replies } = extractReplyChips(rawText);
   // 候補タグが無いときの既定は、台詞の内容に噛み合うほうを選ぶ
-  const fallback = text.trim() === welcomeMsg() ? WELCOME_REPLIES : DEFAULT_REPLIES;
+  const fallback = text.trim() === welcomeMsg() ? getWelcomeReplies() : DEFAULT_REPLIES;
   vnReplies = replies.length ? replies : [...fallback];
   renderVnReplies();
 
@@ -597,6 +632,7 @@ ${getJstNowContext()}
 ## 応答スタイル（画面の制約。口調や人格は上の「人格・口調設定」に従う）
 - 台詞は1ページずつ表示されるため、**1回の返答は3文以内**に収めてください。前置き・言い換え・要約の繰り返しをしない。
 - 共感や励ましを添える場合も1文だけにしてください（言葉選びは人格設定に従う）。
+- 朝の挨拶時や、ユーザーからの体調・気分・コンディションの報告に対しては、無理をさせず温かく寄り添い、その日の過ごし方や労いの言葉をかけてください。
 - 同じ入り方・同じ締め方を続けて使わないでください。毎回同じ言葉で締めない。
 - 「〜のメリットは？」のように情報や選択肢を求められたら、**まず内容で答えて**ください。質問を質問で返さない。
 - 掘り下げの問いかけは連続2回までにしてください。2回で答えが出なければ、あなたから案を出して選んでもらう。
